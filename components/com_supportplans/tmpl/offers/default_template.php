@@ -63,9 +63,9 @@ $fallbackOrder = (count($selected) + 1) * 10;
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($t->footer_title ?? ''); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
    <label>Τίτλος ενότητας τιμών<input name="pricing_title" value="<?php echo $e($t->pricing_title ?? 'Αξία Έργου – Τρόπος Πληρωμής'); ?>"></label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo !$t || (int) $t->show_banks ? 'checked' : ''; ?>> Εμφάνιση τραπεζικών λογαριασμών</label>
-   <label class="sp-wide">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)<textarea name="payment_text" rows="6"><?php echo $e($t->payment_text ?? "Για την έναρξη των εργασιών απαιτείται προκαταβολή 40% επί του συνόλου, και η εξόφληση γίνεται με την παράδοση του έργου.\n\nΓια να κάνετε πληρωμές μπορείτε να χρησιμοποιήσετε κάποιον από τους ακόλουθους τραπεζικούς λογαριασμούς:"); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($t->payment_text ?? "Για την έναρξη των εργασιών απαιτείται προκαταβολή 40% επί του συνόλου, και η εξόφληση γίνεται με την παράδοση του έργου.\n\nΓια να κάνετε πληρωμές μπορείτε να χρησιμοποιήσετε κάποιον από τους ακόλουθους τραπεζικούς λογαριασμούς:"); ?></textarea></div>
    <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($t->terms_title ?? 'Όροι Προσφοράς / Παραπομπές'); ?>"></label>
-   <label class="sp-wide">Όροι προσφοράς / παραπομπές<textarea name="terms_body" rows="10"><?php echo $e($t->terms_body ?? 'Η ισχύς της παρούσας προσφοράς έχει διάρκεια 1 (ενός) μήνα από την ημερομηνία σύνταξής της.'); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Όροι προσφοράς / παραπομπές</span><textarea name="terms_body" rows="10" data-sp-editor><?php echo $e($t->terms_body ?? 'Η ισχύς της παρούσας προσφοράς έχει διάρκεια 1 (ενός) μήνα από την ημερομηνία σύνταξής της.'); ?></textarea></div>
   </div>
   <?php echo $this->loadTemplate('markup'); ?>
  </div>

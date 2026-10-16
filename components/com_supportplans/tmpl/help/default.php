@@ -140,9 +140,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ol>
   <div class="sp-help-note">Κάθε προσφορά κρατά δικό της αντίγραφο των κειμένων και των τιμών. Αλλαγές σε υπηρεσίες ή templates επηρεάζουν μόνο τις νέες προσφορές. Η υπογραφή/σφραγίδα στο τέλος του Pdf ορίζεται στις Ρυθμίσεις.</div>
   <h3>Μορφοποίηση κειμένων</h3>
+  <p>Κάθε κείμενο έχει εργαλειοθήκη: στυλ (κείμενο / υπότιτλος), έντονα, πλάγια, υπογράμμιση, λίστες με κουκκίδες ή αρίθμηση, παραπομπή (x¹ ή Ctrl+. — προτείνει τον επόμενο αριθμό), σύνδεσμο, μεταβλητές, καθαρισμό μορφοποίησης και αναίρεση. Το κουμπί &lt;/&gt; δείχνει τον κώδικα μορφοποίησης:</p>
   <ul>
    <li><code>- στοιχείο</code> λίστα με κουκκίδες, <code>1. στοιχείο</code> αριθμημένη λίστα (10+ στοιχεία σε δύο στήλες).</li>
-   <li><code>## Τίτλος</code> υπότιτλος, <code>**έντονα**</code>, <code>^1</code> εκθέτης παραπομπής, <code>[κείμενο](https://…)</code> σύνδεσμος.</li>
+   <li><code>## Τίτλος</code> υπότιτλος, <code>**έντονα**</code>, <code>*πλάγια*</code>, <code>__υπογράμμιση__</code>, <code>^1</code> εκθέτης παραπομπής, <code>[κείμενο](https://…)</code> σύνδεσμος.</li>
    <li>Μεταβλητές: <code>{customer}</code>, <code>{project}</code>, <code>{company}</code>, <code>{number}</code>, <code>{date}</code>.</li>
   </ul>
  </section>
@@ -151,6 +152,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.1.2</div><div><ul>
+<li>Οπτικός επεξεργαστής κειμένων στις Προσφορές (υπηρεσίες, templates, προσφορές) με εργαλειοθήκη: στυλ/υπότιτλοι, έντονα, πλάγια, υπογράμμιση, λίστες, παραπομπές, σύνδεσμοι, μεταβλητές, αναίρεση και προβολή κώδικα.</li>
+<li>Νέα μορφοποίηση στο Pdf: πλάγια (*κείμενο*) και υπογράμμιση (__κείμενο__).</li>
+<li>Η επικόλληση γίνεται ως καθαρό κείμενο, ώστε να μη μεταφέρεται μορφοποίηση από Word ή ιστοσελίδες.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.1.1</div><div><ul>
 <li>Διορθώθηκε η εγκατάσταση του launcher σε Joomla 6: το «Support Plans» εμφανίζεται ξανά στο αριστερό menu του administrator και ανοίγει το Service Hub σε νέο tab.</li>
 <li>Και το «Components → Support Plans» ανοίγει πλέον το Service Hub σε νέο tab.</li>

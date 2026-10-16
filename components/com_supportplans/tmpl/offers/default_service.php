@@ -26,7 +26,7 @@ $nextOrdering = ($this->services ? max(array_map(static fn($x) => (int) $x->orde
     <label class="sp-check"><input type="checkbox" name="show_description" value="1" <?php echo !$s || (int) $s->show_description ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο (προεπιλογή)</label>
     <label class="sp-check"><input type="checkbox" name="in_table" value="1" <?php echo !$s || (int) $s->in_table ? 'checked' : ''; ?>> Στον πίνακα τιμών (προεπιλογή)</label>
    </div>
-   <label class="sp-wide">Κείμενο περιγραφής<textarea name="body" rows="18" class="sp-mono"><?php echo $e($s->body ?? ''); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο περιγραφής</span><textarea name="body" rows="18" data-sp-editor><?php echo $e($s->body ?? ''); ?></textarea></div>
   </div>
   <p class="sp-foot">Αν ο τίτλος ενότητας ή η περιγραφή στον πίνακα μείνουν κενά, χρησιμοποιείται το όνομα. Οι αλλαγές εδώ ισχύουν για νέες προσφορές· οι υπάρχουσες κρατούν το δικό τους αντίγραφο.</p>
   <?php echo $this->loadTemplate('markup'); ?>

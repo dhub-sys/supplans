@@ -183,6 +183,8 @@ final class OfferHelper
      *   - στοιχείο          bullet list (also "* ")
      *   1. στοιχείο         numbered list (10+ items are shown in two columns)
      *   **έντονα**          bold
+     *   *πλάγια*            italic
+     *   __υπογράμμιση__     underline
      *   ^1                  superscript reference (footnote mark)
      *   [κείμενο](https://…) link
      *   {customer} {project} {company} {number} {date}   placeholders
@@ -255,7 +257,10 @@ final class OfferHelper
     private static function inline(string $text): string
     {
         $out = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $out = preg_replace('/\*\*\*(.+?)\*\*\*/u', '<strong><em>$1</em></strong>', $out);
         $out = preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $out);
+        $out = preg_replace('/(^|[^*])\*(?!\s)(.+?)(?<!\s)\*(?!\*)/u', '$1<em>$2</em>', $out);
+        $out = preg_replace('/__(.+?)__/u', '<u>$1</u>', $out);
         $out = preg_replace('/\^(\d{1,3})/', '<sup>$1</sup>', $out);
         $out = preg_replace_callback('/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/u', static fn($m) => '<a href="' . $m[2] . '">' . $m[1] . '</a>', $out);
         return $out;

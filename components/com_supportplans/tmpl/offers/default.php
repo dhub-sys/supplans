@@ -8,6 +8,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 
 HTMLHelper::_('stylesheet', 'com_supportplans/supportplans.css', ['version' => 'auto', 'relative' => true]);
 HTMLHelper::_('stylesheet', 'com_supportplans/offers.css', ['version' => 'auto', 'relative' => true]);
+HTMLHelper::_('script', 'com_supportplans/offers-editor.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
 $spItemid = OfferHelper::itemid();
 $spParams = $this->params;
 $spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Support Plans');

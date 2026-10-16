@@ -28,7 +28,7 @@ $row = static function ($i, $item) use ($e, $num) {
    <div class="sp-oi-flags">
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][show_description]" value="1" data-field="show_description" <?php echo !empty($item->show_description) ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο</label>
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][in_table]" value="1" data-field="in_table" data-calc <?php echo !empty($item->in_table) ? 'checked' : ''; ?>> Στον πίνακα τιμών</label>
-    <details class="sp-oi-body"><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body"><?php echo $e($item->body ?? ''); ?></textarea></details>
+    <details class="sp-oi-body"><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body" data-sp-editor><?php echo $e($item->body ?? ''); ?></textarea></details>
    </div>
   </div>
 <?php return ob_get_clean();
@@ -103,9 +103,9 @@ foreach ($this->services as $s) {
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($o->footer_title); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
    <label>Τίτλος ενότητας τιμών<input name="pricing_title" value="<?php echo $e($o->pricing_title); ?>" placeholder="Αξία Έργου – Τρόπος Πληρωμής"></label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo (int) $o->show_banks ? 'checked' : ''; ?>> Εμφάνιση τραπεζικών λογαριασμών</label>
-   <label class="sp-wide">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)<textarea name="payment_text" rows="6"><?php echo $e($o->payment_text); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($o->payment_text); ?></textarea></div>
    <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($o->terms_title); ?>" placeholder="Όροι Προσφοράς / Παραπομπές"></label>
-   <label class="sp-wide">Όροι προσφοράς / παραπομπές<textarea name="terms_body" rows="10"><?php echo $e($o->terms_body); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Όροι προσφοράς / παραπομπές</span><textarea name="terms_body" rows="10" data-sp-editor><?php echo $e($o->terms_body); ?></textarea></div>
   </div>
   <?php echo $this->loadTemplate('markup'); ?>
  </div>
@@ -168,6 +168,7 @@ foreach ($this->services as $s) {
       row.querySelector('input[name$="[service_id]"]').value = data.service_id || 0;
     }
     list.appendChild(row);
+    if (window.SpEditor) window.SpEditor.attachAll(row);
     dirty = true;
     recalc();
     row.querySelector('[data-field="section_title"]').focus();

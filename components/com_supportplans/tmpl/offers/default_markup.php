@@ -1,6 +1,7 @@
 <?php \defined('_JEXEC') or die; ?>
 <details class="sp-markup-help">
  <summary>Μορφοποίηση κειμένων &amp; μεταβλητές</summary>
+ <p class="sp-foot">Χρησιμοποιήστε την εργαλειοθήκη πάνω από κάθε κείμενο. Το κουμπί <b>&lt;/&gt;</b> δείχνει τον κώδικα μορφοποίησης, όπου ισχύουν και τα παρακάτω:</p>
  <div class="sp-markup-grid">
   <div>
    <code>- στοιχείο</code><span>λίστα με κουκκίδες</span>
@@ -10,6 +11,8 @@
   </div>
   <div>
    <code>**κείμενο**</code><span>έντονα</span>
+   <code>*κείμενο*</code><span>πλάγια</span>
+   <code>__κείμενο__</code><span>υπογράμμιση</span>
    <code>^1</code><span>εκθέτης παραπομπής (π.χ. στους όρους)</span>
    <code>[κείμενο](https://…)</code><span>σύνδεσμος</span>
    <code>κενή γραμμή</code><span>νέα παράγραφος</span>
