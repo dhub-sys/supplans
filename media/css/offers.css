@@ -283,3 +283,9 @@
 .sp-section-layout .sp-oi-layout{flex-wrap:wrap;row-gap:6px}
 @media(max-width:700px){.sp-section-layout{grid-column:1/-1}}
 .sp-section-layout .sp-oi-space{white-space:nowrap}
+
+/* v1.5.4 – adjustable header logo size and content gap */
+.sp-od-header{height:auto!important;align-items:flex-end!important}
+.sp-od-header-logo{max-height:none!important;height:var(--od-header-logo,28px)!important;width:auto!important;max-width:80mm!important}
+.sp-od-page.has-header{padding-top:var(--od-content-top,24mm)!important}
+.sp-od-page.has-header .sp-od-body{height:var(--od-content-height,247mm)!important}

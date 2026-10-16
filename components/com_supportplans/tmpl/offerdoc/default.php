@@ -18,6 +18,13 @@ $titleLines = array_values(array_filter(array_map('trim', explode("\n", OfferHel
 $footer = trim(OfferHelper::vars((string) $o->footer_title, $vars)) ?: implode(', ', $titleLines);
 // Page header (all pages except the cover): custom text or "subtitle + number · project".
 $showHeader = (int) ($o->show_header ?? 1) === 1;
+// Header geometry: header top 8mm + header height (logo or text line + rule) + gap → content start.
+// The content area always ends 26mm above the page bottom (footer zone), so its height follows.
+$headerLogoPx = max(12, min(120, (int) ($o->header_logo ?? 28)));
+$headerGapMm = max(0, min(40, (int) ($o->header_gap ?? 6)));
+$headerBoxMm = max($brand['logo'] !== '' ? $headerLogoPx * 0.2646 : 0, 4.6) + 1.9;
+$contentTopMm = round(8 + $headerBoxMm + $headerGapMm, 2);
+$headerVars = $showHeader ? ';--od-header-logo:' . $headerLogoPx . 'px;--od-content-top:' . $contentTopMm . 'mm;--od-content-height:' . round(271 - $contentTopMm, 2) . 'mm' : '';
 $headerText = trim($v($o->header_text ?? ''));
 if ($headerText === '') {
     $headerText = trim(trim($v($o->doc_subtitle)) . ' ' . $o->offer_number);
@@ -32,7 +39,7 @@ Factory::getApplication()->getDocument()->setTitle($fileTitle);
 $vatLabel = rtrim(rtrim(number_format($vatRate, 2, ',', '.'), '0'), ',');
 $section = 0;
 ?>
-<div class="sp-od<?php echo $this->preview ? ' is-preview' : ''; ?>" style="--od-accent:<?php echo $e($brand['accent']); ?>;--od-on-accent:<?php echo $e($brand['secondary']); ?>">
+<div class="sp-od<?php echo $this->preview ? ' is-preview' : ''; ?>" style="--od-accent:<?php echo $e($brand['accent']); ?>;--od-on-accent:<?php echo $e($brand['secondary']); ?><?php echo $headerVars; ?>">
  <div class="sp-od-toolbar sp-od-noprint">
   <button type="button" class="sp-od-print" onclick="window.print()">Αποθήκευση ως pdf / εκτύπωση</button>
   <span>Στο παράθυρο εκτύπωσης επιλέξτε «Αποθήκευση ως PDF», χαρτί A4 και απενεργοποιήστε τις «Κεφαλίδες και υποσέλιδα».</span>

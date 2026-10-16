@@ -158,6 +158,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.5.4</div><div><ul>
+<li>Header Pdf: ρυθμιζόμενο μέγεθος λογοτύπου (px) και απόσταση του περιεχομένου από το header (mm), στο template και σε κάθε προσφορά. Η σελιδοποίηση υπολογίζει αυτόματα τον διαθέσιμο χώρο.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.5.3</div><div><ul>
 <li>Ο τίτλος της «Οικονομικής σύνοψης» εμφανίζεται με το «Χρώμα κειμένου πάνω στο branding» (π.χ. λευκό), όπως ο τίτλος των Τραπεζών, και στις προσφορές και στα Pdf των πακέτων.</li>
 <li>Pdf πακέτων: το αναλυτικό δελτίο εργασιών εμφανίζεται ως κάρτα, όπως οι Τράπεζες / Λογαριασμοί.</li>

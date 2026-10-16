@@ -125,6 +125,8 @@ foreach ($this->services as $s) {
    <?php $this->layoutCtx = ['name' => 'pricing', 'label' => 'Ενότητα τιμών', 'break' => (int) ($o->pricing_break ?? 0), 'space' => (int) ($o->pricing_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo (int) $o->show_banks ? 'checked' : ''; ?>> Εμφάνιση τραπεζικών λογαριασμών</label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_header" value="1" <?php echo (int) ($o->show_header ?? 1) ? 'checked' : ''; ?>> Header σε κάθε σελίδα (εκτός εξωφύλλου)</label>
+   <label>Μέγεθος λογοτύπου header (px)<input type="number" min="12" max="120" step="1" name="header_logo" value="<?php echo (int) ($o->header_logo ?? 28); ?>"></label>
+   <label>Απόσταση περιεχομένου από το header (mm)<input type="number" min="0" max="40" step="1" name="header_gap" value="<?php echo (int) ($o->header_gap ?? 6); ?>"></label>
    <label class="sp-wide">Κείμενο header<input name="header_text" value="<?php echo $e($o->header_text ?? ''); ?>" placeholder="Αν μείνει κενό: υπότιτλος + αριθμός προσφοράς · έργο — δέχεται και μεταβλητές"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($o->payment_text); ?></textarea></div>
    <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($o->terms_title); ?>" placeholder="Όροι Προσφοράς / Παραπομπές"></label>
