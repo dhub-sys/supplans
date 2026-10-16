@@ -81,6 +81,7 @@ class OfferController extends BaseController
                     'section_title'    => trim((string) $service->section_title) ?: (string) $service->name,
                     'table_label'      => trim((string) $service->table_label) ?: (string) $service->name,
                     'body'             => (string) $service->body,
+                    'lists'            => (string) ($service->lists ?? ''),
                     'price'            => (float) $service->price,
                     'discount'         => 0,
                 ];
@@ -207,6 +208,7 @@ class OfferController extends BaseController
                 'section_title'    => $title !== '' ? $title : $label,
                 'table_label'      => $label !== '' ? $label : $title,
                 'body'             => str_replace("\r\n", "\n", (string) ($raw['body'] ?? '')),
+                'lists'            => json_encode(OfferHelper::lists($raw['lists'] ?? []), JSON_UNESCAPED_UNICODE),
                 'price'            => $price,
                 'discount'         => min($discount, abs($price)),
             ];

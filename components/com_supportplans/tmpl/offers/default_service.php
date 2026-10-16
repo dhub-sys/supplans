@@ -30,6 +30,7 @@ $nextOrdering = ($this->services ? max(array_map(static fn($x) => (int) $x->orde
    <label id="sp-svc-space">Απόσταση από την προηγούμενη ενότητα (mm)<input type="number" min="0" max="80" step="1" name="space_before" value="<?php echo (int) ($s->space_before ?? 5); ?>"></label>
    <script>(function(){var b=document.getElementById('sp-svc-break'),sp=document.getElementById('sp-svc-space');function u(){sp.hidden=b.value==='1';}b.addEventListener('change',u);u();})();</script>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο περιγραφής</span><textarea name="body" rows="18" data-sp-editor><?php echo $e($s->body ?? ''); ?></textarea></div>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Λίστες (εμφανίζονται στο Pdf ως κάρτες μετά το κείμενο)</span><?php echo OfferHelper::listsEditor('lists', OfferHelper::lists($s->lists ?? '')); ?></div>
   </div>
   <p class="sp-foot">Αν ο τίτλος ενότητας ή η περιγραφή στον πίνακα μείνουν κενά, χρησιμοποιείται το όνομα. Οι αλλαγές εδώ ισχύουν για νέες προσφορές· οι υπάρχουσες κρατούν το δικό τους αντίγραφο.</p>
   <?php echo $this->loadTemplate('markup'); ?>

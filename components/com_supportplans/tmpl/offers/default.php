@@ -10,6 +10,7 @@ HTMLHelper::_('stylesheet', 'com_supportplans/supportplans.css', ['version' => '
 HTMLHelper::_('stylesheet', 'com_supportplans/offers.css', ['version' => 'auto', 'relative' => true]);
 HTMLHelper::_('script', 'com_supportplans/offers-editor.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
 HTMLHelper::_('script', 'com_supportplans/sp-sortable.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
+HTMLHelper::_('script', 'com_supportplans/offer-lists.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
 $spItemid = OfferHelper::itemid();
 $spParams = $this->params;
 $spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Support Plans');
@@ -66,5 +67,6 @@ if ($this->section === 'variables') {
     echo $this->loadTemplate($this->mode === 'list' ? 'list' : ($this->mode === 'new' ? 'new' : 'edit'));
 }
 ?>
+<template id="sp-list-block-template"><?php echo OfferHelper::listBlock('__P__', '__k__'); ?></template>
 </section></div></div></main>
 </div>

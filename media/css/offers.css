@@ -289,3 +289,29 @@
 .sp-od-header-logo{max-height:none!important;height:var(--od-header-logo,28px)!important;width:auto!important;max-width:80mm!important}
 .sp-od-page.has-header{padding-top:var(--od-content-top,24mm)!important}
 .sp-od-page.has-header .sp-od-body{height:var(--od-content-height,247mm)!important}
+
+/* v1.6.0 – structured lists: editor */
+.sp-lists-wrap{flex:1 1 100%;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.sp-lists{display:flex;flex-direction:column;gap:10px;width:100%}
+.sp-lists:empty{display:none}
+.sp-list-block{width:100%;border:1px solid #e4e9f1;border-radius:10px;background:#f8fafc;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.sp-list-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sp-list-title{flex:1 1 220px;padding:7px 9px;border:1px solid #c9d1dc;border-radius:7px;font-size:14px;font-weight:600;background:#fff}
+.sp-list-block textarea{width:100%;padding:9px 10px;border:1px solid #c9d1dc;border-radius:7px;font-size:13.5px;line-height:1.5;background:#fff;resize:vertical}
+.sp-seg{display:inline-flex;border:1px solid #c9d1dc;border-radius:8px;overflow:hidden;background:#fff}
+.sp-seg label{display:inline-flex!important;flex-direction:row!important;margin:0;cursor:pointer;font-weight:600!important}
+.sp-seg input{position:absolute;opacity:0;pointer-events:none}
+.sp-seg span{padding:6px 11px;font-size:12.5px;color:#475467;white-space:nowrap}
+.sp-seg label+label span{border-left:1px solid #c9d1dc}
+.sp-seg input:checked+span{background:#2563eb;color:#fff}
+.sp-seg input:focus-visible+span{outline:2px solid #93b4f5;outline-offset:-2px}
+.sp-list-add{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border:1px dashed #b9c7dc;border-radius:7px;background:#fff;color:#1d4ed8;font-size:12.5px;font-weight:600;cursor:pointer}
+.sp-list-add svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.sp-list-add:hover{background:#eef4ff;border-style:solid}
+
+/* structured lists: PDF card (same look as the bank accounts card) */
+.sp-od-list{border:1px solid #d9dee7;background:#fff;table-layout:fixed}
+.sp-od-list .sp-od-card-title th{font-size:9.6pt;color:var(--od-on-accent);padding-top:2mm;padding-bottom:2mm}
+.sp-od-list td{text-align:left!important;white-space:normal!important;width:auto!important;font-size:9.6pt;border-bottom:1px solid #e7eaf0;padding:1.7mm 3.6mm}
+.sp-od-list tbody tr:last-child td{border-bottom:0}
+.sp-od-list-2 td:first-child{border-right:1px solid #e7eaf0}

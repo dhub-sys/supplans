@@ -33,6 +33,7 @@ $row = static function ($i, $item) use ($e, $num) {
      <label class="sp-oi-space" data-space>απόσταση <input type="number" min="0" max="80" step="1" name="items[<?php echo $i; ?>][space_before]" value="<?php echo (int) ($item->space_before ?? 5); ?>" data-field="space_before" aria-label="Απόσταση από την προηγούμενη ενότητα σε mm"> mm</label>
     </span>
     <details class="sp-oi-body"><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body" data-sp-editor><?php echo $e($item->body ?? ''); ?></textarea></details>
+    <?php echo OfferHelper::listsEditor('items[' . $i . '][lists]', OfferHelper::lists($item->lists ?? '')); ?>
    </div>
   </div>
 <?php return ob_get_clean();
@@ -52,6 +53,7 @@ foreach ($this->services as $s) {
         'page_break' => (int) ($s->page_break ?? 0),
         'space_before' => (int) ($s->space_before ?? 5),
         'body' => (string) $s->body,
+        'lists' => OfferHelper::lists($s->lists ?? ''),
     ];
 }
 ?>
@@ -198,6 +200,7 @@ foreach ($this->services as $s) {
     }
     list.appendChild(row);
     if (window.SpEditor) window.SpEditor.attachAll(row);
+    if (data && data.lists && window.SpLists) data.lists.forEach(l => window.SpLists.add(row.querySelector('[data-lists]'), l));
     dirty = true;
     recalc();
     row.querySelector('[data-field="section_title"]').focus();

@@ -181,6 +181,96 @@ final class OfferHelper
         return '" style="margin-top:' . max(0, min(80, (int) $space)) . 'mm"';
     }
 
+    /**
+     * Structured lists attached to a service: [{title, cols (1|2), items: [..]}].
+     * Accepts the stored JSON or the posted form array; empty lists are dropped.
+     */
+    public static function lists($raw): array
+    {
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+        $out = [];
+        foreach (is_array($raw) ? $raw : [] as $list) {
+            if (!is_array($list)) {
+                continue;
+            }
+            $items = $list['items'] ?? [];
+            if (is_string($items)) {
+                $items = preg_split('/\R/u', $items);
+            }
+            $clean = [];
+            foreach ((array) $items as $item) {
+                $item = trim(preg_replace('/^\s*(?:[-*•▪]|\d+[.)])\s+/u', '', (string) $item));
+                if ($item !== '') {
+                    $clean[] = $item;
+                }
+            }
+            if (!$clean) {
+                continue;
+            }
+            $out[] = [
+                'title' => trim(strip_tags((string) ($list['title'] ?? ''))),
+                'cols'  => (int) ($list['cols'] ?? 1) === 2 ? 2 : 1,
+                'items' => $clean,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Editor for the structured lists of a service (library service or offer item).
+     * $prefix is the form name prefix, e.g. "lists" or "items[3][lists]".
+     */
+    public static function listsEditor(string $prefix, array $lists): string
+    {
+        $html = '<div class="sp-lists-wrap"><div class="sp-lists" data-lists data-prefix="' . htmlspecialchars($prefix, ENT_QUOTES, 'UTF-8') . '">';
+        foreach (array_values($lists) as $k => $list) {
+            $html .= self::listBlock($prefix, (string) $k, $list);
+        }
+        return $html . '</div><button type="button" class="sp-list-add" data-list-add><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Λίστα</button></div>';
+    }
+
+    /** One list block of the editor; also used (with placeholders) as the template for new blocks. */
+    public static function listBlock(string $prefix, string $k, array $list = []): string
+    {
+        $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+        $name = $e($prefix . '[' . $k . ']');
+        $two = (int) ($list['cols'] ?? 1) === 2;
+        return '<div class="sp-list-block" data-list-block>'
+            . '<div class="sp-list-head">'
+            . '<input class="sp-list-title" name="' . $name . '[title]" value="' . $e($list['title'] ?? '') . '" placeholder="Τίτλος λίστας (προαιρετικός)" aria-label="Τίτλος λίστας">'
+            . '<div class="sp-seg" role="radiogroup" aria-label="Στήλες">'
+            . '<label><input type="radio" name="' . $name . '[cols]" value="1"' . ($two ? '' : ' checked') . '><span>1 στήλη</span></label>'
+            . '<label><input type="radio" name="' . $name . '[cols]" value="2"' . ($two ? ' checked' : '') . '><span>2 στήλες</span></label>'
+            . '</div>'
+            . '<button type="button" class="sp-icon-btn is-danger" data-list-remove title="Αφαίρεση λίστας" aria-label="Αφαίρεση λίστας"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>'
+            . '</div>'
+            . '<textarea name="' . $name . '[items]" rows="5" placeholder="Ένα στοιχείο ανά γραμμή — μπορείτε να επικολλήσετε ολόκληρη λίστα">' . $e(implode("\n", (array) ($list['items'] ?? []))) . '</textarea>'
+            . '</div>';
+    }
+
+    /** One structured list as a card (same look as the bank accounts card); two columns fill top-to-bottom. */
+    public static function renderListCard(array $list, array $vars = []): string
+    {
+        $cols = $list['cols'] === 2 ? 2 : 1;
+        $items = array_map(static fn($i) => self::inline(self::vars($i, $vars)), $list['items']);
+        $rowsCount = (int) ceil(count($items) / $cols);
+        $html = '<table class="sp-od-card sp-od-list sp-od-list-' . $cols . '">';
+        if ($list['title'] !== '') {
+            $html .= '<thead><tr class="sp-od-card-title"><th colspan="' . $cols . '">' . htmlspecialchars(self::vars($list['title'], $vars), ENT_QUOTES, 'UTF-8') . '</th></tr></thead>';
+        }
+        $html .= '<tbody>';
+        for ($r = 0; $r < $rowsCount; $r++) {
+            $html .= '<tr>';
+            for ($c = 0; $c < $cols; $c++) {
+                $html .= '<td>' . ($items[$c * $rowsCount + $r] ?? '') . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        return $html . '</tbody></table>';
+    }
+
     /** Built-in variables, always available in offer texts. */
     public const BUILTIN_VARIABLES = [
         'customer' => 'Πελάτης',
