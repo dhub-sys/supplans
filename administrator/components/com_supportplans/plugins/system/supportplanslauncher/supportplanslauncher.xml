@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="system" method="upgrade">
+  <name>System - Support Plans Launcher</name>
+  <version>1.0.25</version>
+  <description>Visible first-level Support Plans launcher in Joomla Administrator.</description>
+  <files>
+    <filename plugin="supportplanslauncher">supportplanslauncher.php</filename>
+  </files>
+</extension>

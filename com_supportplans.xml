@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" method="upgrade">
+    <name>Support Plans</name>
+    <element>com_supportplans</element>
+    <version>1.0.85</version>
+    <creationDate>2026-08-30</creationDate>
+    <author>White Label Joomla Component</author>
+    <license>GPL-2.0-or-later</license>
+    <description>Standalone white-label prepaid and ongoing support plan management for Joomla 6.</description>
+    <namespace path="src">Support\Component\Supportplans</namespace>
+    <scriptfile>script.php</scriptfile>
+
+    <files folder="components/com_supportplans">
+        <folder>src</folder>
+        <folder>tmpl</folder>
+    </files>
+
+    <media destination="com_supportplans" folder="media">
+        <folder>css</folder>
+        <folder>images</folder>
+    </media>
+
+    <administration>
+<files folder="administrator/components/com_supportplans">
+            <folder>services</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <folder>sql</folder>
+            <folder>plugins</folder>
+            <filename>config.xml</filename>
+        </files>
+            <menu link="option=com_supportplans&amp;view=plans&amp;tmpl=component&amp;spapp=1">Support Plans</menu>
+    </administration>
+
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8mb4">sql/install.mysql.utf8mb4.sql</file>
+        </sql>
+    </install>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8mb4">sql/uninstall.mysql.utf8mb4.sql</file>
+        </sql>
+    </uninstall>
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/mysql</schemapath>
+        </schemas>
+    </update>
+</extension>

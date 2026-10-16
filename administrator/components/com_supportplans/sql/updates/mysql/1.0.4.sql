@@ -1,0 +1,1 @@
+-- v1.0.4: print layout/footer fix; no database changes.

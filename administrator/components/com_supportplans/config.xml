@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+  <fieldset name="branding" label="White Label / Branding">
+    <field name="brand_name" type="text" label="Επωνυμία" default="" />
+    <field name="brand_logo" type="media" label="Λογότυπο" directory="images" preview="true" />
+    <field name="brand_address" type="textarea" label="Διεύθυνση" rows="2" default="" />
+    <field name="brand_phone" type="text" label="Τηλέφωνο" default="" />
+    <field name="brand_email" type="email" label="Email" default="" />
+    <field name="brand_website" type="text" label="Website" default="" />
+    <field name="accent_color" type="color" label="Βασικό χρώμα branding" default="#367d22" />
+    <field name="secondary_color" type="color" label="Χρώμα κειμένου πάνω στο branding" default="#245719" />
+    <field name="pdf_watermark" type="media" label="Watermark Pdf" directory="images" preview="true" />
+    <field name="report_title" type="text" label="Τίτλος αναφοράς" default="Αναλυτικό δελτίο εργασιών πλάνου υποστήριξης" />
+    <field name="report_footer" type="text" label="Footer αναφοράς" default="Αναλυτικό δελτίο εργασιών πλάνου υποστήριξης" />
+  
+        <field name="login_icon" type="text" label="Login icon" description="Εικονίδιο που εμφανίζεται στις οθόνες σύνδεσης και OTP του Support Plans." />
+      <field name="watermark_opacity" type="number" label="Watermark opacity (%)" default="7" min="0" max="100" step="1" />
+   <field name="standalone_itemid" type="number" label="Standalone Menu Item ID" default="785" min="0" step="1" />
+   <field name="supported_websites_label" type="text" label="Ονομασία πεδίου Υπηρεσιών στα Πακέτα" default="Υποστηριζόμενα websites" />
+    <field name="bank_1_name" type="text" label="Τράπεζα 1" />
+   <field name="bank_1_iban" type="text" label="IBAN 1" />
+   <field name="bank_1_beneficiary" type="text" label="Όνομα δικαιούχου 1" />
+   <field name="bank_2_name" type="text" label="Τράπεζα 2" />
+   <field name="bank_2_iban" type="text" label="IBAN 2" />
+   <field name="bank_2_beneficiary" type="text" label="Όνομα δικαιούχου 2" />
+   <field name="bank_3_name" type="text" label="Τράπεζα 3" />
+   <field name="bank_3_iban" type="text" label="IBAN 3" />
+   <field name="bank_3_beneficiary" type="text" label="Όνομα δικαιούχου 3" />
+   <field name="bank_accounts" type="hidden" default="" />
+ </fieldset>
+</form>

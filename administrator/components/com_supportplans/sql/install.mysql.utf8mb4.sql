@@ -1,0 +1,62 @@
+CREATE TABLE IF NOT EXISTS `#__supportplans_serviceplans` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `billing_mode` varchar(20) NOT NULL DEFAULT 'prepaid',
+  `hourly_rate` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `subscription_months` int unsigned NOT NULL DEFAULT 1,
+  `total_minutes` int unsigned NOT NULL,
+  `total_cost` decimal(10,2) NOT NULL,
+  `min_minutes` int unsigned NOT NULL DEFAULT 30,
+  `step_minutes` int unsigned NOT NULL DEFAULT 5,
+  `description` text NULL,
+  `pdf_title` varchar(255) NOT NULL DEFAULT '',
+  `pdf_section_title` varchar(255) NOT NULL DEFAULT '',
+  `pdf_work_title` varchar(255) NOT NULL DEFAULT '',
+  `pdf_footer_title` varchar(255) NOT NULL DEFAULT '',
+  `published` tinyint NOT NULL DEFAULT 1,
+  `created` datetime NOT NULL,
+  `modified` datetime NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__supportplans_plans` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_no` int unsigned NOT NULL DEFAULT 0,
+  `user_id` int unsigned NOT NULL DEFAULT 0,
+  `customer_name` varchar(190) NOT NULL DEFAULT '',
+  `supported_websites` varchar(500) NOT NULL DEFAULT '',
+  `form_number` varchar(80) NOT NULL DEFAULT '',
+  `service_plan_id` int unsigned NOT NULL DEFAULT 0,
+  `plan_type` varchar(100) NOT NULL,
+  `billing_mode` varchar(20) NOT NULL DEFAULT 'prepaid',
+  `subscription_months` int unsigned NOT NULL DEFAULT 1,
+  `purchase_date` date NOT NULL,
+  `initial_minutes` int unsigned NOT NULL,
+  `hourly_rate` decimal(10,2) NOT NULL,
+  `initial_amount` decimal(10,2) NOT NULL,
+  `min_minutes` int unsigned NOT NULL DEFAULT 30,
+  `step_minutes` int unsigned NOT NULL DEFAULT 5,
+  `plan_description` text NULL,
+  `vat_rate` decimal(5,2) NOT NULL DEFAULT 24.00,
+  `status` varchar(20) NOT NULL DEFAULT 'active',
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_sequence_no` (`sequence_no`),
+  KEY `idx_service_plan_id` (`service_plan_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__supportplans_entries` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `plan_id` int unsigned NOT NULL,
+  `request_date` varchar(100) NOT NULL,
+  `work_type` varchar(190) NOT NULL,
+  `description` text NULL,
+  `actual_minutes` int unsigned NOT NULL,
+  `billable_minutes` int unsigned NOT NULL,
+  `cost` decimal(10,2) NOT NULL,
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_plan_id` (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
