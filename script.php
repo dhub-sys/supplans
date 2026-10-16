@@ -14,6 +14,7 @@ class Com_SupportplansInstallerScript
   // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
   $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');
   $this->installSystemPlugin('supportplansnocpnb','System - Support Plans No CPNB','Hides Web357 CPNB inside the Support Plans Service Hub');
+  $this->syncMedia($parent);
   return $ok;
  }
  private function ensureSchema():bool
@@ -91,6 +92,28 @@ class Com_SupportplansInstallerScript
   * Uses plain PHP file functions and only the #__extensions columns that exist, so it
   * works on Joomla 6 without the backward-compatibility plugin.
   */
+ // Copies the stylesheets, scripts and images again with readable permissions. A failed
+ // earlier update rolls back the media files it created, and some hosts copy them unreadable,
+ // which leaves the Service Hub without any styling.
+ private function syncMedia($parent): void
+ {
+  try{
+   $src=rtrim((string)$parent->getParent()->getPath('source'),'/').'/media';
+   $dst=JPATH_ROOT.'/media/com_supportplans';
+   if(!is_dir($src)) return;
+   $it=new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src,\FilesystemIterator::SKIP_DOTS),\RecursiveIteratorIterator::SELF_FIRST);
+   if(!is_dir($dst)) @mkdir($dst,0755,true);
+   @chmod($dst,0755);
+   foreach($it as $file){
+    $target=$dst.'/'.substr($file->getPathname(),strlen($src)+1);
+    if($file->isDir()){ if(!is_dir($target)) @mkdir($target,0755,true); @chmod($target,0755); continue; }
+    if(!is_file($target) || filesize($target)!==$file->getSize() || md5_file($target)!==md5_file($file->getPathname())) @copy($file->getPathname(),$target);
+    @chmod($target,0644);
+   }
+  }catch(\Throwable $e){
+   Factory::getApplication()->enqueueMessage('Support Plans: media files could not be refreshed ('.$e->getMessage().').','warning');
+  }
+ }
  private function installSystemPlugin(string $element,string $name,string $description): void
  {
   try{

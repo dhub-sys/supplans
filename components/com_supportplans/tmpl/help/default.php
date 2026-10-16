@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.6.5</div><div><ul>
+<li>Η εγκατάσταση ξαναγράφει πάντα τα αρχεία εμφάνισης (CSS, JS, εικόνες) με σωστά δικαιώματα. Έτσι διορθώνεται το Service Hub που εμφανιζόταν χωρίς μορφοποίηση μετά από αποτυχημένη αναβάθμιση.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.6.4</div><div><ul>
 <li>Διορθώθηκε η αναβάθμιση από παλιές εκδόσεις (σφάλμα «Unknown column 'billing_mode'»). Όλες οι στήλες που λείπουν προστίθενται πλέον με ασφάλεια, ανεξάρτητα από την έκδοση από την οποία γίνεται η αναβάθμιση.</li>
 <li>Τα παλιά πακέτα παίρνουν αύξοντα αριθμό και συνδέονται με το αντίστοιχο πλάνο, και η ημερομηνία εργασιών γίνεται ελεύθερο κείμενο.</li>
