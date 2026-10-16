@@ -159,6 +159,8 @@ $spVatRate = (float)($this->plan->vat_rate ?? 0);
 $spVat = $spNet * ($spVatRate / 100);
 $spGross = $spNet + $spVat;
 ?>
+<?php // Prepaid plans are paid in advance: no financial summary or bank accounts in their report.
+if ($ongoing || $subscription): ?>
 <div class="sp-page-two-bottom sp-financial-force">
 <section class="sp-financial-summary">
     <div class="sp-financial-title sp-financial-heading-force">Οικονομική σύνοψη</div>
@@ -181,6 +183,7 @@ $spGross = $spNet + $spVat;
 </section>
 <?php endif; ?>
 </div>
+<?php endif; ?>
 </div>
 <footer class="sp-document-footer">
     <div class="sp-footer-title"><?php echo htmlspecialchars($footerTitle); ?></div>
