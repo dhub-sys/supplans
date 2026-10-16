@@ -52,6 +52,8 @@ class OffertemplateController extends BaseController
             'doc_subtitle'  => trim($in->getString('doc_subtitle')),
             'footer_title'  => trim($in->getString('footer_title')),
             'pricing_title' => trim($in->getString('pricing_title')),
+            'intro_title'   => trim($in->getString('intro_title')),
+            'intro_body'    => str_replace("\r\n", "\n", (string) $in->get('intro_body', '', 'raw')),
             'payment_text'  => str_replace("\r\n", "\n", (string) $in->get('payment_text', '', 'raw')),
             'terms_title'   => trim($in->getString('terms_title')),
             'terms_body'    => str_replace("\r\n", "\n", (string) $in->get('terms_body', '', 'raw')),

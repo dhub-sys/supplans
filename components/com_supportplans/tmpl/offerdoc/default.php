@@ -71,6 +71,11 @@ $section = 0;
 
  <!-- Flowing content: moved into A4 pages by the paginator below. -->
  <div class="sp-od-flow" id="sp-od-flow">
+  <?php if (trim((string) ($o->intro_body ?? '')) !== ''): $section++; ?>
+  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim($v((string) ($o->intro_title ?? ''))) ?: 'Εισαγωγή'); ?></span></h2>
+  <?php echo OfferHelper::render((string) $o->intro_body, $vars); ?>
+  <?php endif; ?>
+
   <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
   <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($item->page_break ?? 0, $item->space_before ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
   <?php echo OfferHelper::render((string) $item->body, $vars); ?>

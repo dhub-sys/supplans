@@ -130,6 +130,8 @@ foreach ($this->services as $s) {
    <label>Μέγεθος λογοτύπου header (px)<input type="number" min="12" max="120" step="1" name="header_logo" value="<?php echo (int) ($o->header_logo ?? 28); ?>"></label>
    <label>Απόσταση περιεχομένου από το header (mm)<input type="number" min="0" max="40" step="1" name="header_gap" value="<?php echo (int) ($o->header_gap ?? 6); ?>"></label>
    <label class="sp-wide">Κείμενο header<input name="header_text" value="<?php echo $e($o->header_text ?? ''); ?>" placeholder="Αν μείνει κενό: Οικονομική προσφορά + αριθμός · έργο — δέχεται και μεταβλητές"></label>
+   <label class="sp-wide">Τίτλος εισαγωγής<input name="intro_title" value="<?php echo $e($o->intro_title ?? ''); ?>" placeholder="Εισαγωγή"></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Εισαγωγή (πρώτη ενότητα μετά το εξώφυλλο — αν μείνει κενή δεν εμφανίζεται)</span><textarea name="intro_body" rows="6" data-sp-editor><?php echo $e($o->intro_body ?? ''); ?></textarea></div>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($o->payment_text); ?></textarea></div>
    <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($o->terms_title); ?>" placeholder="Όροι Προσφοράς / Παραπομπές"></label>
    <?php $this->layoutCtx = ['name' => 'terms', 'label' => 'Ενότητα όρων', 'break' => (int) ($o->terms_break ?? 0), 'space' => (int) ($o->terms_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>

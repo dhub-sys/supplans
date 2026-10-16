@@ -14,7 +14,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
  */
 class OfferController extends BaseController
 {
-    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'payment_text', 'terms_title', 'terms_body'];
+    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'intro_title', 'intro_body', 'payment_text', 'terms_title', 'terms_body'];
 
     public function create(): void
     {
@@ -182,7 +182,7 @@ class OfferController extends BaseController
         ];
         foreach (self::TEXT_FIELDS as $field) {
             $value = str_replace("\r\n", "\n", (string) $in->get($field, '', 'raw'));
-            $offer->$field = in_array($field, ['doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'terms_title'], true) ? trim(strip_tags($value)) : $value;
+            $offer->$field = in_array($field, ['doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'intro_title', 'terms_title'], true) ? trim(strip_tags($value)) : $value;
         }
 
         $items = [];

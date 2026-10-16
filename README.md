@@ -657,3 +657,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.6.6
 - Νέος `Site\Helper\Assets`: τα `supportplans.css`, `offers.css` και τα scripts των προσφορών τυπώνονται inline (`<style>`/`<script>`) μέσα στο output του component, αντί για `<link>` στο `<head>`. Σε sites όπου το `component.php` του template δεν τυπώνει τα styles του head, ή όπου κάποιο plugin/server μπλοκάρει το `/media`, το Service Hub έβγαινε χωρίς μορφοποίηση. Αν ένα αρχείο δεν διαβάζεται, γίνεται fallback στο HTMLHelper.
+
+## v1.7.0
+- Εισαγωγή προσφοράς: νέες στήλες `intro_title` / `intro_body` στα `offer_templates` και `offers`, που προστίθενται με ασφάλεια από το script.php. Στη φόρμα template/προσφοράς μπαίνουν πριν από τα κείμενα πληρωμής/όρων. Η νέα προσφορά τις αντιγράφει από το template. Στο Pdf αποδίδονται ως πρώτη αριθμημένη ενότητα της ροής, με προεπιλεγμένο τίτλο «Εισαγωγή», και μόνο όταν το κείμενο δεν είναι κενό. Υποστηρίζουν μεταβλητές.

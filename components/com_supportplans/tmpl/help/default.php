@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.7.0</div><div><ul>
+<li>Νέο πεδίο «Εισαγωγή» στα templates και στις προσφορές, με δικό του τίτλο και editor, πριν από τα κείμενα πληρωμής και όρων. Στο Pdf εμφανίζεται ως πρώτη ενότητα μετά το εξώφυλλο, δέχεται μεταβλητές, και αν μείνει κενή δεν εμφανίζεται.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.6.6</div><div><ul>
 <li>Η μορφοποίηση (CSS) και τα scripts ενσωματώνονται πλέον μέσα στις σελίδες του Service Hub. Έτσι εμφανίζονται σωστά με οποιοδήποτε template, plugin cache ή βελτιστοποίησης και ρύθμιση του server.</li>
 </ul></div></div>
