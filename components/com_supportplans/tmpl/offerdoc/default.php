@@ -16,7 +16,7 @@ $vars = OfferHelper::offerVars($o, $brand);
 $v = static fn($text) => OfferHelper::vars((string) $text, $vars);
 $titleLines = array_values(array_filter(array_map('trim', explode("\n", OfferHelper::vars((string) $o->doc_title, $vars))), 'strlen'));
 $footer = trim(OfferHelper::vars((string) $o->footer_title, $vars)) ?: implode(', ', $titleLines);
-// Page header (all pages except the cover): custom text or "subtitle + number · project".
+// Page header (all pages except the cover): custom text or "Οικονομική προσφορά + number · project".
 $showHeader = (int) ($o->show_header ?? 1) === 1;
 // Header geometry: header top 8mm + header height (logo or text line + rule) + gap → content start.
 // The content area always ends 26mm above the page bottom (footer zone), so its height follows.
@@ -27,7 +27,8 @@ $contentTopMm = round(8 + $headerBoxMm + $headerGapMm, 2);
 $headerVars = $showHeader ? ';--od-header-logo:' . $headerLogoPx . 'px;--od-content-top:' . $contentTopMm . 'mm;--od-content-height:' . round(271 - $contentTopMm, 2) . 'mm' : '';
 $headerText = trim($v($o->header_text ?? ''));
 if ($headerText === '') {
-    $headerText = trim(trim($v($o->doc_subtitle)) . ' ' . $o->offer_number);
+    // Fixed sentence-case phrase: the cover subtitle is usually written in capitals.
+    $headerText = trim('Οικονομική προσφορά ' . $o->offer_number);
     if (trim((string) $o->project_name) !== '') {
         $headerText .= ' · ' . $o->project_name;
     }

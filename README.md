@@ -642,3 +642,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Pdf: οι κάρτες λιστών είναι striped (κάθε δεύτερη γραμμή #f6f7f9, με print-color-adjust).
 - Pdf: κενό 5mm πριν και 6mm μετά από κάθε κάρτα λίστας, και 5mm πριν από κάθε επιπλέον μπλοκ κειμένου (κλάση `sp-o-blockstart` στο πρώτο στοιχείο του). Στην αρχή σελίδας το κενό μηδενίζεται.
 
+## v1.6.3
+- Header Pdf: προεπιλεγμένο κείμενο «Οικονομική προσφορά {number} · {project}», αντί για τον υπότιτλο του εξωφύλλου που συνήθως είναι με κεφαλαία. Χωρίς text-transform από το template του site.
+- Εξώφυλλο: ο τίτλος της προσφοράς σε bold (700).
+

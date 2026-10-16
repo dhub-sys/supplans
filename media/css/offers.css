@@ -341,3 +341,7 @@
 .sp-od-body .sp-od-list,.sp-od-flow .sp-od-list{margin:5mm 0 6mm!important}
 .sp-od-body .sp-o-blockstart,.sp-od-flow .sp-o-blockstart{margin-top:5mm!important}
 .sp-od-body>.sp-od-list:first-child,.sp-od-body>.sp-o-blockstart:first-child{margin-top:0!important}
+
+/* v1.6.3 – header never in capitals; bold cover title */
+.sp-od-header-text,.sp-od-header-brand{text-transform:none!important;letter-spacing:0!important}
+.sp-od-title{font-weight:700!important}
