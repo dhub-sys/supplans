@@ -7,13 +7,13 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 $aliases = array_flip(OfferHelper::VARIABLE_ALIASES);
 $row = static function (array $f) use ($e) {
     ob_start(); ?>
-  <div class="sp-field-row" data-field-row>
-   <div class="sp-oi-move"><button type="button" class="sp-oi-btn" data-up title="Μετακίνηση πάνω">↑</button><button type="button" class="sp-oi-btn" data-down title="Μετακίνηση κάτω">↓</button></div>
+  <div class="sp-field-row" data-field-row data-sort-item>
+   <button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς (σύρετε ή χρησιμοποιήστε τα βελάκια)"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
    <label class="sp-oi-field">Όνομα πεδίου στην προσφορά<input name="field_label[]" value="<?php echo $e($f['label']); ?>" placeholder="π.χ. Intro Service" data-label></label>
    <label class="sp-oi-field">Μεταβλητή<span class="sp-field-key"><span>{</span><input name="field_key[]" value="<?php echo $e($f['key']); ?>" placeholder="intro_service" data-key<?php echo $f['key'] !== '' ? ' data-manual="1"' : ''; ?>><span>}</span></span></label>
    <label class="sp-oi-field">Τύπος<select name="field_type[]"><option value="text"<?php echo $f['type'] === 'text' ? ' selected' : ''; ?>>Μία γραμμή</option><option value="textarea"<?php echo $f['type'] === 'textarea' ? ' selected' : ''; ?>>Πολλές γραμμές</option></select></label>
    <label class="sp-oi-field">Προεπιλεγμένη τιμή (προαιρετικά)<input name="field_default[]" value="<?php echo $e($f['default']); ?>" placeholder="Συμπληρώνεται σε κάθε νέα προσφορά"></label>
-   <button type="button" class="sp-oi-btn sp-oi-remove" data-remove title="Διαγραφή μεταβλητής">×</button>
+   <button type="button" class="sp-icon-btn is-danger" data-remove title="Διαγραφή μεταβλητής" aria-label="Διαγραφή μεταβλητής"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
   </div>
 <?php return ob_get_clean();
 };
@@ -38,10 +38,10 @@ $fields = $this->fields ?: [['key' => '', 'label' => '', 'type' => 'text', 'defa
 <form action="<?php echo OfferHelper::url('view=offers&section=variables'); ?>" method="post" name="adminForm" id="adminForm">
  <div class="sp-card">
   <div class="sp-title-row"><h2>Οι μεταβλητές σας</h2><button type="button" class="btn btn-primary" onclick="spSubmit('offerfield.save')">Αποθήκευση</button></div>
-  <div id="sp-field-rows" class="sp-field-rows"><?php foreach ($fields as $f) echo $row($f); ?></div>
+  <div id="sp-field-rows" class="sp-field-rows" data-sortable><?php foreach ($fields as $f) echo $row($f); ?></div>
   <template id="sp-field-template"><?php echo $row(['key' => '', 'label' => '', 'type' => 'text', 'default' => '']); ?></template>
-  <button type="button" class="btn btn-outline-primary" id="sp-field-add">＋ Νέα μεταβλητή</button>
-  <p class="sp-foot">Η μεταβλητή συμπληρώνεται αυτόματα από το όνομα του πεδίου (π.χ. «Intro Service» → <code>{intro_service}</code>) και μπορείτε να την αλλάξετε. Η σειρά εδώ είναι και η σειρά των πεδίων στην προσφορά. Αν διαγράψετε μια μεταβλητή, οι προσφορές που έχουν ήδη τιμή την κρατούν.</p>
+  <button type="button" class="sp-add-btn" id="sp-field-add" title="Νέα μεταβλητή" aria-label="Νέα μεταβλητή"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <p class="sp-foot">Η μεταβλητή συμπληρώνεται αυτόματα από το όνομα του πεδίου (π.χ. «Intro Service» → <code>{intro_service}</code>) και μπορείτε να την αλλάξετε. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά των πεδίων στην προσφορά. Αν διαγράψετε μια μεταβλητή, οι προσφορές που έχουν ήδη τιμή την κρατούν.</p>
  </div>
  <input type="hidden" name="task" value="">
  <?php echo HTMLHelper::_('form.token'); ?>
@@ -96,8 +96,7 @@ $fields = $this->fields ?: [['key' => '', 'label' => '', 'type' => 'text', 'defa
     if (!r) return;
     if (e.target.closest('[data-remove]')) {
       if (rows.children.length > 1) r.remove(); else r.querySelectorAll('input').forEach(function (i) { i.value = ''; delete i.dataset.manual; });
-    } else if (e.target.closest('[data-up]') && r.previousElementSibling) rows.insertBefore(r, r.previousElementSibling);
-    else if (e.target.closest('[data-down]') && r.nextElementSibling) rows.insertBefore(r.nextElementSibling, r);
+    }
   });
 })();
 </script>

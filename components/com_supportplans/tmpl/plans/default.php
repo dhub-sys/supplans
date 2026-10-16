@@ -75,10 +75,6 @@ function supportPlansPrintReport() {
 .sp-entry-request small{font-size:12px;color:#667085}
 .sp-entry-actions{white-space:nowrap;text-align:right;width:1%}
 .sp-entry-actions form{display:inline}
-.sp-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#475467;cursor:pointer;vertical-align:middle}
-.sp-icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.sp-icon-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#2563eb}
-.sp-icon-btn.is-danger:hover{background:#fef3f2;border-color:#fecdca;color:#d92d20}
 tr.is-editing td{background:#fffbeb!important}
 .sp-entry-buttons{display:flex;gap:8px;align-items:end}
 #sp-entry-form.is-editing{padding:12px;border-radius:10px;background:#fffbeb;outline:1px solid #fde68a}

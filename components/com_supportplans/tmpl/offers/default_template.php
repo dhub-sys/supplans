@@ -35,19 +35,19 @@ $fallbackOrder = (count($selected) + 1) * 10;
 
  <div class="sp-card">
   <h3>Υπηρεσίες του template</h3>
-  <p class="sp-foot">Τσεκάρετε ποιες υπηρεσίες περιλαμβάνει το template. Για καθεμία ορίστε αν <b>περιγράφεται</b> στο έγγραφο και αν μπαίνει στον <b>πίνακα τιμών</b>. Η «Σειρά» καθορίζει τη σειρά στο Pdf (μικρότερο = νωρίτερα). Οι υπηρεσίες επεξεργάζονται στην καρτέλα <a href="<?php echo OfferHelper::url('view=offers&section=services'); ?>">Υπηρεσίες</a>.</p>
+  <p class="sp-foot">Τσεκάρετε ποιες υπηρεσίες περιλαμβάνει το template. Για καθεμία ορίστε αν <b>περιγράφεται</b> στο έγγραφο και αν μπαίνει στον <b>πίνακα τιμών</b>. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά στο Pdf. Οι υπηρεσίες επεξεργάζονται στην καρτέλα <a href="<?php echo OfferHelper::url('view=offers&section=services'); ?>">Υπηρεσίες</a>.</p>
   <?php if (!$services): ?><p class="text-muted">Δεν υπάρχουν υπηρεσίες. Δημιουργήστε πρώτα υπηρεσίες στη βιβλιοθήκη.</p><?php else: ?>
   <div class="table-responsive"><table class="table sp-offer-table sp-template-services">
-   <thead><tr><th>Περιλαμβάνεται</th><th>Υπηρεσία</th><th class="sp-center">Περιγραφή</th><th class="sp-center">Πίνακας τιμών</th><th class="sp-num">Τιμή</th><th>Σειρά</th></tr></thead>
-   <tbody>
+   <thead><tr><th class="sp-grip-cell"></th><th>Περιλαμβάνεται</th><th>Υπηρεσία</th><th class="sp-center">Περιγραφή</th><th class="sp-center">Πίνακας τιμών</th><th class="sp-num">Τιμή</th></tr></thead>
+   <tbody data-sortable id="sp-template-services">
    <?php foreach ($services as $s): $sid = (int) $s->id; $sel = $selected[$sid] ?? null; ?>
-    <tr class="<?php echo $sel ? '' : 'is-off'; ?><?php echo (int) $s->published ? '' : ' is-unpublished'; ?>">
+    <tr data-sort-item class="<?php echo $sel ? '' : 'is-off'; ?><?php echo (int) $s->published ? '' : ' is-unpublished'; ?>">
+     <td class="sp-grip-cell"><button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς (σύρετε ή χρησιμοποιήστε τα βελάκια)"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button></td>
      <td><input type="checkbox" name="tpl[<?php echo $sid; ?>][on]" value="1" <?php echo $sel ? 'checked' : ''; ?> onchange="this.closest('tr').classList.toggle('is-off',!this.checked)"></td>
      <td><strong><?php echo $e($s->name); ?></strong><?php if (!(int) $s->published): ?> <small class="text-muted">(ανενεργή)</small><?php endif; ?><br><small class="text-muted"><?php echo $e(trim((string) $s->section_title) ?: $s->name); ?></small></td>
      <td class="sp-center"><input type="checkbox" name="tpl[<?php echo $sid; ?>][desc]" value="1" <?php echo ($sel ? !empty($sel['show_description']) : (int) $s->show_description) ? 'checked' : ''; ?>></td>
      <td class="sp-center"><input type="checkbox" name="tpl[<?php echo $sid; ?>][table]" value="1" <?php echo ($sel ? !empty($sel['in_table']) : (int) $s->in_table) ? 'checked' : ''; ?>></td>
-     <td class="sp-num"><?php echo OfferHelper::money((float) $s->price); ?> €</td>
-     <td><input type="number" class="sp-order-input" name="tpl[<?php echo $sid; ?>][order]" value="<?php echo (int) ($sel['order'] ?? $fallbackOrder); ?>" step="1"></td>
+     <td class="sp-num"><?php echo OfferHelper::money((float) $s->price); ?> €<input type="hidden" class="sp-order-input" name="tpl[<?php echo $sid; ?>][order]" value="<?php echo (int) ($sel['order'] ?? $fallbackOrder); ?>"></td>
     </tr>
    <?php if (!$sel) $fallbackOrder += 10; endforeach; ?>
    </tbody>
@@ -70,6 +70,16 @@ $fallbackOrder = (count($selected) + 1) * 10;
   <?php echo $this->loadTemplate('markup'); ?>
  </div>
  <input type="hidden" name="id" value="<?php echo (int) ($t->id ?? 0); ?>">
+ <script>
+ // Row order in the table = order in the PDF.
+ (function () {
+   var body = document.getElementById('sp-template-services');
+   if (!body) return;
+   body.addEventListener('sp-sorted', function () {
+     body.querySelectorAll('.sp-order-input').forEach(function (input, i) { input.value = (i + 1) * 10; });
+   });
+ })();
+ </script>
  <input type="hidden" name="task" value="">
  <?php echo HTMLHelper::_('form.token'); ?>
 </form>

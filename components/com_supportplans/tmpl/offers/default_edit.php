@@ -11,19 +11,16 @@ $num = static fn($v) => number_format((float) $v, 2, '.', '');
 
 $row = static function ($i, $item) use ($e, $num) {
     ob_start(); ?>
-  <div class="sp-oi" data-row>
+  <div class="sp-oi" data-row data-sort-item>
    <div class="sp-oi-head">
-    <div class="sp-oi-move">
-     <button type="button" class="sp-oi-btn" data-up title="Μετακίνηση πάνω">↑</button>
-     <button type="button" class="sp-oi-btn" data-down title="Μετακίνηση κάτω">↓</button>
-    </div>
+    <button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς (σύρετε ή χρησιμοποιήστε τα βελάκια)"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
     <input type="hidden" name="items[<?php echo $i; ?>][service_id]" value="<?php echo (int) ($item->service_id ?? 0); ?>">
     <label class="sp-oi-field sp-oi-title">Τίτλος ενότητας<input name="items[<?php echo $i; ?>][section_title]" value="<?php echo $e($item->section_title ?? ''); ?>" data-field="section_title"></label>
     <label class="sp-oi-field sp-oi-label">Περιγραφή στον πίνακα τιμών<input name="items[<?php echo $i; ?>][table_label]" value="<?php echo $e($item->table_label ?? ''); ?>" data-field="table_label"></label>
     <label class="sp-oi-field sp-oi-money">Τιμή €<input type="number" step="0.01" name="items[<?php echo $i; ?>][price]" value="<?php echo $num($item->price ?? 0); ?>" data-field="price" data-calc></label>
     <label class="sp-oi-field sp-oi-money">Έκπτωση €<input type="number" step="0.01" min="0" name="items[<?php echo $i; ?>][discount]" value="<?php echo $num($item->discount ?? 0); ?>" data-field="discount" data-calc></label>
     <div class="sp-oi-net"><span>Αξία</span><strong data-net>0,00 €</strong></div>
-    <button type="button" class="sp-oi-btn sp-oi-remove" data-remove title="Αφαίρεση από την προσφορά">×</button>
+    <button type="button" class="sp-icon-btn is-danger sp-oi-remove" data-remove title="Αφαίρεση από την προσφορά" aria-label="Αφαίρεση από την προσφορά"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
    </div>
    <div class="sp-oi-flags">
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][show_description]" value="1" data-field="show_description" <?php echo !empty($item->show_description) ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο</label>
@@ -87,8 +84,8 @@ foreach ($this->services as $s) {
 
  <div class="sp-card">
   <div class="sp-title-row"><h3>Υπηρεσίες προσφοράς</h3></div>
-  <p class="sp-foot">Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Η σειρά εδώ είναι και η σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
-  <div id="sp-offer-items">
+  <p class="sp-foot">Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
+  <div id="sp-offer-items" data-sortable>
    <?php $i = 0; foreach ($this->items as $item) { echo $row($i++, $item); } ?>
   </div>
   <template id="sp-offer-row-template"><?php echo $row('__i__', (object) ['show_description' => 1, 'in_table' => 1]); ?></template>
@@ -194,10 +191,6 @@ foreach ($this->services as $s) {
     if (ev.target.closest('[data-remove]')) {
       const title = row.querySelector('[data-field="section_title"]').value || 'τη γραμμή';
       if (confirm('Αφαίρεση «' + title + '» από την προσφορά;')) { row.remove(); dirty = true; recalc(); }
-    } else if (ev.target.closest('[data-up]') && row.previousElementSibling) {
-      list.insertBefore(row, row.previousElementSibling); dirty = true;
-    } else if (ev.target.closest('[data-down]') && row.nextElementSibling) {
-      list.insertBefore(row.nextElementSibling, row); dirty = true;
     }
   });
   form.addEventListener('input', () => { dirty = true; recalc(); });

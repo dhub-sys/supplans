@@ -459,3 +459,37 @@ html,body{margin:0!important;padding:0!important}
 .sp-package-edit-actions{
   margin-bottom:20px!important;
 }
+
+/* v1.3.1 – compact button system for the whole Service Hub */
+.sp-saas-root .btn,
+.sp-saas-root .sp-primary-action{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;font-size:13.5px!important;font-weight:600!important;line-height:1.35!important;padding:7px 14px!important;border-radius:8px!important;min-height:0!important;height:auto!important;letter-spacing:0!important;box-shadow:none!important;white-space:nowrap}
+.sp-saas-root .btn-sm{font-size:12.5px!important;padding:4px 10px!important;border-radius:7px!important}
+.sp-saas-root .btn-outline-secondary{color:#344054!important;border-color:#d0d5dd!important;background:#fff!important}
+.sp-saas-root .btn-outline-secondary:hover{background:#f9fafb!important;border-color:#98a2b3!important}
+.sp-saas-root .btn-outline-primary{border-color:#bfd2fb!important;color:#1d4ed8!important;background:#fff!important}
+.sp-saas-root .btn-outline-primary:hover{background:#eef4ff!important}
+.sp-saas-root .btn-outline-danger{border-color:#fecdca!important;color:#d92d20!important;background:#fff!important}
+.sp-saas-root .btn-outline-danger:hover{background:#fef3f2!important}
+.sp-saas-root .btn-secondary{background:#475467!important;border-color:#475467!important;color:#fff!important}
+.sp-saas-root .sp-offer-tab,
+.sp-saas-root .sp-help-tab{font-size:13px!important;font-weight:600!important;padding:6px 13px!important;border-radius:8px!important}
+.sp-saas-root .sp-standalone-actions{gap:8px}
+
+/* Small icon buttons (edit / delete / add / drag handle) */
+.sp-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#475467;cursor:pointer;vertical-align:middle;flex:0 0 auto}
+.sp-icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sp-icon-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#2563eb}
+.sp-icon-btn.is-danger:hover{background:#fef3f2;border-color:#fecdca;color:#d92d20}
+.sp-add-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:#2563eb;cursor:pointer}
+.sp-add-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.sp-add-btn:hover{background:#eef4ff;border-color:#93b4f5}
+.sp-grip{display:inline-flex;align-items:center;justify-content:center;width:24px;height:32px;padding:0;border:0;border-radius:6px;background:transparent;color:#98a2b3;cursor:grab;touch-action:none;flex:0 0 auto}
+.sp-grip svg{width:16px;height:16px;fill:currentColor}
+.sp-grip:hover,.sp-grip:focus-visible{background:#f2f4f7;color:#475467;outline:none}
+.sp-grip:active{cursor:grabbing}
+.sp-inline-grip{color:#98a2b3;letter-spacing:-3px;padding-right:3px}
+[data-sortable].is-sorting{user-select:none;-webkit-user-select:none}
+[data-sortable].is-sorting *{cursor:grabbing!important}
+[data-sort-item].is-dragging{position:relative;z-index:5;background:#fff;box-shadow:0 14px 34px rgba(16,24,40,.18);border-color:#93b4f5!important}
+tr[data-sort-item].is-dragging td{background:#fff!important}
+.sp-grip-cell{width:34px;padding-right:0!important}

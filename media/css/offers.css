@@ -211,3 +211,13 @@
 .sp-undefined-vars{border-color:#fedf89!important;background:#fffcf5!important}
 .sp-undefined-list{display:flex;flex-wrap:wrap;gap:8px}
 @media(max-width:1000px){.sp-field-row{grid-template-columns:auto 1fr 1fr}.sp-field-row>label:nth-of-type(3),.sp-field-row>label:nth-of-type(4){grid-column:span 1}}
+
+/* v1.3.1 – handles and icon buttons in offer rows */
+.sp-oi-head{grid-template-columns:auto minmax(150px,1.3fr) minmax(150px,1.3fr) 110px 110px 110px auto}
+.sp-oi-head .sp-grip,.sp-field-row .sp-grip{align-self:end;margin-bottom:3px}
+.sp-icon-btn.sp-oi-remove{width:30px;height:30px;font-size:inherit;color:#667085;border-color:transparent;align-self:end;margin-bottom:4px}
+.sp-oi-flags{margin-left:34px}
+.sp-field-row{grid-template-columns:auto minmax(160px,1fr) minmax(160px,1fr) 150px minmax(160px,1.2fr) auto}
+.sp-field-row .sp-icon-btn{align-self:end;margin-bottom:4px}
+.sp-field-rows+.sp-add-btn{margin-bottom:6px}
+.sp-template-services td{vertical-align:middle}

@@ -156,6 +156,12 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.3.1</div><div><ul>
+<li>Αλλαγή σειράς με drag &amp; drop από λαβή ⋮⋮ (ποντίκι, αφή, και βελάκια πληκτρολογίου πάνω στη λαβή) στις Μεταβλητές, στις υπηρεσίες της προσφοράς και στις υπηρεσίες του template. Η σελίδα κυλά αυτόματα όταν σύρετε κοντά στην άκρη.</li>
+<li>Μικρό τετράγωνο κουμπί «+» για νέα μεταβλητή, και εικονίδιο κάδου για αφαίρεση.</li>
+<li>Πιο συμπαγή κουμπιά σε όλο το Service Hub (μικρότερο ύψος, γράμματα και βάρος).</li>
+<li>Ουδέτερα placeholders στη «Νέα προσφορά» (Επωνυμία, Project).</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.3.0</div><div><ul>
 <li>Νέα καρτέλα <strong>Μεταβλητές</strong> στις Προσφορές: ορίζετε μία φορά μια μεταβλητή (π.χ. «Intro Service» → <code>{intro_service}</code>) και γίνεται πεδίο σε κάθε προσφορά, δίπλα σε Πελάτη και Έργο.</li>
 <li>Η καρτέλα εντοπίζει μεταβλητές που έχετε γράψει στα κείμενα αλλά δεν έχετε ορίσει, και τις προσθέτει με ένα κλικ.</li>
