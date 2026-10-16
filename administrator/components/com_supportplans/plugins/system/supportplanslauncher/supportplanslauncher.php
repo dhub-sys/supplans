@@ -26,7 +26,21 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
         $script = <<<'HTML'
 <script id="supportplans-admin-launcher">
 (function () {
+  var serviceHubUrl = '../index.php?option=com_supportplans&view=app&tmpl=component&Itemid=__SP_ITEMID__';
+
+  // Joomla's own "Components > Support Plans" entries also open the standalone Service Hub in a new tab.
+  function redirectComponentLinks() {
+    var links = document.querySelectorAll('#sidebar-wrapper a[href*="option=com_supportplans"], .sidebar-wrapper a[href*="option=com_supportplans"], #menu a[href*="option=com_supportplans"], .quickicons-for-components a[href*="option=com_supportplans"]');
+    for (var i = 0; i < links.length; i++) {
+      if (links[i].closest('#supportplans-top-launcher')) continue;
+      links[i].href = serviceHubUrl;
+      links[i].target = '_blank';
+      links[i].rel = 'noopener';
+    }
+  }
+
   function installSupportPlansButton() {
+    redirectComponentLinks();
     if (document.getElementById('supportplans-top-launcher')) return;
 
     var candidates = [
@@ -53,7 +67,7 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
     wrap.className = isList ? 'nav-item supportplans-launcher-item' : 'supportplans-launcher-item';
 
     var a = document.createElement('a');
-    a.href = '../index.php?option=com_supportplans&view=app&tmpl=component&Itemid=785';
+    a.href = serviceHubUrl;
     a.target = '_blank';
     a.rel = 'noopener';
     a.className = 'supportplans-launcher-link';
@@ -99,6 +113,8 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
 </script>
 HTML;
 
+        $itemid = max(1, (int) \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));
+        $script = str_replace('__SP_ITEMID__', (string) $itemid, $script);
         $this->app->setBody(str_ireplace('</body>', $script . '</body>', $body));
     }
 }

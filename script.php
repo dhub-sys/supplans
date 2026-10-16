@@ -7,36 +7,11 @@ class Com_SupportplansInstallerScript
  public function update($parent):bool{return $this->ensureSchema();}
  public function postflight($type,$parent):bool
  {
-  $this->installNoCpnb();
   $ok=$this->ensureSchema();
-  try{
-   $src=JPATH_ADMINISTRATOR.'/components/com_supportplans/plugins/system/supportplanslauncher';
-   $dst=JPATH_PLUGINS.'/system/supportplanslauncher';
-   if(is_dir($src)){
-    if(is_dir($dst)) \Joomla\CMS\Filesystem\Folder::delete($dst);
-    \Joomla\CMS\Filesystem\Folder::create($dst);
-    \Joomla\CMS\Filesystem\File::copy($src.'/supportplanslauncher.php',$dst.'/supportplanslauncher.php',null,true);
-    \Joomla\CMS\Filesystem\File::copy($src.'/supportplanslauncher.xml',$dst.'/supportplanslauncher.xml',null,true);
-    $db=Factory::getContainer()->get('DatabaseDriver');
-    $q=$db->getQuery(true)->select('extension_id')->from($db->quoteName('#__extensions'))
-      ->where($db->quoteName('type').'='.$db->quote('plugin'))
-      ->where($db->quoteName('folder').'='.$db->quote('system'))
-      ->where($db->quoteName('element').'='.$db->quote('supportplanslauncher'));
-    $pid=(int)$db->setQuery($q)->loadResult();
-    $mc=json_encode(['name'=>'System - Support Plans Launcher','type'=>'plugin','version'=>'1.0.49','group'=>'system','description'=>'Visible top-level Support Plans launcher']);
-    if(!$pid){
-      $o=(object)['name'=>'System - Support Plans Launcher','type'=>'plugin','element'=>'supportplanslauncher','folder'=>'system','client_id'=>0,'enabled'=>1,'access'=>1,'protected'=>0,'manifest_cache'=>$mc,'params'=>'{}','custom_data'=>'','system_data'=>'{}'];
-      $db->insertObject('#__extensions',$o);
-    }else{
-      $q=$db->getQuery(true)->update($db->quoteName('#__extensions'))
-        ->set($db->quoteName('enabled').'=1')
-        ->set($db->quoteName('manifest_cache').'='.$db->quote($mc))
-        ->where($db->quoteName('extension_id').'='.$pid);
-      $db->setQuery($q)->execute();
-    }
-    Factory::getApplication()->getCache('com_plugins')->clean();
-   }
-  }catch(\Throwable $e){}
+  // Bundled system plugins: the launcher opens the Service Hub in a new tab from the
+  // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
+  $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');
+  $this->installSystemPlugin('supportplansnocpnb','System - Support Plans No CPNB','Hides Web357 CPNB inside the Support Plans Service Hub');
   return $ok;
  }
  private function ensureSchema():bool
@@ -71,33 +46,50 @@ class Com_SupportplansInstallerScript
   return true;
  }
 
- private function installNoCpnb(): void
+ /**
+  * Copies a bundled system plugin into /plugins/system and registers it in #__extensions.
+  * Uses plain PHP file functions and only the #__extensions columns that exist, so it
+  * works on Joomla 6 without the backward-compatibility plugin.
+  */
+ private function installSystemPlugin(string $element,string $name,string $description): void
  {
-  try {
-   $src=JPATH_ADMINISTRATOR.'/components/com_supportplans/plugins/system/supportplansnocpnb';
-   $dst=JPATH_PLUGINS.'/system/supportplansnocpnb';
+  try{
+   $src=JPATH_ADMINISTRATOR.'/components/com_supportplans/plugins/system/'.$element;
+   $dst=JPATH_PLUGINS.'/system/'.$element;
    if(!is_dir($src)) return;
-   if(!is_dir($dst)) \Joomla\CMS\Filesystem\Folder::create($dst);
-   \Joomla\CMS\Filesystem\File::copy($src.'/supportplansnocpnb.php',$dst.'/supportplansnocpnb.php',null,true);
-   \Joomla\CMS\Filesystem\File::copy($src.'/supportplansnocpnb.xml',$dst.'/supportplansnocpnb.xml',null,true);
+   if(!is_dir($dst) && !@mkdir($dst,0755,true) && !is_dir($dst)) throw new \RuntimeException('Cannot create '.$dst);
+   foreach(['.php','.xml'] as $ext){
+    if(!@copy($src.'/'.$element.$ext,$dst.'/'.$element.$ext)) throw new \RuntimeException('Cannot copy '.$element.$ext.' to '.$dst);
+    if(function_exists('opcache_invalidate')) @opcache_invalidate($dst.'/'.$element.$ext,true);
+   }
 
-   $db=\Joomla\CMS\Factory::getContainer()->get('DatabaseDriver');
+   $db=Factory::getContainer()->get('DatabaseDriver');
    $q=$db->getQuery(true)->select('extension_id')->from($db->quoteName('#__extensions'))
-    ->where($db->quoteName('type').'='.$db->quote('plugin'))
-    ->where($db->quoteName('folder').'='.$db->quote('system'))
-    ->where($db->quoteName('element').'='.$db->quote('supportplansnocpnb'));
+     ->where($db->quoteName('type').'='.$db->quote('plugin'))
+     ->where($db->quoteName('folder').'='.$db->quote('system'))
+     ->where($db->quoteName('element').'='.$db->quote($element));
    $id=(int)$db->setQuery($q)->loadResult();
-   $cache=json_encode(['name'=>'System - Support Plans No CPNB','type'=>'plugin','version'=>'1.0.0','group'=>'system'],JSON_UNESCAPED_SLASHES);
+   $version='1.0.0';
+   $xml=@simplexml_load_file($dst.'/'.$element.'.xml');
+   if($xml && isset($xml->version)) $version=(string)$xml->version;
+   $cache=json_encode(['name'=>$name,'type'=>'plugin','version'=>$version,'group'=>'system','description'=>$description],JSON_UNESCAPED_SLASHES);
    if(!$id){
-    $row=(object)['name'=>'System - Support Plans No CPNB','type'=>'plugin','element'=>'supportplansnocpnb','folder'=>'system',
-     'client_id'=>0,'enabled'=>1,'access'=>1,'protected'=>0,'manifest_cache'=>$cache,'params'=>'{}','custom_data'=>'','system_data'=>'{}'];
-    $db->insertObject('#__extensions',$row);
-   } else {
-    $q=$db->getQuery(true)->update($db->quoteName('#__extensions'))->set($db->quoteName('enabled').'=1')
-     ->set($db->quoteName('manifest_cache').'='.$db->quote($cache))->where($db->quoteName('extension_id').'='.$id);
+    $row=['name'=>$name,'type'=>'plugin','element'=>$element,'folder'=>'system','client_id'=>0,'enabled'=>1,'access'=>1,'protected'=>0,'locked'=>0,
+      'manifest_cache'=>$cache,'params'=>'{}','custom_data'=>'','system_data'=>'{}','ordering'=>0,'state'=>0,'package_id'=>0,'changelogurl'=>'','note'=>''];
+    // Column sets differ between Joomla versions (e.g. system_data was removed in Joomla 6).
+    $row=array_intersect_key($row,$db->getTableColumns('#__extensions',false));
+    $obj=(object)$row;
+    $db->insertObject('#__extensions',$obj);
+   }else{
+    $q=$db->getQuery(true)->update($db->quoteName('#__extensions'))
+      ->set($db->quoteName('enabled').'=1')
+      ->set($db->quoteName('manifest_cache').'='.$db->quote($cache))
+      ->where($db->quoteName('extension_id').'='.$id);
     $db->setQuery($q)->execute();
    }
-   \Joomla\CMS\Factory::getApplication()->getCache('com_plugins')->clean();
-  } catch (\Throwable $e) {}
+   try{Factory::getApplication()->getCache('com_plugins')->clean();}catch(\Throwable $e){}
+  }catch(\Throwable $e){
+   try{Factory::getApplication()->enqueueMessage('Support Plans: δεν ήταν δυνατή η εγκατάσταση του plugin '.$element.' ('.$e->getMessage().').','warning');}catch(\Throwable $ignored){}
+  }
  }
 }

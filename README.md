@@ -554,3 +554,10 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Pdf προσφοράς μέσω browser print: εξώφυλλο, αριθμημένες ενότητες, πίνακας Τιμή/Έκπτωση/Αξία/ΦΠΑ/Σύνολο, κείμενο συνόλων, τράπεζες, όροι, υπογραφή, αυτόματη σελιδοποίηση A4 με footer και αριθμό σελίδας.
 - Προαιρετικό έτοιμο παράδειγμα template (e-shop, φιλοξενία, συντήρηση).
 - Νέοι πίνακες: `#__supportplans_offer_services`, `#__supportplans_offer_templates`, `#__supportplans_offers`, `#__supportplans_offer_items`.
+
+## v1.1.1
+- Joomla 6: το script εγκατάστασης δεν χρησιμοποιεί πλέον τις κλάσεις `Joomla\CMS\Filesystem` (υπάρχουν μόνο με το plugin συμβατότητας) ούτε τη στήλη `system_data`, που αφαιρέθηκε. Έτσι εγκαθίστανται ξανά τα plugins «Support Plans Launcher» και «No CPNB».
+- Ο launcher ανοίγει το Service Hub σε νέο tab και από το «Components → Support Plans», με το Itemid των Ρυθμίσεων.
+- Οι Ρυθμίσεις (site/admin) χρησιμοποιούν `Joomla\Filesystem\File/Folder` για τα uploads.
+- Σφάλματα εγκατάστασης plugin εμφανίζονται πλέον ως μήνυμα αντί να αγνοούνται.
+

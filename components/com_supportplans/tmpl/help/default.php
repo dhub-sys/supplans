@@ -151,6 +151,12 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.1.1</div><div><ul>
+<li>Διορθώθηκε η εγκατάσταση του launcher σε Joomla 6: το «Support Plans» εμφανίζεται ξανά στο αριστερό menu του administrator και ανοίγει το Service Hub σε νέο tab.</li>
+<li>Και το «Components → Support Plans» ανοίγει πλέον το Service Hub σε νέο tab.</li>
+<li>Ο launcher χρησιμοποιεί το Standalone Menu Item ID των Ρυθμίσεων αντί για σταθερό 785.</li>
+<li>Διορθώθηκε το ανέβασμα λογοτύπου / login icon / υπογραφής σε Joomla 6.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.1.0</div><div><ul>
 <li>Νέα ενότητα <strong>Προσφορές</strong> με βιβλιοθήκη υπηρεσιών, templates προσφορών και Pdf σε μορφή οικονομικής προσφοράς.</li>
 <li>Επιλογή ανά υπηρεσία αν περιγράφεται στο έγγραφο και αν μπαίνει στον πίνακα τιμών, με εκπτώσεις και αυτόματο υπολογισμό Φ.Π.Α./συνόλων.</li>
