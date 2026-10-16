@@ -17,7 +17,7 @@ $spInitials = '';
 foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= mb_strtoupper(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
 if ($spInitials === '') $spInitials = 'SP';
 $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
-$tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες'];
+$tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες', 'variables' => 'Μεταβλητές'];
 ?>
 <div class="sp-saas-root">
 <header class="sp-appbar">
@@ -42,9 +42,15 @@ $tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services
   <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo OfferHelper::url('view=offers' . ($key === 'offers' ? '' : '&section=' . $key)); ?>"><?php echo $e($label); ?></a>
   <?php endforeach; ?>
  </nav>
+ <script>
+ // Offer fields for the editor's "Μεταβλητή…" list.
+ window.spCustomVariables = function () { return <?php echo json_encode(array_map(static fn($f) => ['{' . $f['key'] . '}', $f['label']], OfferHelper::fields($this->params)), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP); ?>; };
+ </script>
  <script>function spSubmit(task){var f=document.getElementById('adminForm');if(!f)return;if(!f.reportValidity||f.reportValidity()){f.querySelector('input[name="task"]').value=task;f.submit();}}</script>
 <?php
-if ($this->section === 'services') {
+if ($this->section === 'variables') {
+    echo $this->loadTemplate('fields');
+} elseif ($this->section === 'services') {
     echo $this->loadTemplate($this->mode === 'list' ? 'services' : 'service');
 } elseif ($this->section === 'templates') {
     echo $this->loadTemplate($this->mode === 'list' ? 'templates' : 'template');

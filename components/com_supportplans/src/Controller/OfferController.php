@@ -44,7 +44,7 @@ class OfferController extends BaseController
             'show_banks'    => (int) $template->show_banks,
             'status'        => 'draft',
             'notes'         => '',
-            'variables'     => json_encode(OfferHelper::customVariables($template->variables ?? ''), JSON_UNESCAPED_UNICODE),
+            'variables'     => $this->postedFields(),
             'created'       => $now,
             'modified'      => $now,
         ];
@@ -161,7 +161,7 @@ class OfferController extends BaseController
             'show_banks'    => $in->getInt('show_banks', 0) ? 1 : 0,
             'status'        => isset(OfferHelper::STATUSES[$status]) ? $status : 'draft',
             'notes'         => trim((string) $in->get('notes', '', 'raw')),
-            'variables'     => json_encode(OfferHelper::customVariables(null, (array) $in->get('var_key', [], 'array'), (array) $in->get('var_value', [], 'array')), JSON_UNESCAPED_UNICODE),
+            'variables'     => $this->postedFields(),
         ];
         foreach (self::TEXT_FIELDS as $field) {
             $value = str_replace("\r\n", "\n", (string) $in->get($field, '', 'raw'));
@@ -254,6 +254,13 @@ class OfferController extends BaseController
             $app->enqueueMessage('Η προσφορά διαγράφηκε.');
         }
         OfferHelper::redirect('view=offers');
+    }
+
+    /** Offer field values posted as field[key] => value, stored as JSON [{key, value}]. */
+    private function postedFields(): string
+    {
+        $posted = (array) $this->input->get('field', [], 'array');
+        return json_encode(OfferHelper::customVariables(null, array_map('strval', array_keys($posted)), array_values($posted)), JSON_UNESCAPED_UNICODE);
     }
 
     private function date(string $value): string

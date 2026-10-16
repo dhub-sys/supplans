@@ -18,10 +18,11 @@
    <code>κενή γραμμή</code><span>νέα παράγραφος</span>
   </div>
   <div>
-   <code>{customer}</code><span>πελάτης</span>
-   <code>{project}</code><span>έργο / εταιρεία πελάτη</span>
+   <code>{customer} {client}</code><span>πελάτης</span>
+   <code>{project} {project_name}</code><span>έργο / εταιρεία πελάτη</span>
    <code>{company}</code><span>η επωνυμία σας (Ρυθμίσεις)</span>
    <code>{number} {date}</code><span>αριθμός &amp; ημερομηνία προσφοράς</span>
+   <code>{δικές σας}</code><span>από την καρτέλα Μεταβλητές</span>
   </div>
  </div>
 </details>

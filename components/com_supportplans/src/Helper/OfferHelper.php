@@ -210,7 +210,7 @@ final class OfferHelper
         $out = [];
         foreach ($rows as $row) {
             $key = self::variableKey((string) ($row['key'] ?? ''));
-            if ($key === '' || isset(self::BUILTIN_VARIABLES[$key]) || isset($out[$key])) {
+            if ($key === '' || self::isReservedVariable($key) || isset($out[$key])) {
                 continue;
             }
             $out[$key] = ['key' => $key, 'value' => trim(str_replace(["\r\n", "\r"], "\n", (string) ($row['value'] ?? '')))];
@@ -218,8 +218,74 @@ final class OfferHelper
         return array_values($out);
     }
 
-    /** All variable values for an offer: built-ins first, then the offer's own variables. */
-    public static function offerVars(object $offer, array $brand): array
+    /** Alternative names for built-in variables. */
+    public const VARIABLE_ALIASES = ['client' => 'customer', 'project_name' => 'project'];
+
+    /** True for names that are built-in variables or their aliases (they cannot be redefined). */
+    public static function isReservedVariable(string $key): bool
+    {
+        return isset(self::BUILTIN_VARIABLES[$key]) || isset(self::VARIABLE_ALIASES[$key]);
+    }
+
+    /**
+     * Offer fields defined in the Μεταβλητές tab: each one is a variable such as {intro_service}
+     * that becomes an input on every offer.
+     *
+     * @return array<int, array{key: string, label: string, type: string, default: string}>
+     */
+    public static function fields($params = null): array
+    {
+        $params = $params ?: ComponentHelper::getParams('com_supportplans');
+        $decoded = json_decode((string) $params->get('offer_fields', ''), true);
+        $out = [];
+        foreach (is_array($decoded) ? $decoded : [] as $row) {
+            $key = self::variableKey((string) ($row['key'] ?? ''));
+            if ($key === '' || self::isReservedVariable($key) || isset($out[$key])) {
+                continue;
+            }
+            $out[$key] = [
+                'key'     => $key,
+                'label'   => trim((string) ($row['label'] ?? '')) ?: self::labelFromKey($key),
+                'type'    => ($row['type'] ?? '') === 'textarea' ? 'textarea' : 'text',
+                'default' => (string) ($row['default'] ?? ''),
+            ];
+        }
+        return array_values($out);
+    }
+
+    /** "intro_service" -> "Intro service" */
+    public static function labelFromKey(string $key): string
+    {
+        $label = trim(str_replace('_', ' ', $key));
+        return mb_strtoupper(mb_substr($label, 0, 1)) . mb_substr($label, 1);
+    }
+
+    /**
+     * Values of the offer fields for one offer: every defined field (stored value, or the
+     * field's default when the offer has none) followed by any older stored variables
+     * that are no longer defined, so nothing is lost.
+     *
+     * @return array<int, array{key: string, label: string, type: string, default: string, value: string, defined: bool}>
+     */
+    public static function offerFields(?object $offer, $params = null): array
+    {
+        $stored = [];
+        foreach (self::customVariables($offer->variables ?? '') as $row) {
+            $stored[$row['key']] = $row['value'];
+        }
+        $out = [];
+        foreach (self::fields($params) as $field) {
+            $out[] = $field + ['value' => array_key_exists($field['key'], $stored) ? $stored[$field['key']] : $field['default'], 'defined' => true];
+            unset($stored[$field['key']]);
+        }
+        foreach ($stored as $key => $value) {
+            $out[] = ['key' => $key, 'label' => self::labelFromKey($key), 'type' => strpos($value, "\n") !== false ? 'textarea' : 'text', 'default' => '', 'value' => $value, 'defined' => false];
+        }
+        return $out;
+    }
+
+    /** All variable values for an offer: built-ins, their aliases and the offer fields. */
+    public static function offerVars(object $offer, array $brand, $params = null): array
     {
         $vars = [
             'customer' => (string) $offer->customer_name,
@@ -228,10 +294,47 @@ final class OfferHelper
             'number'   => (string) $offer->offer_number,
             'date'     => self::dateGr($offer->offer_date ?? ''),
         ];
-        foreach (self::customVariables($offer->variables ?? '') as $row) {
-            $vars[$row['key']] = $row['value'];
+        foreach (self::VARIABLE_ALIASES as $alias => $target) {
+            $vars[$alias] = $vars[$target];
+        }
+        foreach (self::offerFields($offer, $params) as $field) {
+            $vars[$field['key']] = $field['value'];
         }
         return $vars;
+    }
+
+    /** Variable names used as {name} in the given texts. */
+    public static function usedVariables(array $texts): array
+    {
+        $found = [];
+        foreach ($texts as $text) {
+            if (preg_match_all('/\{([\p{L}\p{N}_]+)\}/u', (string) $text, $m)) {
+                foreach ($m[1] as $key) {
+                    $found[$key] = true;
+                }
+            }
+        }
+        return array_keys($found);
+    }
+
+    /** Stores one value in the component parameters. */
+    public static function saveParam(string $name, $value): void
+    {
+        $db = Factory::getContainer()->get('DatabaseDriver');
+        $q = $db->getQuery(true)->select([$db->quoteName('extension_id'), $db->quoteName('params')])->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('type') . '=' . $db->quote('component'))
+            ->where($db->quoteName('element') . '=' . $db->quote('com_supportplans'));
+        $row = $db->setQuery($q)->loadObject();
+        if (!$row) {
+            throw new \RuntimeException('com_supportplans not found');
+        }
+        $params = json_decode((string) $row->params, true);
+        $params = is_array($params) ? $params : [];
+        $params[$name] = $value;
+        $q = $db->getQuery(true)->update($db->quoteName('#__extensions'))
+            ->set($db->quoteName('params') . '=' . $db->quote(json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)))
+            ->where($db->quoteName('extension_id') . '=' . (int) $row->extension_id);
+        $db->setQuery($q)->execute();
     }
 
     /**

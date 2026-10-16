@@ -26,6 +26,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
    <label>Αρ. προσφοράς<input name="offer_number" value="<?php echo $e($this->nextNumber); ?>"></label>
    <label>Ημερομηνία<input type="date" name="offer_date" value="<?php echo date('Y-m-d'); ?>" required></label>
   </div>
+  <?php $this->fieldValues = OfferHelper::offerFields(null, $this->params); echo $this->loadTemplate('offerfields'); ?>
   <p class="sp-foot">Τα κείμενα, οι υπηρεσίες και οι τιμές αντιγράφονται από το template. Στο επόμενο βήμα επιλέγετε ποιες υπηρεσίες περιγράφονται στο έγγραφο, ποιες μπαίνουν στον πίνακα τιμών και τυχόν εκπτώσεις.</p>
  </div>
  <input type="hidden" name="task" value="">

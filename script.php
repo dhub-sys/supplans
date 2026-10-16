@@ -8,6 +8,8 @@ class Com_SupportplansInstallerScript
  public function postflight($type,$parent):bool
  {
   $ok=$this->ensureSchema();
+  // Files removed in later versions (Joomla upgrades do not delete them).
+  foreach(['/components/com_supportplans/tmpl/offers/default_variables.php'] as $obsolete){ if(is_file(JPATH_SITE.$obsolete)) @unlink(JPATH_SITE.$obsolete); }
   // Bundled system plugins: the launcher opens the Service Hub in a new tab from the
   // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
   $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');

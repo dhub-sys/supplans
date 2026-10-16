@@ -21,6 +21,8 @@ class HtmlView extends BaseHtmlView
     public array $items = [];
     public array $totals = [];
     public string $nextNumber = '';
+    public array $fields = [];
+    public array $undefinedVariables = [];
 
     public function display($tpl = null): void
     {
@@ -28,7 +30,7 @@ class HtmlView extends BaseHtmlView
         $app = Factory::getApplication();
         $db = Factory::getContainer()->get('DatabaseDriver');
         $section = $app->input->getCmd('section', 'offers');
-        $this->section = in_array($section, ['offers', 'templates', 'services'], true) ? $section : 'offers';
+        $this->section = in_array($section, ['offers', 'templates', 'services', 'variables'], true) ? $section : 'offers';
         $id = $app->input->getInt('id');
         $this->mode = $app->input->getCmd('mode', $id ? 'edit' : 'list') === 'new' ? 'new' : ($id ? 'edit' : 'list');
 
@@ -37,7 +39,24 @@ class HtmlView extends BaseHtmlView
         $q = $db->getQuery(true)->select('*')->from($db->quoteName('#__supportplans_offer_templates'))->order('published DESC, name ASC');
         $this->templates = $db->setQuery($q)->loadObjectList();
 
-        if ($this->section === 'services') {
+        $this->fields = OfferHelper::fields($this->params);
+        if ($this->section === 'variables') {
+            // Variables written in the library texts that are not defined yet.
+            $texts = [];
+            foreach ($this->services as $sv) {
+                array_push($texts, $sv->section_title, $sv->table_label, $sv->body);
+            }
+            foreach ($this->templates as $tp) {
+                array_push($texts, $tp->doc_title, $tp->doc_subtitle, $tp->footer_title, $tp->pricing_title, $tp->payment_text, $tp->terms_title, $tp->terms_body);
+            }
+            $defined = array_column($this->fields, 'key');
+            foreach (OfferHelper::usedVariables($texts) as $key) {
+                if (!OfferHelper::isReservedVariable($key) && !in_array($key, $defined, true)) {
+                    $this->undefinedVariables[] = $key;
+                }
+            }
+            $this->mode = 'list';
+        } elseif ($this->section === 'services') {
             $this->selected = $id ? $this->find($this->services, $id) : null;
         } elseif ($this->section === 'templates') {
             $this->selected = $id ? $this->find($this->templates, $id) : null;

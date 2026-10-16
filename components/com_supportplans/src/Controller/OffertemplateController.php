@@ -58,7 +58,6 @@ class OffertemplateController extends BaseController
             'vat_rate'      => max(0, $in->getFloat('vat_rate', 24)),
             'show_banks'    => $in->getInt('show_banks', 0) ? 1 : 0,
             'items'         => json_encode($items),
-            'variables'     => json_encode(OfferHelper::customVariables(null, (array) $in->get('var_key', [], 'array'), (array) $in->get('var_value', [], 'array')), JSON_UNESCAPED_UNICODE),
             'published'     => $in->getInt('published', 1) ? 1 : 0,
             'modified'      => $now,
         ];

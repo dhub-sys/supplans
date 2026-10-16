@@ -82,18 +82,9 @@ foreach ($this->services as $s) {
    <label>Κατάσταση<select name="status"><?php foreach (OfferHelper::STATUSES as $k => $label): ?><option value="<?php echo $k; ?>" <?php echo $o->status === $k ? 'selected' : ''; ?>><?php echo $e($label); ?></option><?php endforeach; ?></select></label>
    <label>Φ.Π.Α. %<input type="number" step="0.01" min="0" name="vat_rate" id="sp-offer-vat" value="<?php echo $e($o->vat_rate); ?>"></label>
   </div>
+  <?php $this->fieldValues = OfferHelper::offerFields($o, $this->params); echo $this->loadTemplate('offerfields'); ?>
  </div>
 
- <?php
- $brand = OfferHelper::brand($this->params);
- $builtinVars = OfferHelper::offerVars((object) (['variables' => ''] + (array) $o), $brand);
- $this->varContext = [
-     'rows' => OfferHelper::customVariables($o->variables ?? ''),
-     'builtin' => $builtinVars,
-     'intro' => 'Γράψτε <code>{όνομα}</code> σε οποιοδήποτε κείμενο, τίτλο ενότητας ή περιγραφή πίνακα και στο Pdf μπαίνει η τιμή. Οι βασικές μεταβλητές συμπληρώνονται αυτόματα από τα στοιχεία της προσφοράς.',
- ];
- echo $this->loadTemplate('variables');
- ?>
  <div class="sp-card">
   <div class="sp-title-row"><h3>Υπηρεσίες προσφοράς</h3></div>
   <p class="sp-foot">Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Η σειρά εδώ είναι και η σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
