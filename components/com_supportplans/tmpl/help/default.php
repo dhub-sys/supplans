@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.7.1</div><div><ul>
+<li>Η Εισαγωγή έχει πλέον κουμπιά «+ Λίστα» και «+ Κείμενο», όπως οι υπηρεσίες: λίστες σε κάρτα (1 ή 2 στήλες) και επιπλέον κείμενα με drag & drop σειρά. Μεταφέρονται από το template στη νέα προσφορά.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.0</div><div><ul>
 <li>Νέο πεδίο «Εισαγωγή» στα templates και στις προσφορές, με δικό του τίτλο και editor, πριν από τα κείμενα πληρωμής και όρων. Στο Pdf εμφανίζεται ως πρώτη ενότητα μετά το εξώφυλλο, δέχεται μεταβλητές, και αν μείνει κενή δεν εμφανίζεται.</li>
 </ul></div></div>

@@ -54,6 +54,7 @@ class OffertemplateController extends BaseController
             'pricing_title' => trim($in->getString('pricing_title')),
             'intro_title'   => trim($in->getString('intro_title')),
             'intro_body'    => str_replace("\r\n", "\n", (string) $in->get('intro_body', '', 'raw')),
+            'intro_lists'   => json_encode(OfferHelper::lists((array) $in->get('intro_lists', [], 'array')), JSON_UNESCAPED_UNICODE),
             'payment_text'  => str_replace("\r\n", "\n", (string) $in->get('payment_text', '', 'raw')),
             'terms_title'   => trim($in->getString('terms_title')),
             'terms_body'    => str_replace("\r\n", "\n", (string) $in->get('terms_body', '', 'raw')),

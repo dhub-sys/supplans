@@ -47,7 +47,7 @@ class HtmlView extends BaseHtmlView
                 array_push($texts, $sv->section_title, $sv->table_label, $sv->body);
             }
             foreach ($this->templates as $tp) {
-                array_push($texts, $tp->doc_title, $tp->doc_subtitle, $tp->footer_title, $tp->pricing_title, $tp->intro_title ?? '', $tp->intro_body ?? '', $tp->payment_text, $tp->terms_title, $tp->terms_body);
+                array_push($texts, $tp->doc_title, $tp->doc_subtitle, $tp->footer_title, $tp->pricing_title, $tp->intro_title ?? '', $tp->intro_body ?? '', $tp->intro_lists ?? '', $tp->payment_text, $tp->terms_title, $tp->terms_body);
             }
             $defined = array_column($this->fields, 'key');
             foreach (OfferHelper::usedVariables($texts) as $key) {

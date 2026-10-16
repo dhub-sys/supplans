@@ -660,3 +660,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.7.0
 - Εισαγωγή προσφοράς: νέες στήλες `intro_title` / `intro_body` στα `offer_templates` και `offers`, που προστίθενται με ασφάλεια από το script.php. Στη φόρμα template/προσφοράς μπαίνουν πριν από τα κείμενα πληρωμής/όρων. Η νέα προσφορά τις αντιγράφει από το template. Στο Pdf αποδίδονται ως πρώτη αριθμημένη ενότητα της ροής, με προεπιλεγμένο τίτλο «Εισαγωγή», και μόνο όταν το κείμενο δεν είναι κενό. Υποστηρίζουν μεταβλητές.
+
+## v1.7.1
+- Λίστες/κείμενα στην Εισαγωγή: νέα στήλη `intro_lists` (ίδιο JSON με το `lists` των υπηρεσιών) στα `offer_templates` και `offers`. Η φόρμα χρησιμοποιεί το `OfferHelper::listsEditor('intro_lists', …)`, το Pdf το `renderBlocks` μετά το κείμενο εισαγωγής. Η ενότητα εμφανίζεται αν υπάρχει κείμενο ή έστω ένα block.
