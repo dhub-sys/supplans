@@ -156,6 +156,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.3.2</div><div><ul>
+<li>Οι οδηγίες της καρτέλας Μεταβλητές μεταφέρθηκαν σε εικονίδιο πληροφοριών (ⓘ) δίπλα στον τίτλο: εμφανίζονται με hover ή με πάτημα και κλείνουν με Esc ή κλικ έξω.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.3.1</div><div><ul>
 <li>Αλλαγή σειράς με drag &amp; drop από λαβή ⋮⋮ (ποντίκι, αφή, και βελάκια πληκτρολογίου πάνω στη λαβή) στις Μεταβλητές, στις υπηρεσίες της προσφοράς και στις υπηρεσίες του template. Η σελίδα κυλά αυτόματα όταν σύρετε κοντά στην άκρη.</li>
 <li>Μικρό τετράγωνο κουμπί «+» για νέα μεταβλητή, και εικονίδιο κάδου για αφαίρεση.</li>

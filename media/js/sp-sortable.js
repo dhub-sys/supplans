@@ -106,3 +106,28 @@
   // A click on the handle must not submit forms or toggle anything.
   document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-sort-handle]')) e.preventDefault(); });
 })();
+
+/* Info popovers: tap/click toggles (touch devices), Esc or a click outside closes. */
+(function () {
+  'use strict';
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.sp-info-btn');
+    document.querySelectorAll('.sp-info.is-open').forEach(function (el) {
+      if (!btn || !el.contains(btn)) { el.classList.remove('is-open'); el.querySelector('.sp-info-btn').setAttribute('aria-expanded', 'false'); }
+    });
+    if (btn) {
+      var box = btn.closest('.sp-info');
+      var open = !box.classList.contains('is-open');
+      box.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) btn.blur();
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.sp-info.is-open, .sp-info:focus-within').forEach(function (el) {
+      el.classList.remove('is-open');
+      var b = el.querySelector('.sp-info-btn'); b.setAttribute('aria-expanded', 'false'); b.blur();
+    });
+  });
+})();

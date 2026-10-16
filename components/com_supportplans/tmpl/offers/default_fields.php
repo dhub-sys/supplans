@@ -37,11 +37,21 @@ $fields = $this->fields ?: [['key' => '', 'label' => '', 'type' => 'text', 'defa
 
 <form action="<?php echo OfferHelper::url('view=offers&section=variables'); ?>" method="post" name="adminForm" id="adminForm">
  <div class="sp-card">
-  <div class="sp-title-row"><h2>Οι μεταβλητές σας</h2><button type="button" class="btn btn-primary" onclick="spSubmit('offerfield.save')">Αποθήκευση</button></div>
+  <div class="sp-title-row"><h2 class="sp-title-with-info">Οι μεταβλητές σας
+   <span class="sp-info" data-info>
+    <button type="button" class="sp-info-btn" aria-label="Οδηγίες για τις μεταβλητές" aria-expanded="false" aria-controls="sp-fields-help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r=".9"/></svg></button>
+    <span class="sp-info-pop" id="sp-fields-help" role="tooltip">
+     <strong>Πώς λειτουργούν</strong>
+     <span>Κάθε μεταβλητή γίνεται <b>πεδίο σε όλες τις προσφορές</b>, όπως ο Πελάτης και το Έργο. Γράψτε τη στα κείμενα, π.χ. <code>{intro_service}</code>, και στο Pdf μπαίνει η τιμή του πεδίου της κάθε προσφοράς.</span>
+     <span>Η μεταβλητή συμπληρώνεται αυτόματα από το όνομα του πεδίου (π.χ. «Intro Service» → <code>{intro_service}</code>) και μπορείτε να την αλλάξετε.</span>
+     <span>Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά των πεδίων στην προσφορά.</span>
+     <span>Αν διαγράψετε μια μεταβλητή, οι προσφορές που έχουν ήδη τιμή την κρατούν.</span>
+    </span>
+   </span>
+  </h2><button type="button" class="btn btn-primary" onclick="spSubmit('offerfield.save')">Αποθήκευση</button></div>
   <div id="sp-field-rows" class="sp-field-rows" data-sortable><?php foreach ($fields as $f) echo $row($f); ?></div>
   <template id="sp-field-template"><?php echo $row(['key' => '', 'label' => '', 'type' => 'text', 'default' => '']); ?></template>
   <button type="button" class="sp-add-btn" id="sp-field-add" title="Νέα μεταβλητή" aria-label="Νέα μεταβλητή"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
-  <p class="sp-foot">Η μεταβλητή συμπληρώνεται αυτόματα από το όνομα του πεδίου (π.χ. «Intro Service» → <code>{intro_service}</code>) και μπορείτε να την αλλάξετε. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά των πεδίων στην προσφορά. Αν διαγράψετε μια μεταβλητή, οι προσφορές που έχουν ήδη τιμή την κρατούν.</p>
  </div>
  <input type="hidden" name="task" value="">
  <?php echo HTMLHelper::_('form.token'); ?>
