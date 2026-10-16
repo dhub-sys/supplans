@@ -335,3 +335,9 @@
 .sp-list-head .sp-grip{height:28px}
 /* PDF: list description under the title bar */
 .sp-od-list .sp-od-card-desc th{font-weight:400!important;font-size:9pt;color:#475467;background:#f4f6f9;text-align:left!important;white-space:normal!important;line-height:1.45;border-bottom:1px solid #e7eaf0;padding-top:1.8mm;padding-bottom:1.8mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* v1.6.2 – striped list cards and a little more room around extra blocks */
+.sp-od-list tbody tr:nth-child(even) td{background:#f6f7f9;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sp-od-body .sp-od-list,.sp-od-flow .sp-od-list{margin:5mm 0 6mm!important}
+.sp-od-body .sp-o-blockstart,.sp-od-flow .sp-o-blockstart{margin-top:5mm!important}
+.sp-od-body>.sp-od-list:first-child,.sp-od-body>.sp-o-blockstart:first-child{margin-top:0!important}

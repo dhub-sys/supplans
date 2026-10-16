@@ -160,6 +160,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.6.2</div><div><ul>
+<li>Οι λίστες σε κάρτα εμφανίζονται striped, με διακριτικό ανοιχτό γκρι σε κάθε δεύτερη γραμμή.</li>
+<li>Λίγο μεγαλύτερο κενό ανάμεσα σε λίστες και επιπλέον κείμενα της ίδιας υπηρεσίας. Δεν προστίθεται κενό στην αρχή σελίδας.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.6.1</div><div><ul>
 <li>Νέο κουμπί «＋ Κείμενο» δίπλα στο «＋ Λίστα»: επιπλέον μπλοκ κειμένου με πλήρη εργαλειοθήκη. Λίστες και κείμενα εμφανίζονται στο Pdf με τη σειρά που ορίζετε (drag &amp; drop από τη λαβή).</li>
 <li>Νέο πεδίο «Περιγραφή λίστας», που εμφανίζεται μέσα στην κάρτα κάτω από τον τίτλο.</li>

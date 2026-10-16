@@ -324,7 +324,12 @@ final class OfferHelper
     {
         $html = '';
         foreach ($blocks as $block) {
-            $html .= $block['type'] === 'text' ? self::render($block['body'], $vars) : self::renderListCard($block, $vars);
+            if ($block['type'] === 'text') {
+                // Mark the first element of an extra text block so it gets the same gap as a list card.
+                $html .= preg_replace_callback('/^<([a-z0-9]+)( class="([^"]*)")?/i', static fn($m) => '<' . $m[1] . ' class="sp-o-blockstart' . (isset($m[3]) && $m[3] !== '' ? ' ' . $m[3] : '') . '"', self::render($block['body'], $vars), 1);
+            } else {
+                $html .= self::renderListCard($block, $vars);
+            }
         }
         return $html;
     }
