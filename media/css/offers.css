@@ -278,3 +278,8 @@
 .sp-section-layout{display:flex;flex-direction:column;gap:5px;align-self:end}
 .sp-section-layout .sp-field-label{font-weight:600}
 .sp-section-layout select{padding:8px 9px!important}
+.sp-section-layout .sp-field-label{font-size:13px;color:#344054}
+.sp-section-layout{grid-column:span 2;min-width:0}
+.sp-section-layout .sp-oi-layout{flex-wrap:wrap;row-gap:6px}
+@media(max-width:700px){.sp-section-layout{grid-column:1/-1}}
+.sp-section-layout .sp-oi-space{white-space:nowrap}
