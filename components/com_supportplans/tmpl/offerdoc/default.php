@@ -73,7 +73,7 @@ $section = 0;
   <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
   <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($item->page_break ?? 0, $item->space_before ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
   <?php echo OfferHelper::render((string) $item->body, $vars); ?>
-  <?php foreach (OfferHelper::lists($item->lists ?? '') as $list) echo OfferHelper::renderListCard($list, $vars); ?>
+  <?php echo OfferHelper::renderBlocks(OfferHelper::lists($item->lists ?? ''), $vars); ?>
   <?php endforeach; ?>
 
   <?php if ($totals['rows']): $section++; ?>

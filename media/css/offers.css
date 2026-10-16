@@ -315,3 +315,23 @@
 .sp-od-list td{text-align:left!important;white-space:normal!important;width:auto!important;font-size:9.6pt;border-bottom:1px solid #e7eaf0;padding:1.7mm 3.6mm}
 .sp-od-list tbody tr:last-child td{border-bottom:0}
 .sp-od-list-2 td:first-child{border-right:1px solid #e7eaf0}
+
+/* v1.6.1 – blocks: list + text, inline editors */
+.sp-ed.is-inline .sp-ed-block,
+.sp-ed.is-inline [data-cmd="insertUnorderedList"],
+.sp-ed.is-inline [data-cmd="insertOrderedList"],
+.sp-ed.is-inline [data-cmd="columns"],
+.sp-ed.is-inline .sp-ed-toolbar>.sp-ed-sep:nth-of-type(1),
+.sp-ed.is-inline .sp-ed-toolbar>.sp-ed-sep:nth-of-type(2){display:none!important}
+.sp-ed.is-inline .sp-ed-toolbar{padding:4px 6px}
+.sp-ed.is-inline .sp-ed-area{padding:8px 10px;font-size:13.5px}
+.sp-ed.is-inline .sp-ed-area p{margin:0 0 3px}
+.sp-list-field{display:flex;flex-direction:column;gap:4px}
+.sp-list-field>span{font-size:12px;font-weight:600;color:#475467}
+.sp-block-kind{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#667085;background:#eef2f7;border-radius:5px;padding:2px 7px}
+.sp-list-block.is-text .sp-block-kind{background:#eef4ff;color:#1d4ed8}
+.sp-block-spacer{flex:1}
+.sp-block-add{display:flex;gap:8px}
+.sp-list-head .sp-grip{height:28px}
+/* PDF: list description under the title bar */
+.sp-od-list .sp-od-card-desc th{font-weight:400!important;font-size:9pt;color:#475467;background:#f4f6f9;text-align:left!important;white-space:normal!important;line-height:1.45;border-bottom:1px solid #e7eaf0;padding-top:1.8mm;padding-bottom:1.8mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}

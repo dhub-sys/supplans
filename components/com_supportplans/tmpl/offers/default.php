@@ -68,5 +68,6 @@ if ($this->section === 'variables') {
 }
 ?>
 <template id="sp-list-block-template"><?php echo OfferHelper::listBlock('__P__', '__k__'); ?></template>
+<template id="sp-text-block-template"><?php echo OfferHelper::textBlock('__P__', '__k__'); ?></template>
 </section></div></div></main>
 </div>

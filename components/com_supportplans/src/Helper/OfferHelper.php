@@ -182,8 +182,11 @@ final class OfferHelper
     }
 
     /**
-     * Structured lists attached to a service: [{title, cols (1|2), items: [..]}].
-     * Accepts the stored JSON or the posted form array; empty lists are dropped.
+     * Extra content blocks of a service, in order, after its main text:
+     *   ['type' => 'list', 'title', 'desc', 'cols' (1|2), 'items' => [..]]  card list
+     *   ['type' => 'text', 'body']                                          text with formatting
+     * Accepts the stored JSON (blocks without a type are lists, as saved by v1.6.0)
+     * or the posted form array. Empty blocks are dropped.
      */
     public static function lists($raw): array
     {
@@ -191,11 +194,18 @@ final class OfferHelper
             $raw = json_decode($raw, true);
         }
         $out = [];
-        foreach (is_array($raw) ? $raw : [] as $list) {
-            if (!is_array($list)) {
+        foreach (is_array($raw) ? $raw : [] as $block) {
+            if (!is_array($block)) {
                 continue;
             }
-            $items = $list['items'] ?? [];
+            if (($block['type'] ?? 'list') === 'text') {
+                $body = trim(str_replace(["\r\n", "\r"], "\n", (string) ($block['body'] ?? '')));
+                if ($body !== '') {
+                    $out[] = ['type' => 'text', 'body' => $body];
+                }
+                continue;
+            }
+            $items = $block['items'] ?? [];
             if (is_string($items)) {
                 $items = preg_split('/\R/u', $items);
             }
@@ -210,8 +220,10 @@ final class OfferHelper
                 continue;
             }
             $out[] = [
-                'title' => trim(strip_tags((string) ($list['title'] ?? ''))),
-                'cols'  => (int) ($list['cols'] ?? 1) === 2 ? 2 : 1,
+                'type'  => 'list',
+                'title' => trim(strip_tags((string) ($block['title'] ?? ''))),
+                'desc'  => trim(str_replace(["\r\n", "\r"], "\n", (string) ($block['desc'] ?? ''))),
+                'cols'  => (int) ($block['cols'] ?? 1) === 2 ? 2 : 1,
                 'items' => $clean,
             ];
         }
@@ -219,16 +231,28 @@ final class OfferHelper
     }
 
     /**
-     * Editor for the structured lists of a service (library service or offer item).
+     * Editor for the extra blocks of a service (library service or offer item).
      * $prefix is the form name prefix, e.g. "lists" or "items[3][lists]".
      */
-    public static function listsEditor(string $prefix, array $lists): string
+    public static function listsEditor(string $prefix, array $blocks): string
     {
-        $html = '<div class="sp-lists-wrap"><div class="sp-lists" data-lists data-prefix="' . htmlspecialchars($prefix, ENT_QUOTES, 'UTF-8') . '">';
-        foreach (array_values($lists) as $k => $list) {
-            $html .= self::listBlock($prefix, (string) $k, $list);
+        $html = '<div class="sp-lists-wrap"><div class="sp-lists" data-lists data-sortable data-prefix="' . htmlspecialchars($prefix, ENT_QUOTES, 'UTF-8') . '">';
+        foreach (array_values($blocks) as $k => $block) {
+            $html .= ($block['type'] ?? 'list') === 'text' ? self::textBlock($prefix, (string) $k, $block) : self::listBlock($prefix, (string) $k, $block);
         }
-        return $html . '</div><button type="button" class="sp-list-add" data-list-add><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Λίστα</button></div>';
+        $plus = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+        return $html . '</div><div class="sp-block-add"><button type="button" class="sp-list-add" data-list-add>' . $plus . 'Λίστα</button>'
+            . '<button type="button" class="sp-list-add" data-text-add>' . $plus . 'Κείμενο</button></div></div>';
+    }
+
+    private static function blockTools(): string
+    {
+        return '<button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>';
+    }
+
+    private static function removeButton(string $label): string
+    {
+        return '<button type="button" class="sp-icon-btn is-danger" data-list-remove title="' . $label . '" aria-label="' . $label . '"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>';
     }
 
     /** One list block of the editor; also used (with placeholders) as the template for new blocks. */
@@ -237,16 +261,30 @@ final class OfferHelper
         $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         $name = $e($prefix . '[' . $k . ']');
         $two = (int) ($list['cols'] ?? 1) === 2;
-        return '<div class="sp-list-block" data-list-block>'
-            . '<div class="sp-list-head">'
+        return '<div class="sp-list-block" data-list-block data-sort-item>'
+            . '<input type="hidden" name="' . $name . '[type]" value="list">'
+            . '<div class="sp-list-head">' . self::blockTools()
+            . '<span class="sp-block-kind">Λίστα</span>'
             . '<input class="sp-list-title" name="' . $name . '[title]" value="' . $e($list['title'] ?? '') . '" placeholder="Τίτλος λίστας (προαιρετικός)" aria-label="Τίτλος λίστας">'
             . '<div class="sp-seg" role="radiogroup" aria-label="Στήλες">'
             . '<label><input type="radio" name="' . $name . '[cols]" value="1"' . ($two ? '' : ' checked') . '><span>1 στήλη</span></label>'
             . '<label><input type="radio" name="' . $name . '[cols]" value="2"' . ($two ? ' checked' : '') . '><span>2 στήλες</span></label>'
+            . '</div>' . self::removeButton('Αφαίρεση λίστας')
             . '</div>'
-            . '<button type="button" class="sp-icon-btn is-danger" data-list-remove title="Αφαίρεση λίστας" aria-label="Αφαίρεση λίστας"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>'
-            . '</div>'
-            . '<textarea name="' . $name . '[items]" rows="5" placeholder="Ένα στοιχείο ανά γραμμή — μπορείτε να επικολλήσετε ολόκληρη λίστα">' . $e(implode("\n", (array) ($list['items'] ?? []))) . '</textarea>'
+            . '<div class="sp-list-field"><span>Περιγραφή λίστας (προαιρετική)</span><textarea name="' . $name . '[desc]" rows="2" data-sp-editor="inline">' . $e($list['desc'] ?? '') . '</textarea></div>'
+            . '<div class="sp-list-field"><span>Στοιχεία — ένα ανά γραμμή</span><textarea name="' . $name . '[items]" rows="5" data-sp-editor="inline">' . $e(implode("\n", (array) ($list['items'] ?? []))) . '</textarea></div>'
+            . '</div>';
+    }
+
+    /** One text block of the editor. */
+    public static function textBlock(string $prefix, string $k, array $block = []): string
+    {
+        $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+        $name = $e($prefix . '[' . $k . ']');
+        return '<div class="sp-list-block is-text" data-list-block data-sort-item>'
+            . '<input type="hidden" name="' . $name . '[type]" value="text">'
+            . '<div class="sp-list-head">' . self::blockTools() . '<span class="sp-block-kind">Κείμενο</span><span class="sp-block-spacer"></span>' . self::removeButton('Αφαίρεση κειμένου') . '</div>'
+            . '<textarea name="' . $name . '[body]" rows="5" data-sp-editor>' . $e($block['body'] ?? '') . '</textarea>'
             . '</div>';
     }
 
@@ -256,9 +294,19 @@ final class OfferHelper
         $cols = $list['cols'] === 2 ? 2 : 1;
         $items = array_map(static fn($i) => self::inline(self::vars($i, $vars)), $list['items']);
         $rowsCount = (int) ceil(count($items) / $cols);
+        $title = (string) ($list['title'] ?? '');
+        $desc = (string) ($list['desc'] ?? '');
         $html = '<table class="sp-od-card sp-od-list sp-od-list-' . $cols . '">';
-        if ($list['title'] !== '') {
-            $html .= '<thead><tr class="sp-od-card-title"><th colspan="' . $cols . '">' . htmlspecialchars(self::vars($list['title'], $vars), ENT_QUOTES, 'UTF-8') . '</th></tr></thead>';
+        if ($title !== '' || $desc !== '') {
+            $html .= '<thead>';
+            if ($title !== '') {
+                $html .= '<tr class="sp-od-card-title"><th colspan="' . $cols . '">' . htmlspecialchars(self::vars($title, $vars), ENT_QUOTES, 'UTF-8') . '</th></tr>';
+            }
+            if ($desc !== '') {
+                $lines = array_filter(array_map('trim', explode("\n", self::vars($desc, $vars))), 'strlen');
+                $html .= '<tr class="sp-od-card-desc"><th colspan="' . $cols . '">' . implode('<br>', array_map([self::class, 'inline'], $lines)) . '</th></tr>';
+            }
+            $html .= '</thead>';
         }
         $html .= '<tbody>';
         for ($r = 0; $r < $rowsCount; $r++) {
@@ -269,6 +317,16 @@ final class OfferHelper
             $html .= '</tr>';
         }
         return $html . '</tbody></table>';
+    }
+
+    /** Extra blocks of a service as document HTML (text blocks rendered like the main text). */
+    public static function renderBlocks(array $blocks, array $vars = []): string
+    {
+        $html = '';
+        foreach ($blocks as $block) {
+            $html .= $block['type'] === 'text' ? self::render($block['body'], $vars) : self::renderListCard($block, $vars);
+        }
+        return $html;
     }
 
     /** Built-in variables, always available in offer texts. */

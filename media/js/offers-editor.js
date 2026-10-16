@@ -214,6 +214,8 @@
       '</div>' +
       '<div class="sp-ed-area" contenteditable="true" spellcheck="true"></div>';
 
+    // data-sp-editor="inline": text-level tools only (list items, list descriptions).
+    if (textarea.dataset.spEditor === 'inline') wrapEl.classList.add('is-inline');
     textarea.parentNode.insertBefore(wrapEl, textarea);
     wrapEl.appendChild(textarea);
     textarea.classList.add('sp-ed-source');
@@ -223,7 +225,7 @@
     var blockSel = wrapEl.querySelector('.sp-ed-block');
     var varSel = wrapEl.querySelector('.sp-ed-var');
     var rows = parseInt(textarea.getAttribute('rows'), 10) || 6;
-    area.style.minHeight = Math.max(90, rows * 22) + 'px';
+    area.style.minHeight = Math.max(wrapEl.classList.contains('is-inline') ? 44 : 90, rows * 22) + 'px';
     area.innerHTML = toHtml(textarea.value);
     var sourceMode = false;
     var savedRange = null;
