@@ -245,3 +245,31 @@
 .sp-od-page.has-header{padding-top:24mm}
 .sp-od-page.has-header .sp-od-body{height:247mm}
 @media print{.sp-od-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+/* v1.5.1 – financial summary and bank cards (same look as the support reports) */
+.sp-od-card{width:100%;border-collapse:separate;border-spacing:0;margin:2mm 0 5mm;font-size:9.8pt;line-height:1.35;border-radius:9px;overflow:hidden;break-inside:auto}
+.sp-od-card th,.sp-od-card td{padding:2.1mm 3.6mm;text-align:left;vertical-align:top;border:0}
+.sp-od-card th:not(:first-child),.sp-od-card td:not(:first-child){text-align:right;white-space:nowrap;width:1%}
+.sp-od-card-title th{font-weight:700;text-align:left!important;background:var(--od-accent);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sp-od-card-head th{font-weight:700;font-size:8.8pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* financial summary: accent frame, warm rows, highlighted total */
+.sp-od-fin{border:1.5px solid var(--od-accent);background:#fffaf2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sp-od-fin .sp-od-card-title th{font-size:12.5pt;color:#111827;padding-top:2.6mm;padding-bottom:2.6mm}
+.sp-od-fin .sp-od-card-head th{background:#fff;border-bottom:1px solid #e7eaf0;color:#344054}
+.sp-od-fin tbody td{border-bottom:1px solid #e7eaf0;font-size:10.2pt}
+.sp-od-fin .sp-od-card-total td{background:#fff3df;font-weight:800;font-size:11pt;border-bottom:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+/* banks: neutral frame, accent title bar */
+.sp-od-bank{border:1px solid #d9dee7;background:#fff}
+.sp-od-bank .sp-od-card-title th{font-size:9.6pt;color:var(--od-on-accent);padding-top:2mm;padding-bottom:2mm}
+.sp-od-bank .sp-od-card-head th{background:#f4f6f9;border-bottom:1px solid #d9dee7;text-align:left!important;width:auto}
+.sp-od-bank th,.sp-od-bank td{text-align:left!important;width:auto;font-size:8.8pt}
+.sp-od-bank tbody td{border-bottom:1px solid #e7eaf0}
+.sp-od-bank tbody tr:last-child td{border-bottom:0}
+.sp-od-bank td:first-child{width:24%}
+.sp-od-bank td:nth-child(2){width:44%}
+
+/* Geom everywhere in the document, whatever the site template sets */
+.sp-od,.sp-od *{font-family:'Geom',Arial,Helvetica,sans-serif!important}
+
+/* cover: offer number / date / customer rows span the full content width */
+.sp-od-meta{width:auto!important;margin-left:0!important}

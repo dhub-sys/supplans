@@ -70,13 +70,16 @@ $section = 0;
 
   <?php if ($totals['rows']): $section++; ?>
   <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2>
-  <table class="sp-od-table sp-od-price">
-   <thead><tr><th>Περιγραφή Υπηρεσίας</th><th>Τιμή</th><th>Έκπτωση</th><th>Αξία</th><th>ΦΠΑ</th><th>Σύνολο</th></tr></thead>
+  <table class="sp-od-card sp-od-fin">
+   <thead>
+    <tr class="sp-od-card-title"><th colspan="4">Οικονομική σύνοψη</th></tr>
+    <tr class="sp-od-card-head"><th>Περιγραφή υπηρεσίας</th><th>Αξία</th><th>Φ.Π.Α. <?php echo $e($vatLabel); ?>%</th><th>Σύνολο</th></tr>
+   </thead>
    <tbody>
     <?php foreach ($totals['rows'] as $r): ?>
-    <tr><td><?php echo $e($v($r['label'])); ?></td><td><?php echo $money($r['price']); ?></td><td><?php echo $r['discount'] > 0 ? '-' : ''; ?><?php echo $money($r['discount']); ?></td><td><?php echo $money($r['net']); ?></td><td><?php echo $money($r['vat']); ?></td><td><?php echo $money($r['gross']); ?></td></tr>
+    <tr><td><?php echo $e($v($r['label'])); ?></td><td><?php echo $money($r['net']); ?> €</td><td><?php echo $money($r['vat']); ?> €</td><td><?php echo $money($r['gross']); ?> €</td></tr>
     <?php endforeach; ?>
-    <tr class="sp-od-total"><td>ΣΥΝΟΛΟ</td><td><?php echo $money($totals['price']); ?></td><td><?php echo $totals['discount'] > 0 ? '-' : ''; ?><?php echo $money($totals['discount']); ?></td><td><?php echo $money($totals['net']); ?></td><td><?php echo $money($totals['vat']); ?></td><td><?php echo $money($totals['gross']); ?></td></tr>
+    <tr class="sp-od-card-total"><td>Σύνολο</td><td><?php echo $money($totals['net']); ?> €</td><td><?php echo $money($totals['vat']); ?> €</td><td><?php echo $money($totals['gross']); ?> €</td></tr>
    </tbody>
   </table>
   <p>Η τελική τιμή για την παροχή των άνω περιγραφόμενων υπηρεσιών ορίζεται στα <strong>€ <?php echo $money($totals['net']); ?></strong> πλέον Φ.Π.Α. <?php echo $e($vatLabel); ?>% <strong>€ <?php echo $money($totals['vat']); ?></strong>, σύνολο <strong>€ <?php echo $money($totals['gross']); ?></strong><?php if ($totals['discount'] > 0): ?> και περιλαμβάνει συνολική έκπτωση στην τιμή προ ΦΠΑ <strong>€ <?php echo $money($totals['discount']); ?></strong><?php endif; ?>.</p>
@@ -88,9 +91,12 @@ $section = 0;
   <?php endif; ?>
 
   <?php if ($banks): ?>
-  <table class="sp-od-table sp-od-banks">
-   <thead><tr><th>ΤΡΑΠΕΖΑ</th><th>IBAN</th><th>ΔΙΚΑΙΟΥΧΟΣ</th></tr></thead>
-   <tbody><?php foreach ($banks as $b): ?><tr><td><b><?php echo $e(mb_strtoupper($b['name'])); ?></b></td><td><?php echo $e($b['iban']); ?></td><td><?php echo $e($b['beneficiary']); ?></td></tr><?php endforeach; ?></tbody>
+  <table class="sp-od-card sp-od-bank">
+   <thead>
+    <tr class="sp-od-card-title"><th colspan="3">Τράπεζες / Λογαριασμοί</th></tr>
+    <tr class="sp-od-card-head"><th>Τράπεζα</th><th>IBAN</th><th>Όνομα δικαιούχου</th></tr>
+   </thead>
+   <tbody><?php foreach ($banks as $b): ?><tr><td><?php echo $e(mb_strtoupper($b['name'])); ?></td><td><?php echo $e($b['iban']); ?></td><td><?php echo $e($b['beneficiary']); ?></td></tr><?php endforeach; ?></tbody>
   </table>
   <?php endif; ?>
 
