@@ -33,6 +33,14 @@ $fallbackOrder = (count($selected) + 1) * 10;
   </div>
  </div>
 
+ <?php
+ $this->varContext = [
+     'rows' => OfferHelper::customVariables($t->variables ?? ''),
+     'builtin' => null,
+     'intro' => 'Δικές σας μεταβλητές με προεπιλεγμένη τιμή (π.χ. <code>{πακέτο}</code> = Green). Κάθε νέα προσφορά από αυτό το template τις αντιγράφει και εκεί αλλάζετε την τιμή. Οι βασικές <code>{customer}</code>, <code>{project}</code>, <code>{company}</code>, <code>{number}</code>, <code>{date}</code> υπάρχουν πάντα.',
+ ];
+ echo $this->loadTemplate('variables');
+ ?>
  <div class="sp-card">
   <h3>Υπηρεσίες του template</h3>
   <p class="sp-foot">Τσεκάρετε ποιες υπηρεσίες περιλαμβάνει το template. Για καθεμία ορίστε αν <b>περιγράφεται</b> στο έγγραφο και αν μπαίνει στον <b>πίνακα τιμών</b>. Η «Σειρά» καθορίζει τη σειρά στο Pdf (μικρότερο = νωρίτερα). Οι υπηρεσίες επεξεργάζονται στην καρτέλα <a href="<?php echo OfferHelper::url('view=offers&section=services'); ?>">Υπηρεσίες</a>.</p>

@@ -12,23 +12,18 @@ $brand = OfferHelper::brand($this->params);
 $money = static fn($v) => OfferHelper::money((float) $v);
 $vatRate = (float) $o->vat_rate;
 $totals = OfferHelper::totals($this->items, $vatRate);
-$vars = [
-    'customer' => $o->customer_name,
-    'project'  => $o->project_name !== '' ? $o->project_name : $o->customer_name,
-    'company'  => $brand['name'],
-    'number'   => $o->offer_number,
-    'date'     => OfferHelper::dateGr($o->offer_date),
-];
+$vars = OfferHelper::offerVars($o, $brand);
+$v = static fn($text) => OfferHelper::vars((string) $text, $vars);
 $titleLines = array_values(array_filter(array_map('trim', explode("\n", OfferHelper::vars((string) $o->doc_title, $vars))), 'strlen'));
 $footer = trim(OfferHelper::vars((string) $o->footer_title, $vars)) ?: implode(', ', $titleLines);
-$pricingTitle = trim((string) $o->pricing_title) ?: 'Αξία Έργου – Τρόπος Πληρωμής';
+$pricingTitle = trim($v($o->pricing_title)) ?: 'Αξία Έργου – Τρόπος Πληρωμής';
 $banks = (int) $o->show_banks ? OfferHelper::banks($this->params) : [];
 $fileTitle = trim($o->offer_number . ' - ' . ($o->project_name ?: $o->customer_name), ' -');
 Factory::getApplication()->getDocument()->setTitle($fileTitle);
 $vatLabel = rtrim(rtrim(number_format($vatRate, 2, ',', '.'), '0'), ',');
 $section = 0;
 ?>
-<div class="sp-od" style="--od-accent:<?php echo $e($brand['accent']); ?>;--od-on-accent:<?php echo $e($brand['secondary']); ?>">
+<div class="sp-od<?php echo $this->preview ? ' is-preview' : ''; ?>" style="--od-accent:<?php echo $e($brand['accent']); ?>;--od-on-accent:<?php echo $e($brand['secondary']); ?>">
  <div class="sp-od-toolbar sp-od-noprint">
   <button type="button" class="sp-od-print" onclick="window.print()">Αποθήκευση ως pdf / εκτύπωση</button>
   <span>Στο παράθυρο εκτύπωσης επιλέξτε «Αποθήκευση ως PDF», χαρτί A4 και απενεργοποιήστε τις «Κεφαλίδες και υποσέλιδα».</span>
@@ -41,7 +36,7 @@ $section = 0;
    </div>
    <h1 class="sp-od-title"><?php foreach ($titleLines as $line): ?><span><?php echo $e($line); ?></span><?php endforeach; ?><?php if ($o->project_name !== ''): ?><span><?php echo $e($o->project_name); ?></span><?php endif; ?></h1>
    <div class="sp-od-rule"></div>
-   <?php if (trim((string) $o->doc_subtitle) !== ''): ?><div class="sp-od-subtitle"><?php echo $e($o->doc_subtitle); ?></div><?php endif; ?>
+   <?php if (trim((string) $o->doc_subtitle) !== ''): ?><div class="sp-od-subtitle"><?php echo $e($v($o->doc_subtitle)); ?></div><?php endif; ?>
    <div class="sp-od-meta">
     <div><span>Αρ. Προσφοράς</span><b><?php echo $e($o->offer_number); ?></b></div>
     <div><span>Ημερομηνία Προσφοράς</span><b><?php echo $e(OfferHelper::dateGr($o->offer_date)); ?></b></div>
@@ -60,7 +55,7 @@ $section = 0;
  <!-- Flowing content: moved into A4 pages by the paginator below. -->
  <div class="sp-od-flow" id="sp-od-flow">
   <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
-  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($item->section_title); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
   <?php echo OfferHelper::render((string) $item->body, $vars); ?>
   <?php endforeach; ?>
 
@@ -70,7 +65,7 @@ $section = 0;
    <thead><tr><th>Περιγραφή Υπηρεσίας</th><th>Τιμή</th><th>Έκπτωση</th><th>Αξία</th><th>ΦΠΑ</th><th>Σύνολο</th></tr></thead>
    <tbody>
     <?php foreach ($totals['rows'] as $r): ?>
-    <tr><td><?php echo $e($r['label']); ?></td><td><?php echo $money($r['price']); ?></td><td><?php echo $r['discount'] > 0 ? '-' : ''; ?><?php echo $money($r['discount']); ?></td><td><?php echo $money($r['net']); ?></td><td><?php echo $money($r['vat']); ?></td><td><?php echo $money($r['gross']); ?></td></tr>
+    <tr><td><?php echo $e($v($r['label'])); ?></td><td><?php echo $money($r['price']); ?></td><td><?php echo $r['discount'] > 0 ? '-' : ''; ?><?php echo $money($r['discount']); ?></td><td><?php echo $money($r['net']); ?></td><td><?php echo $money($r['vat']); ?></td><td><?php echo $money($r['gross']); ?></td></tr>
     <?php endforeach; ?>
     <tr class="sp-od-total"><td>ΣΥΝΟΛΟ</td><td><?php echo $money($totals['price']); ?></td><td><?php echo $totals['discount'] > 0 ? '-' : ''; ?><?php echo $money($totals['discount']); ?></td><td><?php echo $money($totals['net']); ?></td><td><?php echo $money($totals['vat']); ?></td><td><?php echo $money($totals['gross']); ?></td></tr>
    </tbody>
@@ -91,7 +86,7 @@ $section = 0;
   <?php endif; ?>
 
   <?php if (trim((string) $o->terms_body) !== ''): $section++; ?>
-  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim((string) $o->terms_title) ?: 'Όροι Προσφοράς'); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim($v($o->terms_title)) ?: 'Όροι Προσφοράς'); ?></span></h2>
   <?php echo OfferHelper::render((string) $o->terms_body, $vars); ?>
   <?php endif; ?>
 

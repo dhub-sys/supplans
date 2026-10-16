@@ -12,7 +12,7 @@ use Joomla\CMS\Session\Session;
 
 final class OtpController extends BaseController
 {
-    private const TTL = 300;
+    private const TTL = 120;
     private const MAX_ATTEMPTS = 5;
     private const RESEND_WAIT = 60;
     private const PENDING_TTL = 600;
@@ -59,7 +59,7 @@ final class OtpController extends BaseController
             '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">' .
             '<h2>Support Plans</h2><p>Ο κωδικός επιβεβαίωσής σου είναι:</p>' .
             '<div style="font-size:32px;font-weight:700;letter-spacing:8px;margin:24px 0">' . $code . '</div>' .
-            '<p>Ο κωδικός ισχύει για 5 λεπτά και χρησιμοποιείται μόνο μία φορά.</p>' .
+            '<p>Ο κωδικός ισχύει για 2 λεπτά και χρησιμοποιείται μόνο μία φορά.</p>' .
             '<p style="color:#667085;font-size:13px">Αν δεν προσπάθησες να συνδεθείς, αγνόησε αυτό το μήνυμα.</p></div>'
         );
 

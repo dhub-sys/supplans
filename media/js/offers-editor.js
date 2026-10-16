@@ -172,7 +172,12 @@
 
     var wrapEl = document.createElement('div');
     wrapEl.className = 'sp-ed';
-    var varOptions = VARIABLES.map(function (v) { return '<option value="' + v[0] + '">' + v[0] + ' – ' + v[1] + '</option>'; }).join('');
+    // Built-in variables plus the custom ones defined on the page (Μεταβλητές card).
+    function variableOptions() {
+      var list = VARIABLES.slice();
+      if (typeof window.spCustomVariables === 'function') list = list.concat(window.spCustomVariables());
+      return '<option value="">Μεταβλητή…</option>' + list.map(function (v) { return '<option value="' + esc(v[0]) + '">' + esc(v[0] + ' – ' + v[1]) + '</option>'; }).join('');
+    }
     wrapEl.innerHTML =
       '<div class="sp-ed-toolbar" role="toolbar">' +
         '<select class="sp-ed-block" title="Στυλ κειμένου"><option value="p">Κείμενο</option><option value="h3">Υπότιτλος (υπογράμμιση)</option><option value="h4">Υπότιτλος (έντονος)</option></select>' +
@@ -183,7 +188,7 @@
         '<span class="sp-ed-sep"></span>' +
         button('superscript', 'Παραπομπή / εκθέτης (π.χ. ¹) – Ctrl+.', ICONS.sup) + button('link', 'Σύνδεσμος', ICONS.link) + button('unlink', 'Αφαίρεση συνδέσμου', ICONS.unlink) +
         '<span class="sp-ed-sep"></span>' +
-        '<select class="sp-ed-var" title="Εισαγωγή μεταβλητής"><option value="">Μεταβλητή…</option>' + varOptions + '</select>' +
+        '<select class="sp-ed-var" title="Εισαγωγή μεταβλητής">' + variableOptions() + '</select>' +
         '<span class="sp-ed-sep"></span>' +
         button('removeFormat', 'Καθαρισμός μορφοποίησης', ICONS.clear) + button('undo', 'Αναίρεση (Ctrl+Z)', ICONS.undo) + button('redo', 'Επανάληψη', ICONS.redo) +
         '<span class="sp-ed-spacer"></span>' +
@@ -285,7 +290,9 @@
     });
     blockSel.addEventListener('mousedown', rememberSelection);
     blockSel.addEventListener('change', function () { if (!sourceMode) exec('formatBlock', '<' + blockSel.value + '>'); });
-    varSel.addEventListener('mousedown', rememberSelection);
+    function refreshVariables() { rememberSelection(); var html = variableOptions(); if (varSel.dataset.opts !== html) { varSel.innerHTML = html; varSel.dataset.opts = html; } }
+    varSel.addEventListener('mousedown', refreshVariables);
+    varSel.addEventListener('focus', refreshVariables);
     varSel.addEventListener('change', function () {
       var v = varSel.value;
       varSel.value = '';

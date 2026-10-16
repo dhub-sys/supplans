@@ -13,6 +13,8 @@ class HtmlView extends BaseHtmlView
     public $params;
     public object $offer;
     public array $items = [];
+    /** Set by OfferController::preview(): ['offer' => object, 'items' => array] built from unsaved form data. */
+    public ?array $preview = null;
 
     public function display($tpl = null): void
     {
@@ -22,6 +24,13 @@ class HtmlView extends BaseHtmlView
             throw new \RuntimeException('Login required', 403);
         }
         $this->params = ComponentHelper::getParams('com_supportplans');
+        if ($this->preview) {
+            $this->offer = $this->preview['offer'];
+            $this->items = $this->preview['items'];
+            $app->input->set('tmpl', 'component');
+            parent::display($tpl);
+            return;
+        }
         $db = Factory::getContainer()->get('DatabaseDriver');
         $id = $app->input->getInt('id');
         $q = $db->getQuery(true)->select('*')->from($db->quoteName('#__supportplans_offers'))->where($db->quoteName('id') . '=' . (int) $id);

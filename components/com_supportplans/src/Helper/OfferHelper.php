@@ -169,10 +169,69 @@ final class OfferHelper
         return $banks;
     }
 
+    /** Built-in variables, always available in offer texts. */
+    public const BUILTIN_VARIABLES = [
+        'customer' => 'Πελάτης',
+        'project'  => 'Έργο / εταιρεία πελάτη',
+        'company'  => 'Η επωνυμία σας',
+        'number'   => 'Αριθμός προσφοράς',
+        'date'     => 'Ημερομηνία προσφοράς',
+    ];
+
     /** Replace {placeholders} in plain text. */
     public static function vars(string $text, array $vars): string
     {
-        return preg_replace_callback('/\{([a-z_]+)\}/', static fn($m) => array_key_exists($m[1], $vars) ? (string) $vars[$m[1]] : $m[0], $text);
+        return preg_replace_callback('/\{([\p{L}\p{N}_]+)\}/u', static fn($m) => array_key_exists($m[1], $vars) ? (string) $vars[$m[1]] : $m[0], $text);
+    }
+
+    /** Normalises a variable name typed by the user ("Πακέτο φιλοξενίας" -> "πακέτο_φιλοξενίας"). */
+    public static function variableKey(string $key): string
+    {
+        $key = mb_strtolower(trim(trim($key), '{}'));
+        $key = preg_replace('/\s+/u', '_', $key);
+        return preg_replace('/[^\p{L}\p{N}_]/u', '', $key);
+    }
+
+    /**
+     * Custom variables as an ordered list of ['key' => …, 'value' => …], from stored JSON
+     * or from parallel key/value arrays posted by a form. Built-in names are ignored.
+     */
+    public static function customVariables($json = null, ?array $keys = null, ?array $values = null): array
+    {
+        $rows = [];
+        if ($keys !== null) {
+            foreach ($keys as $i => $key) {
+                $rows[] = ['key' => (string) $key, 'value' => (string) ($values[$i] ?? '')];
+            }
+        } else {
+            $decoded = json_decode((string) $json, true);
+            $rows = is_array($decoded) ? $decoded : [];
+        }
+        $out = [];
+        foreach ($rows as $row) {
+            $key = self::variableKey((string) ($row['key'] ?? ''));
+            if ($key === '' || isset(self::BUILTIN_VARIABLES[$key]) || isset($out[$key])) {
+                continue;
+            }
+            $out[$key] = ['key' => $key, 'value' => trim(str_replace(["\r\n", "\r"], "\n", (string) ($row['value'] ?? '')))];
+        }
+        return array_values($out);
+    }
+
+    /** All variable values for an offer: built-ins first, then the offer's own variables. */
+    public static function offerVars(object $offer, array $brand): array
+    {
+        $vars = [
+            'customer' => (string) $offer->customer_name,
+            'project'  => (string) $offer->project_name !== '' ? (string) $offer->project_name : (string) $offer->customer_name,
+            'company'  => $brand['name'],
+            'number'   => (string) $offer->offer_number,
+            'date'     => self::dateGr($offer->offer_date ?? ''),
+        ];
+        foreach (self::customVariables($offer->variables ?? '') as $row) {
+            $vars[$row['key']] = $row['value'];
+        }
+        return $vars;
     }
 
     /**

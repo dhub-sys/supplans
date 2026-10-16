@@ -53,10 +53,23 @@ foreach ($this->services as $s) {
  <button type="button" class="btn btn-primary" onclick="spSubmit('offer.apply')">Αποθήκευση</button>
  <button type="button" class="btn btn-outline-secondary" onclick="spSubmit('offer.save')">Αποθήκευση &amp; κλείσιμο</button>
  <button type="button" class="btn btn-secondary" onclick="spPrintOffer()" title="Αποθηκεύστε πρώτα τις αλλαγές">Εκτύπωση / Pdf</button>
- <a class="btn btn-outline-secondary" href="<?php echo $docUrl; ?>" target="_blank" rel="noopener">Προεπισκόπηση</a>
+ <button type="button" class="btn btn-outline-secondary" onclick="spPreviewOffer()" title="Προβολή του εγγράφου με τις τρέχουσες αλλαγές, χωρίς αποθήκευση">Προεπισκόπηση</button>
  <a class="btn btn-outline-secondary" href="<?php echo OfferHelper::url('view=offers'); ?>">Κλείσιμο</a>
 </div>
 <iframe id="sp-offer-print-frame" title="Προσφορά" src="<?php echo $docUrl; ?>" style="position:fixed;width:1px;height:1px;right:0;bottom:0;border:0;opacity:0;pointer-events:none;" aria-hidden="true"></iframe>
+
+<dialog class="sp-preview" id="sp-preview" aria-label="Προεπισκόπηση προσφοράς">
+ <div class="sp-preview-bar">
+  <div><strong>Προεπισκόπηση</strong><span id="sp-preview-note">Με τις τρέχουσες αλλαγές — δεν έχουν αποθηκευτεί ακόμα.</span></div>
+  <div class="sp-preview-actions">
+   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="spPreviewOffer()">↻ Ανανέωση</button>
+   <button type="button" class="btn btn-secondary btn-sm" onclick="spPrintPreview()">Εκτύπωση / Pdf</button>
+   <button type="button" class="btn btn-primary btn-sm" onclick="spSubmit('offer.apply')">Αποθήκευση</button>
+   <button type="button" class="sp-preview-close" onclick="document.getElementById('sp-preview').close()" aria-label="Κλείσιμο">×</button>
+  </div>
+ </div>
+ <div class="sp-preview-body"><div class="sp-preview-loading" id="sp-preview-loading">Δημιουργία προεπισκόπησης…</div><iframe name="sp-preview-frame" id="sp-preview-frame" title="Προεπισκόπηση προσφοράς"></iframe></div>
+</dialog>
 
 <form action="<?php echo OfferHelper::url('view=offers&id=' . (int) $o->id); ?>" method="post" name="adminForm" id="adminForm" data-dirty-watch>
  <div class="sp-card">
@@ -71,6 +84,16 @@ foreach ($this->services as $s) {
   </div>
  </div>
 
+ <?php
+ $brand = OfferHelper::brand($this->params);
+ $builtinVars = OfferHelper::offerVars((object) (['variables' => ''] + (array) $o), $brand);
+ $this->varContext = [
+     'rows' => OfferHelper::customVariables($o->variables ?? ''),
+     'builtin' => $builtinVars,
+     'intro' => 'Γράψτε <code>{όνομα}</code> σε οποιοδήποτε κείμενο, τίτλο ενότητας ή περιγραφή πίνακα και στο Pdf μπαίνει η τιμή. Οι βασικές μεταβλητές συμπληρώνονται αυτόματα από τα στοιχεία της προσφοράς.',
+ ];
+ echo $this->loadTemplate('variables');
+ ?>
  <div class="sp-card">
   <div class="sp-title-row"><h3>Υπηρεσίες προσφοράς</h3></div>
   <p class="sp-foot">Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Η σειρά εδώ είναι και η σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
@@ -200,6 +223,32 @@ foreach ($this->services as $s) {
 
   const origSubmit = window.spSubmit;
   window.spSubmit = function(task){ dirty = false; origSubmit(task); };
+  // Preview: posts the current form (including unsaved changes) to offer.preview inside the dialog.
+  window.spPreviewOffer = function(){
+    const dlg = document.getElementById('sp-preview');
+    const frame = document.getElementById('sp-preview-frame');
+    const taskInput = form.querySelector('input[name="task"]');
+    document.getElementById('sp-preview-loading').hidden = false;
+    document.getElementById('sp-preview-note').textContent = dirty ? 'Με τις τρέχουσες αλλαγές — δεν έχουν αποθηκευτεί ακόμα.' : 'Όπως είναι αποθηκευμένη.';
+    form.target = 'sp-preview-frame';
+    taskInput.value = 'offer.preview';
+    HTMLFormElement.prototype.submit.call(form);
+    form.target = '';
+    taskInput.value = '';
+    if (!dlg.open) dlg.showModal();
+  };
+  document.getElementById('sp-preview-frame').addEventListener('load', () => { document.getElementById('sp-preview-loading').hidden = true; });
+  window.spPrintPreview = function(){
+    const frame = document.getElementById('sp-preview-frame');
+    if (!frame.contentWindow) return;
+    const title = document.title;
+    document.title = <?php echo json_encode($fileTitle, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG); ?>;
+    (frame.contentWindow.spOfferReady || Promise.resolve()).then(() => {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      setTimeout(() => { document.title = title; }, 1000);
+    });
+  };
   window.spPrintOffer = function(){
     if (dirty && !confirm('Υπάρχουν μη αποθηκευμένες αλλαγές που δεν θα εμφανιστούν στο Pdf. Συνέχεια;')) return;
     const frame = document.getElementById('sp-offer-print-frame');
