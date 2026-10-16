@@ -103,6 +103,27 @@ class SettingsController extends BaseController
     }
    }
   }
+  // Signature / stamp image shown at the end of offer PDFs.
+  $params['offer_signature']=trim((string)$in->get('offer_signature','','string'));
+  $signature=$in->files->get('offer_signature_upload',null,'array');
+  if(is_array($signature) && !empty($signature['name']) && (int)($signature['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE){
+   $ext=strtolower(pathinfo((string)$signature['name'],PATHINFO_EXTENSION));
+   $ext=$ext==='jpeg'?'jpg':$ext;
+   if((int)$signature['error'] !== UPLOAD_ERR_OK || empty($signature['tmp_name'])){
+    $app->enqueueMessage('Η μεταφόρτωση της υπογραφής απέτυχε.','error');
+   }elseif(!in_array($ext,['png','jpg','webp','gif','svg'],true)){
+    $app->enqueueMessage('Η υπογραφή πρέπει να είναι PNG, JPG, WEBP, GIF ή SVG.','error');
+   }else{
+    $dir=JPATH_ROOT.'/images/supportplans';
+    if(!Folder::exists($dir))Folder::create($dir);
+    foreach(['png','jpg','webp','gif','svg'] as $oldExt){$old=$dir.'/offer-signature.'.$oldExt;if($oldExt!==$ext && File::exists($old))File::delete($old);}
+    if(File::upload((string)$signature['tmp_name'],$dir.'/offer-signature.'.$ext,false,true)){
+     $params['offer_signature']='images/supportplans/offer-signature.'.$ext;
+    }else{
+     $app->enqueueMessage('Δεν ήταν δυνατή η αποθήκευση της υπογραφής στον φάκελο images/supportplans.','error');
+    }
+   }
+  }
   $bankNames=(array)$in->get('bank_name',[],'array');
   $bankIbans=(array)$in->get('bank_iban',[],'array');
   $bankBeneficiaries=(array)$in->get('bank_beneficiary',[],'array');

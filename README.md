@@ -545,3 +545,12 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.0.85
 - Fixed Help sidebar disappearing items by copying the complete known-good sidebar from Packages.
 - Packages, Plans, Settings and Help now remain visible together; only Help receives active state on the Help page.
+
+## v1.1.0
+- Νέα ενότητα Προσφορές (Service Hub → Προσφορές) με τρεις καρτέλες: Προσφορές, Templates, Υπηρεσίες.
+- Υπηρεσίες: βιβλιοθήκη με τίτλο ενότητας, κείμενο περιγραφής (απλή μορφοποίηση: λίστες, έντονα, παραπομπές, μεταβλητές), περιγραφή και τιμή για τον πίνακα τιμών.
+- Templates: τίτλος εξωφύλλου, υπότιτλος, footer, όροι πληρωμής, όροι/παραπομπές, Φ.Π.Α., τράπεζες και προεπιλεγμένη επιλογή υπηρεσιών (περιγραφή / πίνακας τιμών / σειρά).
+- Προσφορές: δημιουργούνται ως snapshot του template· ανά υπηρεσία επιλέγεται αν περιγράφεται και αν μπαίνει στον πίνακα τιμών, με τιμή, έκπτωση και σειρά. Καταστάσεις: Πρόχειρη, Απεσταλμένη, Αποδεκτή, Απορρίφθηκε. Αντίγραφο ως νέα προσφορά.
+- Pdf προσφοράς μέσω browser print: εξώφυλλο, αριθμημένες ενότητες, πίνακας Τιμή/Έκπτωση/Αξία/ΦΠΑ/Σύνολο, κείμενο συνόλων, τράπεζες, όροι, υπογραφή, αυτόματη σελιδοποίηση A4 με footer και αριθμό σελίδας.
+- Προαιρετικό έτοιμο παράδειγμα template (e-shop, φιλοξενία, συντήρηση).
+- Νέοι πίνακες: `#__supportplans_offer_services`, `#__supportplans_offer_templates`, `#__supportplans_offers`, `#__supportplans_offer_items`.

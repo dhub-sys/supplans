@@ -26,11 +26,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <div class="sp-sidebar-section-label">Διαχείριση</div>
-  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
+  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
 <a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg></span><span>Οδηγίες</span></a></nav>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και σύντομα προσφορές σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&Itemid='.(int)$spItemid.'"><span>↪</span> Αποσύνδεση</a>
+    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
 <section class="sp-workspace">
@@ -125,10 +125,39 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ul>
  </section>
 
+ <section class="sp-help-card">
+  <h2>7. Προσφορές</h2>
+  <p>Οι προσφορές δημιουργούνται από <strong>templates</strong> που συνδυάζουν <strong>υπηρεσίες</strong> από μια κοινή βιβλιοθήκη. Όλα βρίσκονται στο μενού <strong>Προσφορές</strong>, στις καρτέλες Προσφορές / Templates / Υπηρεσίες.</p>
+  <h3>Υπηρεσίες</h3>
+  <p>Κάθε υπηρεσία έχει τίτλο ενότητας και κείμενο περιγραφής για το έγγραφο, περιγραφή και τιμή για τον πίνακα τιμών. Μπορεί να είναι καθαρά κείμενο (π.χ. «Εισαγωγή», τιμή 0, χωρίς πίνακα) ή καθαρά χρέωση (π.χ. μια άδεια λογισμικού που μπαίνει μόνο στον πίνακα).</p>
+  <h3>Templates</h3>
+  <p>Ένα template ορίζει τον τίτλο του εξωφύλλου, το footer, τους όρους πληρωμής, τους όρους/παραπομπές, τον Φ.Π.Α. και ποιες υπηρεσίες περιλαμβάνονται, με ποια σειρά, αν περιγράφονται και αν μπαίνουν στον πίνακα τιμών. Με το κουμπί «Δημιουργία παραδείγματος» δημιουργείται ένα έτοιμο template e-shop / φιλοξενίας / συντήρησης για να ξεκινήσετε.</p>
+  <h3>Νέα προσφορά</h3>
+  <ol>
+   <li>Επιλέξτε <strong>Νέα προσφορά</strong>, το template, τον πελάτη και το έργο. Ο αριθμός προτείνεται αυτόματα (έτος + αύξων, π.χ. 26023).</li>
+   <li>Στην προσφορά επιλέξτε για κάθε υπηρεσία «Περιγράφεται στο έγγραφο» και/ή «Στον πίνακα τιμών», αλλάξτε τιμές, εκπτώσεις, σειρά ή κείμενα, και προσθέστε ή αφαιρέστε υπηρεσίες. Τα σύνολα υπολογίζονται αμέσως.</li>
+   <li>Πατήστε <strong>Αποθήκευση</strong> και μετά <strong>Εκτύπωση / Pdf</strong> → «Αποθήκευση ως PDF». Το αρχείο προτείνεται με όνομα «αριθμός - έργο».</li>
+  </ol>
+  <div class="sp-help-note">Κάθε προσφορά κρατά δικό της αντίγραφο των κειμένων και των τιμών. Αλλαγές σε υπηρεσίες ή templates επηρεάζουν μόνο τις νέες προσφορές. Η υπογραφή/σφραγίδα στο τέλος του Pdf ορίζεται στις Ρυθμίσεις.</div>
+  <h3>Μορφοποίηση κειμένων</h3>
+  <ul>
+   <li><code>- στοιχείο</code> λίστα με κουκκίδες, <code>1. στοιχείο</code> αριθμημένη λίστα (10+ στοιχεία σε δύο στήλες).</li>
+   <li><code>## Τίτλος</code> υπότιτλος, <code>**έντονα**</code>, <code>^1</code> εκθέτης παραπομπής, <code>[κείμενο](https://…)</code> σύνδεσμος.</li>
+   <li>Μεταβλητές: <code>{customer}</code>, <code>{project}</code>, <code>{company}</code>, <code>{number}</code>, <code>{date}</code>.</li>
+  </ul>
+ </section>
+
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.1.0</div><div><ul>
+<li>Νέα ενότητα <strong>Προσφορές</strong> με βιβλιοθήκη υπηρεσιών, templates προσφορών και Pdf σε μορφή οικονομικής προσφοράς.</li>
+<li>Επιλογή ανά υπηρεσία αν περιγράφεται στο έγγραφο και αν μπαίνει στον πίνακα τιμών, με εκπτώσεις και αυτόματο υπολογισμό Φ.Π.Α./συνόλων.</li>
+<li>Αυτόματη σελιδοποίηση A4 με εξώφυλλο, αριθμημένες ενότητες, footer και αρίθμηση σελίδων.</li>
+<li>Νέα ρύθμιση: υπογραφή / σφραγίδα προσφορών.</li>
+<li>Διορθώθηκε το Itemid στον σύνδεσμο Αποσύνδεσης του sidebar.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.0.85</div><div><ul>
 <li>Διορθώθηκε πλήρως το sidebar της σελίδας Οδηγίες.</li>
 <li>Οι επιλογές Πακέτα, Πλάνα, Ρυθμίσεις και Οδηγίες παραμένουν όλες ορατές όταν είναι ενεργές οι Οδηγίες.</li>

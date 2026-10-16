@@ -2,8 +2,8 @@
 <extension type="component" method="upgrade">
     <name>Support Plans</name>
     <element>com_supportplans</element>
-    <version>1.0.85</version>
-    <creationDate>2026-08-30</creationDate>
+    <version>1.1.0</version>
+    <creationDate>2026-10-16</creationDate>
     <author>White Label Joomla Component</author>
     <license>GPL-2.0-or-later</license>
     <description>Standalone white-label prepaid and ongoing support plan management for Joomla 6.</description>

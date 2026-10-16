@@ -31,15 +31,15 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
 </header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <div class="sp-sidebar-section-label">Διαχείριση</div>
-  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
+  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
 <a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg></span><span>Οδηγίες</span></a></nav>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και σύντομα προσφορές σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&Itemid='.(int)$spItemid.'"><span>↪</span> Αποσύνδεση</a>
+    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
 <section class="sp-workspace">
- <section class="sp-dashboard-head"><div><span class="sp-eyebrow">Εμφάνιση και στοιχεία</span><h1>Στοιχεία επιχείρησης</h1><p>Εταιρικά στοιχεία και χρώματα για την προσωποποίηση των Pdf αναφορών.</p></div></section><form action="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&Itemid='.(int)$spItemid.''); ?>" method="post" enctype="multipart/form-data" name="adminForm" id="adminForm">
+ <section class="sp-dashboard-head"><div><span class="sp-eyebrow">Εμφάνιση και στοιχεία</span><h1>Στοιχεία επιχείρησης</h1><p>Εταιρικά στοιχεία και χρώματα για την προσωποποίηση των Pdf αναφορών και προσφορών.</p></div></section><form action="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&Itemid='.(int)$spItemid.''); ?>" method="post" enctype="multipart/form-data" name="adminForm" id="adminForm">
   <div class="sp-card">
    <h2>Στοιχεία επιχείρησης και Pdf</h2>
    <p class="text-muted">Τα στοιχεία αυτά χρησιμοποιούνται στο report / Pdf. Αν η επωνυμία μείνει κενή, χρησιμοποιείται το Site Name του Joomla.</p>
@@ -86,6 +86,17 @@ echo $savedWatermark!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($s
      <span class="sp-upload-name sp-saved-file" id="login_icon_filename" aria-live="polite"><?php
 $savedLoginIcon=trim((string)$p->get('login_icon',''));
 echo $savedLoginIcon!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($savedLoginIcon,ENT_QUOTES,'UTF-8') : 'Δεν έχει οριστεί login icon';
+?></span>
+    </label>
+    <label class="sp-wide sp-upload-setting"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Εικόνα υπογραφής / σφραγίδας που εμφανίζεται στο τέλος των Pdf προσφορών. Προτείνεται PNG με διάφανο φόντο.">Υπογραφή / σφραγίδα προσφορών</span>
+     <div class="sp-media-row">
+      <input class="form-control" id="offer_signature" name="offer_signature" value="<?php echo htmlspecialchars((string)$p->get('offer_signature','')); ?>" placeholder="images/supportplans/offer-signature.png ή URL">
+      <input type="file" id="offer_signature_upload" name="offer_signature_upload" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <button type="button" class="btn btn-outline-secondary sp-media-button" id="offer_signature_pick">Upload υπογραφής</button>
+     </div>
+     <span class="sp-upload-name" id="offer_signature_filename" aria-live="polite"><?php
+$savedSignature=trim((string)$p->get('offer_signature',''));
+echo $savedSignature!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($savedSignature,ENT_QUOTES,'UTF-8') : '';
 ?></span>
     </label>
             <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Η ονομασία που εμφανίζεται για το πεδίο supported_websites μέσα στα Πακέτα.">Ονομασία πεδίου Υπηρεσιών στα Πακέτα</span>
@@ -177,6 +188,10 @@ document.addEventListener('DOMContentLoaded',function(){
  if(pick&&file){pick.addEventListener('click',()=>file.click());file.addEventListener('change',()=>{name.textContent=file.files&&file.files[0]?'Επιλέχθηκε: '+file.files[0].name:'';});}
  if(watermarkPick&&watermarkFile){watermarkPick.addEventListener('click',()=>watermarkFile.click());watermarkFile.addEventListener('change',()=>{watermarkName.textContent=watermarkFile.files&&watermarkFile.files[0]?'Επιλέχθηκε: '+watermarkFile.files[0].name:'';});}
  if(loginIconPick&&loginIconFile){loginIconPick.addEventListener('click',()=>loginIconFile.click());loginIconFile.addEventListener('change',()=>{loginIconName.textContent=loginIconFile.files&&loginIconFile.files[0]?'Επιλέχθηκε: '+loginIconFile.files[0].name:'';});}
+ const sigPick=document.getElementById('offer_signature_pick');
+ const sigFile=document.getElementById('offer_signature_upload');
+ const sigName=document.getElementById('offer_signature_filename');
+ if(sigPick&&sigFile){sigPick.addEventListener('click',()=>sigFile.click());sigFile.addEventListener('change',()=>{sigName.textContent=sigFile.files&&sigFile.files[0]?'Επιλέχθηκε: '+sigFile.files[0].name:'';});}
  const wmOpacity=document.getElementById('watermark_opacity');
  const wmOpacityValue=document.getElementById('watermark_opacity_value');
  if(wmOpacity&&wmOpacityValue){wmOpacity.addEventListener('input',()=>{wmOpacityValue.textContent=wmOpacity.value+'%';});}
