@@ -158,6 +158,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.5.3</div><div><ul>
+<li>Ο τίτλος της «Οικονομικής σύνοψης» εμφανίζεται με το «Χρώμα κειμένου πάνω στο branding» (π.χ. λευκό), όπως ο τίτλος των Τραπεζών, και στις προσφορές και στα Pdf των πακέτων.</li>
+<li>Pdf πακέτων: το αναλυτικό δελτίο εργασιών εμφανίζεται ως κάρτα, όπως οι Τράπεζες / Λογαριασμοί.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.5.2</div><div><ul>
 <li>Οι ενότητες «Αξία Έργου – Τρόπος Πληρωμής» και «Όροι Προσφοράς» έχουν πλέον κι αυτές επιλογή «Συνέχεια στην ίδια σελίδα» (με απόσταση σε mm) ή «Ξεκινά σε νέα σελίδα», στο template και σε κάθε προσφορά.</li>
 </ul></div></div>

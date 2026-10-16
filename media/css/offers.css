@@ -254,7 +254,7 @@
 .sp-od-card-head th{font-weight:700;font-size:8.8pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 /* financial summary: accent frame, warm rows, highlighted total */
 .sp-od-fin{border:1.5px solid var(--od-accent);background:#fffaf2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.sp-od-fin .sp-od-card-title th{font-size:12.5pt;color:#111827;padding-top:2.6mm;padding-bottom:2.6mm}
+.sp-od-fin .sp-od-card-title th{font-size:12.5pt;color:var(--od-on-accent);padding-top:2.6mm;padding-bottom:2.6mm}
 .sp-od-fin .sp-od-card-head th{background:#fff;border-bottom:1px solid #e7eaf0;color:#344054}
 .sp-od-fin tbody td{border-bottom:1px solid #e7eaf0;font-size:10.2pt}
 .sp-od-fin .sp-od-card-total td{background:#fff3df;font-weight:800;font-size:11pt;border-bottom:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}

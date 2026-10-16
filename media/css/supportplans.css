@@ -393,7 +393,7 @@ html,body{margin:0!important;padding:0!important}
   padding:10px 13px;
   margin:0;
   background:var(--sp-accent,#f59e0b);
-  color:#111827!important;
+  color:var(--sp-secondary,#fff)!important;
   font-size:13px;
   font-weight:800;
   letter-spacing:.01em;
@@ -426,7 +426,7 @@ html,body{margin:0!important;padding:0!important}
   }
   .sp-financial-title{
     background:var(--sp-accent,#f59e0b)!important;
-    color:#111827!important;
+    color:var(--sp-secondary,#fff)!important;
     -webkit-print-color-adjust:exact;
     print-color-adjust:exact;
   }

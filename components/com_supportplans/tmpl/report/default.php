@@ -137,13 +137,13 @@ $logoSrc = $brandLogo !== '' ? (preg_match('#^https?://#i', $brandLogo) ? $brand
 
 <div class="sp-report-page sp-report-page-two">
 <div class="sp-page-content">
-<section class="sp-report-section sp-work-section">
-    <h2><?php echo htmlspecialchars($workTitle); ?></h2>
-    <table class="sp-work-table"><thead><tr><th>Ημ/νία</th><th>Αίτημα</th><th><?php echo $subscription?'Χρέωση':'Διάρκεια / κόστος'; ?></th></tr></thead><tbody>
-    <?php foreach($this->entries as $e): ?><tr><td><?php echo htmlspecialchars($e->request_date); ?></td><td><?php echo htmlspecialchars($e->work_type); ?><?php if(trim((string)$e->description)!==''): ?><br><small><?php echo nl2br(htmlspecialchars($e->description)); ?></small><?php endif; ?></td><td><?php if($subscription): ?>Περιλαμβάνεται στη συνδρομή<?php else: ?><?php echo (int)$e->billable_minutes; ?>′ / <?php echo number_format((float)$e->cost,2,',','.'); ?> €<?php endif; ?></td></tr><?php endforeach; ?>
+<section class="sp-work-card">
+    <div class="sp-work-card-title"><?php echo htmlspecialchars($workTitle); ?></div>
+    <table class="sp-work-card-table"><thead><tr><th>Ημ/νία</th><th>Αίτημα</th><th><?php echo $subscription?'Χρέωση':'Διάρκεια / κόστος'; ?></th></tr></thead><tbody>
+    <?php foreach($this->entries as $e): ?><tr><td><?php echo htmlspecialchars($e->request_date); ?></td><td><span class="sp-work-request"><?php echo htmlspecialchars($e->work_type); ?></span><?php if(trim((string)$e->description)!==''): ?><small><?php echo nl2br(htmlspecialchars($e->description)); ?></small><?php endif; ?></td><td><?php if($subscription): ?>Περιλαμβάνεται στη συνδρομή<?php else: ?><?php echo (int)$e->billable_minutes; ?>′ / <?php echo number_format((float)$e->cost,2,',','.'); ?> €<?php endif; ?></td></tr><?php endforeach; ?>
     <?php if (!$this->entries): ?><tr><td colspan="3">Δεν υπάρχουν καταχωρισμένες εργασίες.</td></tr><?php endif; ?>
     </tbody></table>
-    </section>
+</section>
 
 <?php
 // Financial summary must live inside the printable report page.
@@ -404,4 +404,18 @@ if ($ongoing || $subscription): ?>
  .sp-financial-force .sp-summary-row:last-child,.sp-financial-force .sp-summary-row:last-child *{font-size:17px!important;font-weight:800!important}
 }
 
+
+/* v1.5.3 – detailed work list as a card, same look as the bank accounts card */
+.sp-work-card{width:100%;margin:0;border:1px solid #d9dee7;border-radius:10px;overflow:hidden;background:#fff}
+.sp-work-card-title{padding:9px 14px;font-size:13px;font-weight:700;background:var(--sp-accent);color:var(--sp-secondary);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sp-work-card-table{width:100%;border-collapse:collapse;font-size:11.5px;color:#111827}
+.sp-work-card-table th,.sp-work-card-table td{padding:7px 14px;text-align:left;vertical-align:top;border:0}
+.sp-work-card-table thead th{font-size:11px;font-weight:700;background:#f4f6f9;border-bottom:1px solid #d9dee7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sp-work-card-table tbody td{border-bottom:1px solid #e7eaf0}
+.sp-work-card-table tbody tr:last-child td{border-bottom:0}
+.sp-work-card-table th:first-child,.sp-work-card-table td:first-child{width:16%;white-space:nowrap}
+.sp-work-card-table th:last-child,.sp-work-card-table td:last-child{width:22%;text-align:right;white-space:nowrap}
+.sp-work-request{display:block;font-weight:600}
+.sp-work-card-table small{display:block;margin-top:2px;font-size:10.5px;color:#667085;line-height:1.4}
+@media print{.sp-work-card-table tr{break-inside:avoid;page-break-inside:avoid}}
 </style>
