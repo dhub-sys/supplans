@@ -26,6 +26,9 @@ $nextOrdering = ($this->services ? max(array_map(static fn($x) => (int) $x->orde
     <label class="sp-check"><input type="checkbox" name="show_description" value="1" <?php echo !$s || (int) $s->show_description ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο (προεπιλογή)</label>
     <label class="sp-check"><input type="checkbox" name="in_table" value="1" <?php echo !$s || (int) $s->in_table ? 'checked' : ''; ?>> Στον πίνακα τιμών (προεπιλογή)</label>
    </div>
+   <label>Θέση στο Pdf (προεπιλογή)<select name="page_break" id="sp-svc-break"><option value="0"<?php echo empty($s->page_break) ? ' selected' : ''; ?>>Συνέχεια στην ίδια σελίδα</option><option value="1"<?php echo !empty($s->page_break) ? ' selected' : ''; ?>>Ξεκινά σε νέα σελίδα</option></select></label>
+   <label id="sp-svc-space">Απόσταση από την προηγούμενη ενότητα (mm)<input type="number" min="0" max="80" step="1" name="space_before" value="<?php echo (int) ($s->space_before ?? 5); ?>"></label>
+   <script>(function(){var b=document.getElementById('sp-svc-break'),sp=document.getElementById('sp-svc-space');function u(){sp.hidden=b.value==='1';}b.addEventListener('change',u);u();})();</script>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο περιγραφής</span><textarea name="body" rows="18" data-sp-editor><?php echo $e($s->body ?? ''); ?></textarea></div>
   </div>
   <p class="sp-foot">Αν ο τίτλος ενότητας ή η περιγραφή στον πίνακα μείνουν κενά, χρησιμοποιείται το όνομα. Οι αλλαγές εδώ ισχύουν για νέες προσφορές· οι υπάρχουσες κρατούν το δικό τους αντίγραφο.</p>

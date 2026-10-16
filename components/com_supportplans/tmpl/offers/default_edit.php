@@ -25,6 +25,13 @@ $row = static function ($i, $item) use ($e, $num) {
    <div class="sp-oi-flags">
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][show_description]" value="1" data-field="show_description" <?php echo !empty($item->show_description) ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο</label>
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][in_table]" value="1" data-field="in_table" data-calc <?php echo !empty($item->in_table) ? 'checked' : ''; ?>> Στον πίνακα τιμών</label>
+    <span class="sp-oi-layout" data-layout>
+     <select name="items[<?php echo $i; ?>][page_break]" data-field="page_break" aria-label="Θέση στο Pdf">
+      <option value="0"<?php echo empty($item->page_break) ? ' selected' : ''; ?>>Συνέχεια στην ίδια σελίδα</option>
+      <option value="1"<?php echo !empty($item->page_break) ? ' selected' : ''; ?>>Ξεκινά σε νέα σελίδα</option>
+     </select>
+     <label class="sp-oi-space" data-space>απόσταση <input type="number" min="0" max="80" step="1" name="items[<?php echo $i; ?>][space_before]" value="<?php echo (int) ($item->space_before ?? 5); ?>" data-field="space_before" aria-label="Απόσταση από την προηγούμενη ενότητα σε mm"> mm</label>
+    </span>
     <details class="sp-oi-body"><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body" data-sp-editor><?php echo $e($item->body ?? ''); ?></textarea></details>
    </div>
   </div>
@@ -42,6 +49,8 @@ foreach ($this->services as $s) {
         'discount' => 0,
         'show_description' => (int) $s->show_description,
         'in_table' => (int) $s->in_table,
+        'page_break' => (int) ($s->page_break ?? 0),
+        'space_before' => (int) ($s->space_before ?? 5),
         'body' => (string) $s->body,
     ];
 }
@@ -88,7 +97,7 @@ foreach ($this->services as $s) {
   <div id="sp-offer-items" data-sortable>
    <?php $i = 0; foreach ($this->items as $item) { echo $row($i++, $item); } ?>
   </div>
-  <template id="sp-offer-row-template"><?php echo $row('__i__', (object) ['show_description' => 1, 'in_table' => 1]); ?></template>
+  <template id="sp-offer-row-template"><?php echo $row('__i__', (object) ['show_description' => 1, 'in_table' => 1, 'page_break' => 0, 'space_before' => 5]); ?></template>
   <div class="sp-oi-add">
    <select id="sp-offer-library">
     <option value="">— Προσθήκη υπηρεσίας από τη βιβλιοθήκη —</option>
@@ -158,6 +167,9 @@ foreach ($this->services as $s) {
       row.querySelector('[data-net]').textContent = money(net);
       row.classList.toggle('is-excluded', !inTable);
       row.classList.toggle('is-hidden-text', !row.querySelector('[data-field="show_description"]').checked);
+      // Layout applies to sections shown in the document; spacing only when continuing on the same page.
+      row.querySelector('[data-layout]').classList.toggle('is-disabled', !row.querySelector('[data-field="show_description"]').checked);
+      row.querySelector('[data-space]').hidden = row.querySelector('[data-field="page_break"]').value === '1';
       if (!inTable) return;
       const v = Math.round(net * rate) / 100;
       t.price += price; t.discount += discount; t.net += net; t.vat += v; t.gross += net + v;
@@ -202,7 +214,7 @@ foreach ($this->services as $s) {
     addRow(library[sel.value]);
     sel.value = '';
   });
-  document.getElementById('sp-offer-add-blank').addEventListener('click', () => addRow({section_title: '', table_label: '', price: '0.00', discount: '0.00', show_description: 1, in_table: 1}));
+  document.getElementById('sp-offer-add-blank').addEventListener('click', () => addRow({section_title: '', table_label: '', price: '0.00', discount: '0.00', show_description: 1, in_table: 1, page_break: 0, space_before: 5}));
   window.addEventListener('beforeunload', ev => { if (dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 
   const origSubmit = window.spSubmit;

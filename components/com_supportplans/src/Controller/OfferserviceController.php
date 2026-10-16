@@ -36,6 +36,8 @@ class OfferserviceController extends BaseController
             'price'            => round($in->getFloat('price', 0), 2),
             'show_description' => $in->getInt('show_description', 0) ? 1 : 0,
             'in_table'         => $in->getInt('in_table', 0) ? 1 : 0,
+            'page_break'       => $in->getInt('page_break', 0) ? 1 : 0,
+            'space_before'     => max(0, min(80, $in->getInt('space_before', 5))),
             'published'        => $in->getInt('published', 1) ? 1 : 0,
             'ordering'         => $in->getInt('ordering', 0),
             'modified'         => $now,

@@ -344,6 +344,7 @@ final class OfferHelper
      *   ### Τίτλος          bold sub-heading
      *   - στοιχείο          bullet list (also "* ")
      *   1. στοιχείο         numbered list (10+ items are shown in two columns)
+     *   [[2 στήλες]]        on the line before a list: show it in two columns ([[1 στήλη]] forces one)
      *   **έντονα**          bold
      *   *πλάγια*            italic
      *   __υπογράμμιση__     underline
@@ -372,13 +373,22 @@ final class OfferHelper
         $flushList = static function () use (&$list, &$html) {
             if ($list) {
                 $tag = $list['type'];
-                $class = $tag === 'ol' && count($list['items']) >= 10 ? ' class="sp-o-cols"' : '';
+                // Explicit [[2 στήλες]] / [[1 στήλη]] wins; otherwise numbered lists of 10+ items use two columns.
+                $cols = $list['cols'] ?? ($tag === 'ol' && count($list['items']) >= 10 ? 2 : 1);
+                $class = $cols === 2 ? ' class="sp-o-cols"' : '';
                 $html[] = '<' . $tag . $class . '><li>' . implode('</li><li>', $list['items']) . '</li></' . $tag . '>';
                 $list = null;
             }
         };
+        $pendingCols = null;
         foreach ($lines as $line) {
             $trim = trim($line);
+            if (preg_match('/^\[\[\s*(?:([12])\s*στ[ήη]λ(?:η|ες)|cols\s*[=:]\s*([12]))\s*\]\]$/iu', $trim, $cm)) {
+                $flushPara();
+                $flushList();
+                $pendingCols = (int) ($cm[1] !== '' ? $cm[1] : $cm[2]);
+                continue;
+            }
             if ($trim === '') {
                 $flushPara();
                 $flushList();
@@ -404,11 +414,15 @@ final class OfferHelper
                 if ($list && $list['type'] !== $type) {
                     $flushList();
                 }
-                $list = $list ?: ['type' => $type, 'items' => []];
+                if (!$list) {
+                    $list = ['type' => $type, 'items' => [], 'cols' => $pendingCols];
+                    $pendingCols = null;
+                }
                 $list['items'][] = self::inline($content);
                 continue;
             }
             $flushList();
+            $pendingCols = null;
             $para[] = self::inline($trim);
         }
         $flushPara();

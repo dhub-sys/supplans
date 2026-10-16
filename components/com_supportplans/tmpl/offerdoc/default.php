@@ -55,7 +55,7 @@ $section = 0;
  <!-- Flowing content: moved into A4 pages by the paginator below. -->
  <div class="sp-od-flow" id="sp-od-flow">
   <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
-  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep<?php echo !empty($item->page_break) ? ' sp-o-break' : ''; ?>"<?php echo empty($item->page_break) ? ' style="margin-top:' . max(0, min(80, (int) ($item->space_before ?? 5))) . 'mm"' : ''; ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
   <?php echo OfferHelper::render((string) $item->body, $vars); ?>
   <?php endforeach; ?>
 
@@ -121,7 +121,7 @@ $section = 0;
     return bottom - body.getBoundingClientRect().top > body.clientHeight - SAFETY;
   }
   function splittable(el) {
-    if (el.matches('ul,ol')) return !el.classList.contains('sp-o-cols') && el.children.length > 1;
+    if (el.matches('ul,ol')) return el.children.length > 1;
     if (el.matches('table')) return el.tBodies.length && el.tBodies[0].rows.length > 1;
     return false;
   }
@@ -145,6 +145,8 @@ $section = 0;
     return rest;
   }
   function place(el) {
+    // Sections marked "new page" start on a fresh page (unless the current one is still empty).
+    if (el.classList.contains('sp-o-break') && body.children.length) newPage();
     body.appendChild(el);
     if (!overflows()) return;
     if (splittable(el)) {

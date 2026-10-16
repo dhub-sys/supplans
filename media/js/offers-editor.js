@@ -6,7 +6,7 @@
  * renderer understands (see OfferHelper::render), so stored texts, the PDF and
  * its pagination are unchanged:
  *   **bold**  *italic*  __underline__  ^1  [text](https://…)  ## / ### headings
- *   - bullet  1. numbered  blank line = new paragraph  {variables}
+ *   - bullet  1. numbered  [[2 στήλες]] before a list  blank line = new paragraph  {variables}
  */
 (function () {
   'use strict';
@@ -42,12 +42,22 @@
     var lines = String(markup || '').replace(/\r\n?/g, '\n').split('\n');
     var html = [], para = [], list = null;
     function flushPara() { if (para.length) { html.push('<p>' + para.join('<br>') + '</p>'); para = []; } }
+    var pendingCols = null;
     function flushList() {
-      if (list) { html.push('<' + list.type + '><li>' + list.items.join('</li><li>') + '</li></' + list.type + '>'); list = null; }
+      if (list) {
+        var attr = list.cols ? ' data-cols="' + list.cols + '"' : '';
+        html.push('<' + list.type + attr + '><li>' + list.items.join('</li><li>') + '</li></' + list.type + '>');
+        list = null;
+      }
     }
     lines.forEach(function (line) {
       var t = line.trim(), m;
       if (t === '') { flushPara(); flushList(); return; }
+      if ((m = t.match(/^\[\[\s*(?:([12])\s*στ[ήη]λ(?:η|ες)|cols\s*[=:]\s*([12]))\s*\]\]$/i))) {
+        flushPara(); flushList();
+        pendingCols = m[1] || m[2];
+        return;
+      }
       if ((m = t.match(/^(#{2,3})\s+(.+)$/))) {
         flushPara(); flushList();
         var tag = m[1].length === 2 ? 'h3' : 'h4';
@@ -60,11 +70,12 @@
       if (type) {
         flushPara();
         if (list && list.type !== type) flushList();
-        list = list || { type: type, items: [] };
+        if (!list) { list = { type: type, items: [], cols: pendingCols }; pendingCols = null; }
         list.items.push(inline(content));
         return;
       }
       flushList();
+      pendingCols = null;
       para.push(inline(t));
     });
     flushPara(); flushList();
@@ -131,7 +142,11 @@
         if (n.nodeType === 1 && BLOCKS.test(n.tagName)) {
           flush();
           var tag = n.tagName;
-          if (tag === 'UL' || tag === 'OL') { var items = []; listMd(n, items); if (items.length) blocks.push(items.join('\n')); }
+          if (tag === 'UL' || tag === 'OL') {
+            var items = []; listMd(n, items);
+            var cols = n.getAttribute('data-cols');
+            if (items.length) blocks.push((cols === '2' ? '[[2 στήλες]]\n' : cols === '1' ? '[[1 στήλη]]\n' : '') + items.join('\n'));
+          }
           else if (/^H[1-3]$/.test(tag)) { var h = cleanLines(inlineMd(n)).replace(/\n/g, ' '); if (h) blocks.push('## ' + h); }
           else if (/^H[4-6]$/.test(tag)) { var h4 = cleanLines(inlineMd(n)).replace(/\n/g, ' '); if (h4) blocks.push('### ' + h4); }
           else if (Array.prototype.some.call(n.children, function (c) { return BLOCKS.test(c.tagName); })) walk(n);
@@ -161,6 +176,7 @@
     clear: '<svg viewBox="0 0 20 20"><path d="M5 4h10M10 4l-3 12M4 17h6M13 12l4 4M17 12l-4 4"/></svg>',
     undo: '<svg viewBox="0 0 20 20"><path d="M7 5L3 9l4 4"/><path d="M3 9h9a5 5 0 0 1 0 10h-2"/></svg>',
     redo: '<svg viewBox="0 0 20 20"><path d="M13 5l4 4-4 4"/><path d="M17 9H8a5 5 0 0 0 0 10h2"/></svg>',
+    cols: '<svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="6" height="13" rx="1"/><rect x="11.5" y="3.5" width="6" height="13" rx="1"/></svg>',
     code: '<svg viewBox="0 0 20 20"><path d="M7 6l-4 4 4 4M13 6l4 4-4 4"/></svg>'
   };
 
@@ -186,7 +202,7 @@
         '<span class="sp-ed-sep"></span>' +
         button('bold', 'Έντονα (Ctrl+B)', ICONS.bold) + button('italic', 'Πλάγια (Ctrl+I)', ICONS.italic) + button('underline', 'Υπογράμμιση (Ctrl+U)', ICONS.underline) +
         '<span class="sp-ed-sep"></span>' +
-        button('insertUnorderedList', 'Λίστα με κουκκίδες', ICONS.ul) + button('insertOrderedList', 'Αριθμημένη λίστα', ICONS.ol) +
+        button('insertUnorderedList', 'Λίστα με κουκκίδες', ICONS.ul) + button('insertOrderedList', 'Αριθμημένη λίστα', ICONS.ol) + button('columns', 'Λίστα σε 2 στήλες (βάλτε τον κέρσορα μέσα σε λίστα)', ICONS.cols) +
         '<span class="sp-ed-sep"></span>' +
         button('superscript', 'Παραπομπή / εκθέτης (π.χ. ¹) – Ctrl+.', ICONS.sup) + button('link', 'Σύνδεσμος', ICONS.link) + button('unlink', 'Αφαίρεση συνδέσμου', ICONS.unlink) +
         '<span class="sp-ed-sep"></span>' +
@@ -230,6 +246,20 @@
       sync();
       updateState();
     }
+    function currentList() {
+      var sel = window.getSelection();
+      var node = sel.rangeCount ? sel.getRangeAt(0).startContainer : null;
+      if ((!node || !area.contains(node)) && savedRange) node = savedRange.startContainer;
+      while (node && node !== area) { if (node.nodeType === 1 && /^(UL|OL)$/.test(node.tagName)) return node; node = node.parentNode; }
+      return null;
+    }
+    function flash(btn, text) {
+      var tip = document.createElement('span');
+      tip.className = 'sp-ed-flash';
+      tip.textContent = text;
+      btn.appendChild(tip);
+      setTimeout(function () { tip.remove(); }, 1800);
+    }
     function updateState() {
       wrapEl.querySelectorAll('.sp-ed-btn[data-cmd]').forEach(function (b) {
         var c = b.dataset.cmd, on = false;
@@ -238,6 +268,9 @@
         }
         b.classList.toggle('is-on', !!on && document.activeElement === area);
       });
+      var colsBtn = wrapEl.querySelector('[data-cmd="columns"]');
+      var lst = document.activeElement === area ? currentList() : null;
+      colsBtn.classList.toggle('is-on', !!lst && (lst.getAttribute('data-cols') === '2' || (!lst.hasAttribute('data-cols') && lst.tagName === 'OL' && lst.children.length >= 10)));
       var block = '';
       try { block = String(document.queryCommandValue('formatBlock') || '').toLowerCase(); } catch (e) {}
       blockSel.value = block === 'h1' || block === 'h2' || block === 'h3' ? 'h3' : (/^h[4-6]$/.test(block) ? 'h4' : 'p');
@@ -263,6 +296,14 @@
         return;
       }
       if (sourceMode) return;
+      if (cmd === 'columns') {
+        var lst = currentList();
+        if (!lst) { flash(b, 'Βάλτε τον κέρσορα μέσα σε μια λίστα'); return; }
+        var two = lst.getAttribute('data-cols') === '2' || (!lst.hasAttribute('data-cols') && lst.tagName === 'OL' && lst.children.length >= 10);
+        lst.setAttribute('data-cols', two ? '1' : '2');
+        sync(); updateState();
+        return;
+      }
       if (cmd === 'superscript') {
         var cur = window.getSelection();
         var collapsed = !cur.rangeCount || cur.getRangeAt(0).collapsed || !area.contains(cur.getRangeAt(0).commonAncestorContainer);
