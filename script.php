@@ -30,60 +30,56 @@ class Com_SupportplansInstallerScript
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offers` (`id` int unsigned NOT NULL AUTO_INCREMENT,`offer_number` varchar(40) NOT NULL DEFAULT '',`offer_date` date NOT NULL,`customer_name` varchar(190) NOT NULL DEFAULT '',`project_name` varchar(190) NOT NULL DEFAULT '',`template_id` int unsigned NOT NULL DEFAULT 0,`doc_title` text NULL,`doc_subtitle` varchar(255) NOT NULL DEFAULT '',`footer_title` varchar(255) NOT NULL DEFAULT '',`pricing_title` varchar(255) NOT NULL DEFAULT '',`payment_text` mediumtext NULL,`terms_title` varchar(255) NOT NULL DEFAULT '',`terms_body` mediumtext NULL,`vat_rate` decimal(5,2) NOT NULL DEFAULT 24.00,`show_banks` tinyint NOT NULL DEFAULT 1,`show_header` tinyint NOT NULL DEFAULT 1,`header_logo` smallint NOT NULL DEFAULT 28,`header_gap` smallint NOT NULL DEFAULT 6,`pricing_break` tinyint NOT NULL DEFAULT 0,`pricing_space` smallint NOT NULL DEFAULT 5,`terms_break` tinyint NOT NULL DEFAULT 0,`terms_space` smallint NOT NULL DEFAULT 5,`header_text` varchar(255) NOT NULL DEFAULT '',`status` varchar(20) NOT NULL DEFAULT 'draft',`notes` text NULL,`variables` mediumtext NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_status` (`status`),KEY `idx_template_id` (`template_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_items` (`id` int unsigned NOT NULL AUTO_INCREMENT,`offer_id` int unsigned NOT NULL,`service_id` int unsigned NOT NULL DEFAULT 0,`ordering` int NOT NULL DEFAULT 0,`show_description` tinyint NOT NULL DEFAULT 1,`in_table` tinyint NOT NULL DEFAULT 1,`page_break` tinyint NOT NULL DEFAULT 0,`space_before` smallint NOT NULL DEFAULT 5,`section_title` varchar(255) NOT NULL DEFAULT '',`table_label` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`lists` mediumtext NULL,`price` decimal(10,2) NOT NULL DEFAULT 0.00,`discount` decimal(10,2) NOT NULL DEFAULT 0.00,PRIMARY KEY (`id`),KEY `idx_offer_id` (`offer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
 
-  // Upgrade safety for installations coming from older releases.
-  $spcols=$db->getTableColumns('#__supportplans_serviceplans',false);
-  if(!isset($spcols['billing_mode']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `billing_mode` varchar(20) NOT NULL DEFAULT 'prepaid' AFTER `name`")->execute();
-  if(!isset($spcols['hourly_rate']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `hourly_rate` decimal(10,2) NOT NULL DEFAULT 0.00 AFTER `billing_mode`")->execute();
-  if(!isset($spcols['subscription_months']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `subscription_months` int unsigned NOT NULL DEFAULT 1 AFTER `hourly_rate`")->execute();
-  if(!isset($spcols['pdf_title']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `pdf_title` varchar(255) NOT NULL DEFAULT '' AFTER `description`")->execute();
-  if(!isset($spcols['pdf_section_title']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `pdf_section_title` varchar(255) NOT NULL DEFAULT '' AFTER `pdf_title`")->execute();
-  if(!isset($spcols['pdf_work_title']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `pdf_work_title` varchar(255) NOT NULL DEFAULT '' AFTER `pdf_section_title`")->execute();
-  if(!isset($spcols['pdf_footer_title']))$db->setQuery("ALTER TABLE `#__supportplans_serviceplans` ADD `pdf_footer_title` varchar(255) NOT NULL DEFAULT '' AFTER `pdf_work_title`")->execute();
-  $db->setQuery("UPDATE `#__supportplans_serviceplans` SET `hourly_rate`=ROUND((`total_cost`/(`total_minutes`/60)),2) WHERE `billing_mode`='prepaid' AND `hourly_rate`=0 AND `total_minutes`>0")->execute();
-  $cols=$db->getTableColumns('#__supportplans_plans',false);
-  $adds=['subscription_months'=>"ALTER TABLE `#__supportplans_plans` ADD `subscription_months` int unsigned NOT NULL DEFAULT 1 AFTER `billing_mode`",'billing_mode'=>"ALTER TABLE `#__supportplans_plans` ADD `billing_mode` varchar(20) NOT NULL DEFAULT 'prepaid' AFTER `plan_type`",'service_plan_id'=>"ALTER TABLE `#__supportplans_plans` ADD `service_plan_id` int unsigned NOT NULL DEFAULT 0 AFTER `form_number`",'min_minutes'=>"ALTER TABLE `#__supportplans_plans` ADD `min_minutes` int unsigned NOT NULL DEFAULT 30 AFTER `initial_amount`",'step_minutes'=>"ALTER TABLE `#__supportplans_plans` ADD `step_minutes` int unsigned NOT NULL DEFAULT 5 AFTER `min_minutes`",'plan_description'=>"ALTER TABLE `#__supportplans_plans` ADD `plan_description` text NULL AFTER `step_minutes`"];foreach($adds as $c=>$sql)if(!isset($cols[$c]))$db->setQuery($sql)->execute();
-
-  // v1.2.0: custom offer variables.
-  foreach(['#__supportplans_offer_templates','#__supportplans_offers'] as $t){
-   $c=$db->getTableColumns($t,false);
-   if(!isset($c['variables']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('variables').' mediumtext NULL')->execute();
-  }
-
-  // v1.4.0: per-section page layout (page break / space before) for offer services and offer items.
-  foreach(['#__supportplans_offer_services','#__supportplans_offer_items'] as $t){
-   $c=$db->getTableColumns($t,false);
-   if(!isset($c['page_break']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('page_break').' tinyint NOT NULL DEFAULT 0')->execute();
-   if(!isset($c['space_before']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('space_before').' smallint NOT NULL DEFAULT 5')->execute();
-  }
-
-  // v1.5.0: page header on offer documents.
-  foreach(['#__supportplans_offer_templates','#__supportplans_offers'] as $t){
-   $c=$db->getTableColumns($t,false);
-   if(!isset($c['show_header']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('show_header').' tinyint NOT NULL DEFAULT 1')->execute();
-   if(!isset($c['header_text']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('header_text').' varchar(255) NOT NULL DEFAULT \'\'')->execute();
-  }
-
-  // v1.5.2: page layout of the payment and terms sections.
-  foreach(['#__supportplans_offer_templates','#__supportplans_offers'] as $t){
-   $c=$db->getTableColumns($t,false);
-   foreach(['pricing','terms'] as $sec){
-    if(!isset($c[$sec.'_break']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName($sec.'_break').' tinyint NOT NULL DEFAULT 0')->execute();
-    if(!isset($c[$sec.'_space']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName($sec.'_space').' smallint NOT NULL DEFAULT 5')->execute();
+  // Upgrade safety for installations coming from any older release: every column the
+  // current version uses is added when missing. Columns are added without AFTER, so the
+  // order in which old installations lack them does not matter.
+  $columns=[
+   '#__supportplans_serviceplans'=>[
+    'billing_mode'=>"varchar(20) NOT NULL DEFAULT 'prepaid'",'hourly_rate'=>'decimal(10,2) NOT NULL DEFAULT 0.00','subscription_months'=>'int unsigned NOT NULL DEFAULT 1',
+    'total_minutes'=>'int unsigned NOT NULL DEFAULT 0','total_cost'=>'decimal(10,2) NOT NULL DEFAULT 0.00','min_minutes'=>'int unsigned NOT NULL DEFAULT 30','step_minutes'=>'int unsigned NOT NULL DEFAULT 5',
+    'description'=>'text NULL','pdf_title'=>"varchar(255) NOT NULL DEFAULT ''",'pdf_section_title'=>"varchar(255) NOT NULL DEFAULT ''",'pdf_work_title'=>"varchar(255) NOT NULL DEFAULT ''",'pdf_footer_title'=>"varchar(255) NOT NULL DEFAULT ''",
+    'published'=>'tinyint NOT NULL DEFAULT 1','modified'=>'datetime NULL',
+   ],
+   '#__supportplans_plans'=>[
+    'sequence_no'=>'int unsigned NOT NULL DEFAULT 0','user_id'=>'int unsigned NOT NULL DEFAULT 0','customer_name'=>"varchar(190) NOT NULL DEFAULT ''",'supported_websites'=>"varchar(500) NOT NULL DEFAULT ''",'form_number'=>"varchar(80) NOT NULL DEFAULT ''",
+    'service_plan_id'=>'int unsigned NOT NULL DEFAULT 0','billing_mode'=>"varchar(20) NOT NULL DEFAULT 'prepaid'",'subscription_months'=>'int unsigned NOT NULL DEFAULT 1',
+    'min_minutes'=>'int unsigned NOT NULL DEFAULT 30','step_minutes'=>'int unsigned NOT NULL DEFAULT 5','plan_description'=>'text NULL','vat_rate'=>'decimal(5,2) NOT NULL DEFAULT 24.00','status'=>"varchar(20) NOT NULL DEFAULT 'active'",
+   ],
+   '#__supportplans_entries'=>[
+    'description'=>'text NULL','actual_minutes'=>'int unsigned NOT NULL DEFAULT 0','billable_minutes'=>'int unsigned NOT NULL DEFAULT 0','cost'=>'decimal(10,2) NOT NULL DEFAULT 0.00',
+   ],
+   '#__supportplans_offer_services'=>[
+    'page_break'=>'tinyint NOT NULL DEFAULT 0','space_before'=>'smallint NOT NULL DEFAULT 5','lists'=>'mediumtext NULL',
+   ],
+   '#__supportplans_offer_items'=>[
+    'page_break'=>'tinyint NOT NULL DEFAULT 0','space_before'=>'smallint NOT NULL DEFAULT 5','lists'=>'mediumtext NULL',
+   ],
+   '#__supportplans_offer_templates'=>[
+    'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
+    'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5',
+   ],
+   '#__supportplans_offers'=>[
+    'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
+    'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5',
+   ],
+  ];
+  foreach($columns as $table=>$defs){
+   $existing=$db->getTableColumns($table,false);
+   foreach($defs as $name=>$definition){
+    if(!isset($existing[$name])){
+     $db->setQuery('ALTER TABLE '.$db->quoteName($table).' ADD '.$db->quoteName($name).' '.$definition)->execute();
+    }
    }
   }
-
-  // v1.5.4: header logo size (px) and gap between header and content (mm).
-  foreach(['#__supportplans_offer_templates','#__supportplans_offers'] as $t){
-   $c=$db->getTableColumns($t,false);
-   if(!isset($c['header_logo']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('header_logo').' smallint NOT NULL DEFAULT 28')->execute();
-   if(!isset($c['header_gap']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('header_gap').' smallint NOT NULL DEFAULT 6')->execute();
+  // Very old releases stored the request date as DATE; free text such as "Ιούνιος 2025" is allowed now.
+  $entryCols=$db->getTableColumns('#__supportplans_entries',true); // column => type
+  if(isset($entryCols['request_date']) && stripos((string)$entryCols['request_date'],'varchar')===false){
+   $db->setQuery("ALTER TABLE `#__supportplans_entries` MODIFY `request_date` varchar(100) NOT NULL")->execute();
   }
-
-  // v1.6.0: structured lists (card style) on offer services and offer items.
-  foreach(['#__supportplans_offer_services','#__supportplans_offer_items'] as $t){
-   $c=$db->getTableColumns($t,false);
-   if(!isset($c['lists']))$db->setQuery('ALTER TABLE '.$db->quoteName($t).' ADD '.$db->quoteName('lists').' mediumtext NULL')->execute();
-  }
+  // Fill sensible values into rows that predate these columns (safe to run on every install/update).
+  $db->setQuery("UPDATE `#__supportplans_plans` SET `sequence_no`=`id` WHERE `sequence_no`=0")->execute();
+  $db->setQuery("UPDATE `#__supportplans_plans` p JOIN `#__supportplans_serviceplans` s ON s.`name`=p.`plan_type` SET p.`service_plan_id`=s.`id` WHERE p.`service_plan_id`=0")->execute();
+  $db->setQuery("UPDATE `#__supportplans_serviceplans` SET `hourly_rate`=ROUND((`total_cost`/(`total_minutes`/60)),2) WHERE `billing_mode`='prepaid' AND `hourly_rate`=0 AND `total_minutes`>0")->execute();
 
   // No default service plans are created or restored.
   // Existing user-created/renamed plans remain untouched during updates.
