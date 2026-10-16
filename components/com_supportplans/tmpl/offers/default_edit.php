@@ -122,11 +122,13 @@ foreach ($this->services as $s) {
    <label>Υπότιτλος<input name="doc_subtitle" value="<?php echo $e($o->doc_subtitle); ?>" placeholder="ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΣΦΟΡΑ"></label>
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($o->footer_title); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
    <label>Τίτλος ενότητας τιμών<input name="pricing_title" value="<?php echo $e($o->pricing_title); ?>" placeholder="Αξία Έργου – Τρόπος Πληρωμής"></label>
+   <?php $this->layoutCtx = ['name' => 'pricing', 'label' => 'Ενότητα τιμών', 'break' => (int) ($o->pricing_break ?? 0), 'space' => (int) ($o->pricing_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo (int) $o->show_banks ? 'checked' : ''; ?>> Εμφάνιση τραπεζικών λογαριασμών</label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_header" value="1" <?php echo (int) ($o->show_header ?? 1) ? 'checked' : ''; ?>> Header σε κάθε σελίδα (εκτός εξωφύλλου)</label>
    <label class="sp-wide">Κείμενο header<input name="header_text" value="<?php echo $e($o->header_text ?? ''); ?>" placeholder="Αν μείνει κενό: υπότιτλος + αριθμός προσφοράς · έργο — δέχεται και μεταβλητές"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($o->payment_text); ?></textarea></div>
    <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($o->terms_title); ?>" placeholder="Όροι Προσφοράς / Παραπομπές"></label>
+   <?php $this->layoutCtx = ['name' => 'terms', 'label' => 'Ενότητα όρων', 'break' => (int) ($o->terms_break ?? 0), 'space' => (int) ($o->terms_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>
    <div class="sp-wide sp-field"><span class="sp-field-label">Όροι προσφοράς / παραπομπές</span><textarea name="terms_body" rows="10" data-sp-editor><?php echo $e($o->terms_body); ?></textarea></div>
   </div>
   <?php echo $this->loadTemplate('markup'); ?>

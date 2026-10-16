@@ -169,6 +169,18 @@ final class OfferHelper
         return $banks;
     }
 
+    /**
+     * Extra attributes for a section heading in the offer document: a new page
+     * (class sp-o-break, handled by the paginator) or a spacing in mm before it.
+     */
+    public static function sectionLayout($pageBreak, $space): string
+    {
+        if ((int) $pageBreak) {
+            return ' sp-o-break"';
+        }
+        return '" style="margin-top:' . max(0, min(80, (int) $space)) . 'mm"';
+    }
+
     /** Built-in variables, always available in offer texts. */
     public const BUILTIN_VARIABLES = [
         'customer' => 'Πελάτης',

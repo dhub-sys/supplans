@@ -273,3 +273,8 @@
 
 /* cover: offer number / date / customer rows span the full content width */
 .sp-od-meta{width:auto!important;margin-left:0!important}
+
+/* v1.5.2 – layout picker for payment / terms sections */
+.sp-section-layout{display:flex;flex-direction:column;gap:5px;align-self:end}
+.sp-section-layout .sp-field-label{font-weight:600}
+.sp-section-layout select{padding:8px 9px!important}

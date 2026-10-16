@@ -64,12 +64,12 @@ $section = 0;
  <!-- Flowing content: moved into A4 pages by the paginator below. -->
  <div class="sp-od-flow" id="sp-od-flow">
   <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
-  <h2 class="sp-od-h sp-o-keep<?php echo !empty($item->page_break) ? ' sp-o-break' : ''; ?>"<?php echo empty($item->page_break) ? ' style="margin-top:' . max(0, min(80, (int) ($item->space_before ?? 5))) . 'mm"' : ''; ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($item->page_break ?? 0, $item->space_before ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
   <?php echo OfferHelper::render((string) $item->body, $vars); ?>
   <?php endforeach; ?>
 
   <?php if ($totals['rows']): $section++; ?>
-  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->pricing_break ?? 0, $o->pricing_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2>
   <table class="sp-od-card sp-od-fin">
    <thead>
     <tr class="sp-od-card-title"><th colspan="4">Οικονομική σύνοψη</th></tr>
@@ -86,7 +86,7 @@ $section = 0;
   <?php endif; ?>
 
   <?php if (trim((string) $o->payment_text) !== ''): ?>
-  <?php if (!$totals['rows']): $section++; ?><h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2><?php endif; ?>
+  <?php if (!$totals['rows']): $section++; ?><h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->pricing_break ?? 0, $o->pricing_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2><?php endif; ?>
   <?php echo OfferHelper::render((string) $o->payment_text, $vars); ?>
   <?php endif; ?>
 
@@ -101,7 +101,7 @@ $section = 0;
   <?php endif; ?>
 
   <?php if (trim((string) $o->terms_body) !== ''): $section++; ?>
-  <h2 class="sp-od-h sp-o-keep"><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim($v($o->terms_title)) ?: 'Όροι Προσφοράς'); ?></span></h2>
+  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->terms_break ?? 0, $o->terms_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim($v($o->terms_title)) ?: 'Όροι Προσφοράς'); ?></span></h2>
   <?php echo OfferHelper::render((string) $o->terms_body, $vars); ?>
   <?php endif; ?>
 

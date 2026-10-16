@@ -614,3 +614,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Geom σε όλο το έγγραφο με `!important`, ώστε να μην το αλλάζει το template του site.
 - Εξώφυλλο: οι γραμμές Αρ. Προσφοράς / Ημερομηνία / Πελάτης καλύπτουν όλο το πλάτος περιεχομένου.
 
+## v1.5.2
+- Διάταξη Pdf και για τις ενότητες «Αξία Έργου – Τρόπος Πληρωμής» και «Όροι Προσφοράς»: νέα σελίδα ή συνέχεια με απόσταση σε mm. Ρυθμίζεται στο template (αντιγράφεται στη νέα προσφορά) και σε κάθε προσφορά. Νέες στήλες `pricing_break`, `pricing_space`, `terms_break`, `terms_space` (από το script.php).
+- Κοινή συνάρτηση `OfferHelper::sectionLayout()` για όλες τις επικεφαλίδες ενοτήτων.
+

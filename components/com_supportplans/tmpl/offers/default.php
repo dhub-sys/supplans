@@ -47,6 +47,13 @@ $tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services
  // Offer fields for the editor's "Μεταβλητή…" list.
  window.spCustomVariables = function () { return <?php echo json_encode(array_map(static fn($f) => ['{' . $f['key'] . '}', $f['label']], OfferHelper::fields($this->params)), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP); ?>; };
  </script>
+ <script>
+ // Section layout pickers: the spacing only applies when the section continues on the same page.
+ document.addEventListener('change', function (e) {
+   var pick = e.target.closest && e.target.closest('[data-layout-pick]');
+   if (pick && e.target.tagName === 'SELECT') pick.querySelector('[data-space]').hidden = e.target.value === '1';
+ });
+ </script>
  <script>function spSubmit(task){var f=document.getElementById('adminForm');if(!f)return;if(!f.reportValidity||f.reportValidity()){f.querySelector('input[name="task"]').value=task;f.submit();}}</script>
 <?php
 if ($this->section === 'variables') {
