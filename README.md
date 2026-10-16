@@ -654,3 +654,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.6.5
 - Η postflight αντιγράφει ξανά τον φάκελο `media` στο `/media/com_supportplans` με απλή PHP αντιγραφή και δικαιώματα 0644/0755. Μια αποτυχημένη αναβάθμιση (π.χ. το σφάλμα `billing_mode`) σβήνει με rollback τα αρχεία media που είχε δημιουργήσει, και κάποιοι hosts αντιγράφουν αρχεία χωρίς δικαίωμα ανάγνωσης. Και στις δύο περιπτώσεις το Service Hub έβγαινε χωρίς CSS.
+
+## v1.6.6
+- Νέος `Site\Helper\Assets`: τα `supportplans.css`, `offers.css` και τα scripts των προσφορών τυπώνονται inline (`<style>`/`<script>`) μέσα στο output του component, αντί για `<link>` στο `<head>`. Σε sites όπου το `component.php` του template δεν τυπώνει τα styles του head, ή όπου κάποιο plugin/server μπλοκάρει το `/media`, το Service Hub έβγαινε χωρίς μορφοποίηση. Αν ένα αρχείο δεν διαβάζεται, γίνεται fallback στο HTMLHelper.

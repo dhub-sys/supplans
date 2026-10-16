@@ -4,7 +4,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Support\Component\Supportplans\Site\Helper\OfferHelper;
 
-HTMLHelper::_('stylesheet', 'com_supportplans/offers.css', ['version' => 'auto', 'relative' => true]);
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('offers.css');
 
 $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 $o = $this->offer;

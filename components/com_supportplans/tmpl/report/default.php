@@ -2,7 +2,7 @@
 \defined('_JEXEC') or die;
 $spServicesLabel=(string)\Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('supported_websites_label','Υποστηριζόμενα websites');
 use Joomla\CMS\HTML\HTMLHelper;
-HTMLHelper::_('stylesheet', 'com_supportplans/supportplans.css', ['version'=>'auto','relative'=>true]);
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');
 $used = array_sum(array_map(fn($e)=>(int)$e->billable_minutes, $this->entries));
 $spent = array_sum(array_map(fn($e)=>(float)$e->cost, $this->entries));
 $actualUsed = array_sum(array_map(fn($e)=>(int)$e->actual_minutes, $this->entries));

@@ -4,7 +4,7 @@ $spWebsitesLabel=(string)\Joomla\CMS\Component\ComponentHelper::getParams('com_s
 $spItemid=max(1,(int)\Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('standalone_itemid',785));
 
 use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route;
-HTMLHelper::_('stylesheet','com_supportplans/supportplans.css',['version'=>'auto','relative'=>true]);HTMLHelper::_('behavior.formvalidator');
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');HTMLHelper::_('behavior.formvalidator');
 $fmt=fn($m)=>sprintf('%02d:%02d',intdiv(max(0,(int)$m),60),max(0,(int)$m)%60);$dateGr=function($d){if(!$d)return '';try{return(new DateTime($d))->format('d/m/Y');}catch(Throwable $e){return $d;}};
 $serviceOptions=function($selected=0){$out='';foreach($this->servicePlans as $sp){if(!(int)$sp->published && (int)$sp->id!==(int)$selected)continue;$mode=$sp->billing_mode??'prepaid';$h=rtrim(rtrim(number_format($sp->total_minutes/60,2,',','.'),'0'),',');$rate=$mode==='ongoing'?(float)$sp->hourly_rate:($mode==='prepaid'&&$sp->total_minutes?((float)$sp->total_cost/($sp->total_minutes/60)):0);$label=$mode==='ongoing'?($sp->name.' — Ongoing / '.number_format($rate,2,',','.').' € / ώρα προ ΦΠΑ'):($mode==='subscription'?($sp->name.' — Συνδρομή '.(int)($sp->subscription_months??1).' μήν. / '.number_format((float)$sp->total_cost,2,',','.').' € προ ΦΠΑ'):($sp->name.' — '.$h.' ώρες / '.number_format((float)$sp->total_cost,2,',','.').' € προ ΦΠΑ'));$out.='<option value="'.(int)$sp->id.'" '.((int)$selected===(int)$sp->id?'selected':'').'>'.htmlspecialchars($label).'</option>';}return $out;};
 ?>

@@ -1,7 +1,7 @@
 <?php
 \defined('_JEXEC') or die;
 $spItemid=max(1,(int)\Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('standalone_itemid',785));
- use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route; HTMLHelper::_('stylesheet','com_supportplans/supportplans.css',['version'=>'auto','relative'=>true]);HTMLHelper::_('behavior.formvalidator');$item=$this->selected;$mode=$item->billing_mode??'prepaid'; ?>
+ use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route; echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');HTMLHelper::_('behavior.formvalidator');$item=$this->selected;$mode=$item->billing_mode??'prepaid'; ?>
 <?php
 $spParams=$this->params ?? \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans');
 $spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Support Plans');

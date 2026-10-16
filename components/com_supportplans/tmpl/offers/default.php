@@ -6,11 +6,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Support\Component\Supportplans\Site\Helper\OfferHelper;
 
-HTMLHelper::_('stylesheet', 'com_supportplans/supportplans.css', ['version' => 'auto', 'relative' => true]);
-HTMLHelper::_('stylesheet', 'com_supportplans/offers.css', ['version' => 'auto', 'relative' => true]);
-HTMLHelper::_('script', 'com_supportplans/offers-editor.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
-HTMLHelper::_('script', 'com_supportplans/sp-sortable.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
-HTMLHelper::_('script', 'com_supportplans/offer-lists.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css', 'offers.css');
 $spItemid = OfferHelper::itemid();
 $spParams = $this->params;
 $spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Support Plans');
@@ -71,3 +67,4 @@ if ($this->section === 'variables') {
 <template id="sp-text-block-template"><?php echo OfferHelper::textBlock('__P__', '__k__'); ?></template>
 </section></div></div></main>
 </div>
+<?php echo \Support\Component\Supportplans\Site\Helper\Assets::js('offers-editor.js', 'sp-sortable.js', 'offer-lists.js'); ?>

@@ -5,7 +5,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-HTMLHelper::_('stylesheet','com_supportplans/supportplans.css',['version'=>'auto','relative'=>true]);
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');
 $spParams=ComponentHelper::getParams('com_supportplans');
 $spItemid=max(1,(int)$spParams->get('standalone_itemid',785));
 $spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Support Plans');
@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.6.6</div><div><ul>
+<li>Η μορφοποίηση (CSS) και τα scripts ενσωματώνονται πλέον μέσα στις σελίδες του Service Hub. Έτσι εμφανίζονται σωστά με οποιοδήποτε template, plugin cache ή βελτιστοποίησης και ρύθμιση του server.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.6.5</div><div><ul>
 <li>Η εγκατάσταση ξαναγράφει πάντα τα αρχεία εμφάνισης (CSS, JS, εικόνες) με σωστά δικαιώματα. Έτσι διορθώνεται το Service Hub που εμφανιζόταν χωρίς μορφοποίηση μετά από αποτυχημένη αναβάθμιση.</li>
 </ul></div></div>

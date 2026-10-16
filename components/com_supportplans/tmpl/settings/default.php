@@ -4,7 +4,7 @@ $spItemid=max(1,(int)\Joomla\CMS\Component\ComponentHelper::getParams('com_suppo
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
-HTMLHelper::_('stylesheet','com_supportplans/supportplans.css',['version'=>'auto','relative'=>true]);
+echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');
 $p=$this->params;
 ?>
 <?php
