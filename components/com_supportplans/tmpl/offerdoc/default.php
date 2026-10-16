@@ -16,6 +16,15 @@ $vars = OfferHelper::offerVars($o, $brand);
 $v = static fn($text) => OfferHelper::vars((string) $text, $vars);
 $titleLines = array_values(array_filter(array_map('trim', explode("\n", OfferHelper::vars((string) $o->doc_title, $vars))), 'strlen'));
 $footer = trim(OfferHelper::vars((string) $o->footer_title, $vars)) ?: implode(', ', $titleLines);
+// Page header (all pages except the cover): custom text or "subtitle + number · project".
+$showHeader = (int) ($o->show_header ?? 1) === 1;
+$headerText = trim($v($o->header_text ?? ''));
+if ($headerText === '') {
+    $headerText = trim(trim($v($o->doc_subtitle)) . ' ' . $o->offer_number);
+    if (trim((string) $o->project_name) !== '') {
+        $headerText .= ' · ' . $o->project_name;
+    }
+}
 $pricingTitle = trim($v($o->pricing_title)) ?: 'Αξία Έργου – Τρόπος Πληρωμής';
 $banks = (int) $o->show_banks ? OfferHelper::banks($this->params) : [];
 $fileTitle = trim($o->offer_number . ' - ' . ($o->project_name ?: $o->customer_name), ' -');
@@ -96,7 +105,7 @@ $section = 0;
  </div>
 
  <template id="sp-od-page-template">
-  <section class="sp-od-page"><div class="sp-od-body"></div><footer class="sp-od-footer"><div class="sp-od-footer-text"><?php echo $e($footer); ?> <b><?php echo $e($o->project_name); ?></b></div><div class="sp-od-num"></div></footer></section>
+  <section class="sp-od-page<?php echo $showHeader ? ' has-header' : ''; ?>"><?php if ($showHeader): ?><header class="sp-od-header"><?php if ($brand['logo'] !== ''): ?><img class="sp-od-header-logo" src="<?php echo $e($brand['logo']); ?>" alt="<?php echo $e($brand['name']); ?>"><?php else: ?><span class="sp-od-header-brand"><?php echo $e($brand['name']); ?></span><?php endif; ?><span class="sp-od-header-text"><?php echo $e($headerText); ?></span></header><?php endif; ?><div class="sp-od-body"></div><footer class="sp-od-footer"><div class="sp-od-footer-text"><?php echo $e($footer); ?> <b><?php echo $e($o->project_name); ?></b></div><div class="sp-od-num"></div></footer></section>
  </template>
 </div>
 <script>

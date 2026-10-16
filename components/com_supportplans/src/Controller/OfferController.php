@@ -14,7 +14,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
  */
 class OfferController extends BaseController
 {
-    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'footer_title', 'pricing_title', 'payment_text', 'terms_title', 'terms_body'];
+    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'payment_text', 'terms_title', 'terms_body'];
 
     public function create(): void
     {
@@ -42,6 +42,7 @@ class OfferController extends BaseController
             'template_id'   => (int) $template->id,
             'vat_rate'      => (float) $template->vat_rate,
             'show_banks'    => (int) $template->show_banks,
+            'show_header'   => (int) ($template->show_header ?? 1),
             'status'        => 'draft',
             'notes'         => '',
             'variables'     => $this->postedFields(),
@@ -161,13 +162,14 @@ class OfferController extends BaseController
             'project_name'  => trim($in->getString('project_name')),
             'vat_rate'      => max(0, $in->getFloat('vat_rate', 24)),
             'show_banks'    => $in->getInt('show_banks', 0) ? 1 : 0,
+            'show_header'   => $in->getInt('show_header', 0) ? 1 : 0,
             'status'        => isset(OfferHelper::STATUSES[$status]) ? $status : 'draft',
             'notes'         => trim((string) $in->get('notes', '', 'raw')),
             'variables'     => $this->postedFields(),
         ];
         foreach (self::TEXT_FIELDS as $field) {
             $value = str_replace("\r\n", "\n", (string) $in->get($field, '', 'raw'));
-            $offer->$field = in_array($field, ['doc_subtitle', 'footer_title', 'pricing_title', 'terms_title'], true) ? trim(strip_tags($value)) : $value;
+            $offer->$field = in_array($field, ['doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'terms_title'], true) ? trim(strip_tags($value)) : $value;
         }
 
         $items = [];

@@ -57,6 +57,8 @@ class OffertemplateController extends BaseController
             'terms_body'    => str_replace("\r\n", "\n", (string) $in->get('terms_body', '', 'raw')),
             'vat_rate'      => max(0, $in->getFloat('vat_rate', 24)),
             'show_banks'    => $in->getInt('show_banks', 0) ? 1 : 0,
+            'show_header'   => $in->getInt('show_header', 0) ? 1 : 0,
+            'header_text'   => trim($in->getString('header_text')),
             'items'         => json_encode($items),
             'published'     => $in->getInt('published', 1) ? 1 : 0,
             'modified'      => $now,
