@@ -15,8 +15,9 @@ $nextOrdering = ($this->services ? max(array_map(static fn($x) => (int) $x->orde
 </div>
 <form action="<?php echo OfferHelper::url('view=offers&section=services' . ($s ? '&id=' . (int) $s->id : '&mode=new')); ?>" method="post" name="adminForm" id="adminForm">
  <div class="sp-card">
-  <h2 id="sp-svc-heading"><?php echo $s ? OfferHelper::KINDS[$kind] . ': ' . $e($s->name) : ($kind === 'description' ? 'Νέα περιγραφή' : 'Νέα υπηρεσία'); ?></h2>
+  <h2 id="sp-svc-heading"><?php echo $s ? OfferHelper::KINDS[$kind] . ': ' . $e($s->name) : ($kind === 'description' ? 'Νέα περιγραφή' : ($kind === 'pricing' ? 'Νέο block τιμών' : 'Νέα υπηρεσία')); ?></h2>
   <div class="sp-grid" id="sp-svc-grid" data-kind="<?php echo $kind; ?>">
+   <p class="sp-wide sp-pricing-only sp-kind-hint">Το block <b>Τιμές</b> εμφανίζει στο Pdf τον πίνακα «Οικονομική σύνοψη» με τις υπηρεσίες της προσφοράς που μπαίνουν στον πίνακα τιμών. Αν κάποια υπηρεσία έχει έκπτωση, ο πίνακας παίρνει αυτόματα στήλες Τιμή και Έκπτωση. Μετά τον πίνακα ακολουθούν το κείμενο (π.χ. τρόπος πληρωμής), οι λίστες και οι τραπεζικοί λογαριασμοί. Βάλτε το στο template ή στην προσφορά στη θέση που θέλετε.</p>
    <label>Τύπος<select name="kind" id="sp-svc-kind"><?php foreach (OfferHelper::KINDS as $k => $label): ?><option value="<?php echo $k; ?>"<?php echo $kind === $k ? ' selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
    <label>Όνομα (εσωτερικό)<input name="name" required value="<?php echo $e($s->name ?? ''); ?>" placeholder="π.χ. Φιλοξενία Green"></label>
    <label>Τίτλος ενότητας στο έγγραφο<input name="section_title" value="<?php echo $e($s->section_title ?? ''); ?>" placeholder="π.χ. Φιλοξενία Ιστοσελίδας"></label>
@@ -25,7 +26,7 @@ $nextOrdering = ($this->services ? max(array_map(static fn($x) => (int) $x->orde
    <label>Σειρά<input type="number" step="1" name="ordering" value="<?php echo (int) ($s->ordering ?? $nextOrdering); ?>"></label>
    <label>Κατάσταση<select name="published"><option value="1" <?php echo !$s || (int) $s->published ? 'selected' : ''; ?>>Ενεργή</option><option value="0" <?php echo $s && !(int) $s->published ? 'selected' : ''; ?>>Ανενεργή</option></select></label>
    <div class="sp-wide sp-check-row">
-    <label class="sp-check"><input type="checkbox" name="show_description" value="1" <?php echo !$s || (int) $s->show_description ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο (προεπιλογή)</label>
+    <label class="sp-check sp-notpricing"><input type="checkbox" name="show_description" value="1" <?php echo !$s || (int) $s->show_description ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο (προεπιλογή)</label>
     <label class="sp-check sp-svc-only"><input type="checkbox" name="in_table" value="1" <?php echo !$s || (int) $s->in_table ? 'checked' : ''; ?>> Στον πίνακα τιμών (προεπιλογή)</label>
    </div>
    <label>Θέση στο Pdf (προεπιλογή)<select name="page_break" id="sp-svc-break"><option value="0"<?php echo empty($s->page_break) ? ' selected' : ''; ?>>Συνέχεια στην ίδια σελίδα</option><option value="1"<?php echo !empty($s->page_break) ? ' selected' : ''; ?>>Ξεκινά σε νέα σελίδα</option></select></label>

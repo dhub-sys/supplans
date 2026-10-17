@@ -18,7 +18,7 @@ final class OfferSamples
         $ordering = 0;
         foreach (self::services() as $service) {
             $row = (object) [
-                'kind'             => $service['table'] || $service['price'] ? 'service' : 'description',
+                'kind'             => $service['kind'] ?? ($service['table'] || $service['price'] ? 'service' : 'description'),
                 'name'             => $service['name'],
                 'section_title'    => $service['section_title'],
                 'table_label'      => $service['table_label'],
@@ -40,10 +40,6 @@ final class OfferSamples
             'doc_title'     => "Σχεδιασμός – Υλοποίηση e-shop\nΥπηρεσίες Φιλοξενίας & Συμβόλαιο Συντήρησης",
             'doc_subtitle'  => 'ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΣΦΟΡΑ',
             'footer_title'  => 'Σχεδιασμός – Υλοποίηση e-shop, Υπηρεσίες Φιλοξενίας - Συμβόλαιο Συντήρησης',
-            'pricing_title' => 'Αξία Έργου – Τρόπος Πληρωμής',
-            'payment_text'  => self::PAYMENT,
-            'terms_title'   => 'Όροι Προσφοράς / Παραπομπές',
-            'terms_body'    => self::TERMS,
             'vat_rate'      => 24,
             'show_banks'    => 1,
             'items'         => json_encode($items),
@@ -94,6 +90,14 @@ final class OfferSamples
             [
                 'name' => 'Αδειοδότηση WP Rocket', 'section_title' => 'Αδειοδότηση Plugin WP Rocket', 'table_label' => 'Αδειοδότηση Plugin WP Rocket', 'price' => 60, 'describe' => 0, 'table' => 1,
                 'body' => "Ετήσια άδεια χρήσης του πρόσθετου WP Rocket για βελτιστοποίηση της ταχύτητας της ιστοσελίδας.",
+            ],
+            [
+                'kind' => 'pricing', 'name' => 'Αξία έργου – τρόπος πληρωμής', 'section_title' => 'Αξία Έργου – Τρόπος Πληρωμής', 'table_label' => '', 'price' => 0, 'describe' => 1, 'table' => 0,
+                'body' => self::PAYMENT,
+            ],
+            [
+                'kind' => 'description', 'name' => 'Όροι προσφοράς', 'section_title' => 'Όροι Προσφοράς / Παραπομπές', 'table_label' => '', 'price' => 0, 'describe' => 1, 'table' => 0,
+                'body' => self::TERMS,
             ],
         ];
     }

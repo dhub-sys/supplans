@@ -6,8 +6,8 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Προσφορές</span><h1>Υπηρεσίες / Περιγραφές</h1><p>Οι <b>υπηρεσίες</b> έχουν κείμενο για το έγγραφο και τιμή για τον πίνακα τιμών. Οι <b>περιγραφές</b> είναι ενότητες κειμένου χωρίς τιμή (π.χ. στάδια έργου, τεχνικά χαρακτηριστικά). Χρησιμοποιούνται στα templates και στις προσφορές.</p></div>
-  <div class="sp-head-actions"><a class="sp-primary-action" href="<?php echo OfferHelper::url('view=offers&section=services&mode=new'); ?>">＋ Νέα υπηρεσία</a><a class="sp-primary-action is-secondary" href="<?php echo OfferHelper::url('view=offers&section=services&mode=new&kind=description'); ?>">＋ Νέα περιγραφή</a></div>
+  <div><span class="sp-eyebrow">Προσφορές</span><h1>Υπηρεσίες / Περιγραφές</h1><p>Οι <b>υπηρεσίες</b> έχουν κείμενο για το έγγραφο και τιμή για τον πίνακα τιμών. Οι <b>περιγραφές</b> είναι ενότητες κειμένου χωρίς τιμή (π.χ. στάδια έργου, όροι προσφοράς). Το <b>block τιμών</b> βάζει τον πίνακα τιμών και τον τρόπο πληρωμής στη θέση που θέλετε. Χρησιμοποιούνται στα templates και στις προσφορές.</p></div>
+  <div class="sp-head-actions"><a class="sp-primary-action" href="<?php echo OfferHelper::url('view=offers&section=services&mode=new'); ?>">＋ Νέα υπηρεσία</a><a class="sp-primary-action is-secondary" href="<?php echo OfferHelper::url('view=offers&section=services&mode=new&kind=description'); ?>">＋ Νέα περιγραφή</a><a class="sp-primary-action is-secondary" href="<?php echo OfferHelper::url('view=offers&section=services&mode=new&kind=pricing'); ?>">＋ Block τιμών</a></div>
 </section>
 <div class="sp-card">
   <h2>Υπηρεσίες / Περιγραφές</h2>
@@ -19,7 +19,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         <td><?php echo (int) $s->ordering; ?></td>
         <td><?php echo OfferHelper::kindBadge($s->kind ?? 'service'); ?></td>
         <td><strong><?php echo $e($s->name); ?></strong><?php if (!(int) $s->published): ?> <small class="text-muted">(ανενεργή)</small><?php endif; ?><br><small class="text-muted"><?php echo $e(trim((string) $s->section_title) ?: $s->name); ?></small></td>
-        <?php $isDesc = OfferHelper::kind($s->kind ?? 'service') === 'description'; ?>
+        <?php $isDesc = OfferHelper::kind($s->kind ?? 'service') !== 'service'; ?>
         <td><?php echo $isDesc ? '<span class="text-muted">—</span>' : $e(trim((string) $s->table_label) ?: $s->name); ?></td>
         <td class="sp-center"><?php echo (int) $s->show_description ? '✓' : '—'; ?></td>
         <td class="sp-center"><?php echo (int) $s->in_table ? '✓' : '—'; ?></td>

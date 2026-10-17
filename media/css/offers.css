@@ -351,7 +351,12 @@
 .sp-kind-badge.is-description{background:#f2ecfd;color:#6d28d9}
 .sp-head-actions{display:flex;gap:8px;flex-wrap:wrap}
 .sp-primary-action.is-secondary{background:#fff!important;color:var(--sp-ui-primary,#2563eb)!important;border:1px solid #c7d4f5;box-shadow:none!important}
-#sp-svc-grid[data-kind="description"] .sp-svc-only,.sp-oi[data-kind="description"] .sp-svc-only{display:none!important}
+#sp-svc-grid:not([data-kind="service"]) .sp-svc-only,.sp-oi:not([data-kind="service"]) .sp-svc-only{display:none!important}
+#sp-svc-grid[data-kind="pricing"] .sp-notpricing,.sp-oi[data-kind="pricing"] .sp-notpricing{display:none!important}
+.sp-pricing-only{display:none!important}
+#sp-svc-grid[data-kind="pricing"] .sp-pricing-only,.sp-oi[data-kind="pricing"] .sp-pricing-only{display:block!important}
+.sp-kind-badge.is-pricing{background:#e7f6ec;color:#15803d}
+.sp-kind-hint{margin:0;padding:9px 12px;border-radius:9px;background:#f0f9f3;border:1px solid #cdebd7;color:#1f5130;font-size:13px;line-height:1.5;flex:1 1 100%}
 .sp-oi-all{display:flex;gap:6px}
 .sp-oi{padding:0;overflow:hidden}
 .sp-oi-bar{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 10px}
@@ -370,9 +375,15 @@
 .sp-oi-panel{padding:12px 14px 14px}
 .sp-oi.is-collapsed .sp-oi-panel{display:none}
 .sp-oi .sp-oi-head{grid-template-columns:140px minmax(160px,1.3fr) minmax(160px,1.3fr) 110px 110px}
-.sp-oi[data-kind="description"] .sp-oi-head{grid-template-columns:140px minmax(160px,1fr)}
+.sp-oi:not([data-kind="service"]) .sp-oi-head{grid-template-columns:140px minmax(160px,1fr)}
 .sp-oi-kind select{padding:8px 9px;border:1px solid #c9d1dc;border-radius:7px;font-size:14px;font-weight:400;background:#fff}
 .sp-oi .sp-oi-flags{margin-left:0}
 .sp-oi.is-excluded .sp-oi-sum-net{opacity:.45}
 .sp-oi.is-hidden-text .sp-oi-sum-title{color:#98a2b3}
-@media (max-width:900px){.sp-oi .sp-oi-head,.sp-oi[data-kind="description"] .sp-oi-head{grid-template-columns:1fr 1fr}.sp-oi-sum-tags{display:none}}
+@media (max-width:900px){.sp-oi .sp-oi-head,.sp-oi:not([data-kind="service"]) .sp-oi-head{grid-template-columns:1fr 1fr}.sp-oi-sum-tags{display:none}}
+/* v1.9.0 — price summary with the discount columns: tighter cells so the description keeps its width. */
+.sp-od-fin.has-discount th,.sp-od-fin.has-discount td{padding-left:2.3mm;padding-right:2.3mm}
+.sp-od-fin.has-discount tbody td{font-size:9.6pt}
+.sp-od-fin.has-discount .sp-od-card-head th{font-size:8.4pt}
+.sp-od-fin.has-discount .sp-od-card-total td{font-size:10.2pt}
+.sp-od-fin.has-discount tbody td:first-child{min-width:52mm}

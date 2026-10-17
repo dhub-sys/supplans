@@ -44,10 +44,10 @@ $fallbackOrder = (count($selected) + 1) * 10;
     <tr data-sort-item class="<?php echo $sel ? '' : 'is-off'; ?><?php echo (int) $s->published ? '' : ' is-unpublished'; ?>">
      <td class="sp-grip-cell"><button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς (σύρετε ή χρησιμοποιήστε τα βελάκια)"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button></td>
      <td><input type="checkbox" name="tpl[<?php echo $sid; ?>][on]" value="1" <?php echo $sel ? 'checked' : ''; ?> onchange="this.closest('tr').classList.toggle('is-off',!this.checked)"></td>
-     <?php $isDesc = OfferHelper::kind($s->kind ?? 'service') === 'description'; ?>
+     <?php $isDesc = OfferHelper::kind($s->kind ?? 'service') !== 'service'; $isPricing = OfferHelper::kind($s->kind ?? 'service') === 'pricing'; ?>
      <td><?php echo OfferHelper::kindBadge($s->kind ?? 'service'); ?></td>
      <td><strong><?php echo $e($s->name); ?></strong><?php if (!(int) $s->published): ?> <small class="text-muted">(ανενεργή)</small><?php endif; ?><br><small class="text-muted"><?php echo $e(trim((string) $s->section_title) ?: $s->name); ?></small></td>
-     <td class="sp-center"><input type="checkbox" name="tpl[<?php echo $sid; ?>][desc]" value="1" <?php echo ($sel ? !empty($sel['show_description']) : (int) $s->show_description) ? 'checked' : ''; ?>></td>
+     <td class="sp-center"><?php if ($isPricing): ?><span class="text-muted">—</span><input type="hidden" name="tpl[<?php echo $sid; ?>][desc]" value="1"><?php else: ?><input type="checkbox" name="tpl[<?php echo $sid; ?>][desc]" value="1" <?php echo ($sel ? !empty($sel['show_description']) : (int) $s->show_description) ? 'checked' : ''; ?>><?php endif; ?></td>
      <td class="sp-center"><?php if ($isDesc): ?><span class="text-muted">—</span><?php else: ?><input type="checkbox" name="tpl[<?php echo $sid; ?>][table]" value="1" <?php echo ($sel ? !empty($sel['in_table']) : (int) $s->in_table) ? 'checked' : ''; ?>><?php endif; ?></td>
      <td class="sp-num"><?php echo $isDesc ? '<span class="text-muted">—</span>' : OfferHelper::money((float) $s->price) . ' €'; ?><input type="hidden" class="sp-order-input" name="tpl[<?php echo $sid; ?>][order]" value="<?php echo (int) ($sel['order'] ?? $fallbackOrder); ?>"></td>
     </tr>
@@ -63,9 +63,7 @@ $fallbackOrder = (count($selected) + 1) * 10;
    <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Έργο της προσφοράς προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2" placeholder="Σχεδιασμός – Υλοποίηση e-shop&#10;Υπηρεσίες Φιλοξενίας &amp; Συμβόλαιο Συντήρησης"><?php echo $e($t->doc_title ?? ''); ?></textarea></label>
    <label>Υπότιτλος<input name="doc_subtitle" value="<?php echo $e($t->doc_subtitle ?? 'ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΣΦΟΡΑ'); ?>"></label>
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($t->footer_title ?? ''); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
-   <label>Τίτλος ενότητας τιμών<input name="pricing_title" value="<?php echo $e($t->pricing_title ?? 'Αξία Έργου – Τρόπος Πληρωμής'); ?>"></label>
-   <?php $this->layoutCtx = ['name' => 'pricing', 'label' => 'Ενότητα τιμών', 'break' => (int) ($t->pricing_break ?? 0), 'space' => (int) ($t->pricing_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>
-   <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo !$t || (int) $t->show_banks ? 'checked' : ''; ?>> Εμφάνιση τραπεζικών λογαριασμών</label>
+   <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo !$t || (int) $t->show_banks ? 'checked' : ''; ?>> Τραπεζικοί λογαριασμοί στο block τιμών</label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_header" value="1" <?php echo !$t || (int) ($t->show_header ?? 1) ? 'checked' : ''; ?>> Header σε κάθε σελίδα (εκτός εξωφύλλου)</label>
    <label>Μέγεθος λογοτύπου header (px)<input type="number" min="12" max="120" step="1" name="header_logo" value="<?php echo (int) ($t->header_logo ?? 28); ?>"></label>
    <label>Απόσταση περιεχομένου από το header (mm)<input type="number" min="0" max="40" step="1" name="header_gap" value="<?php echo (int) ($t->header_gap ?? 6); ?>"></label>
@@ -73,10 +71,6 @@ $fallbackOrder = (count($selected) + 1) * 10;
    <label class="sp-wide">Τίτλος εισαγωγής<input name="intro_title" value="<?php echo $e($t->intro_title ?? 'Εισαγωγή'); ?>" placeholder="Εισαγωγή"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Εισαγωγή (πρώτη ενότητα μετά το εξώφυλλο — αν μείνει κενή δεν εμφανίζεται)</span><textarea name="intro_body" rows="6" data-sp-editor><?php echo $e($t->intro_body ?? ''); ?></textarea></div>
    <div class="sp-wide sp-field"><span class="sp-field-label">Λίστες &amp; επιπλέον κείμενα εισαγωγής (στο Pdf μετά το κείμενο, με αυτή τη σειρά)</span><?php echo OfferHelper::listsEditor('intro_lists', OfferHelper::lists($t->intro_lists ?? '')); ?></div>
-   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τον πίνακα τιμών (όροι πληρωμής)</span><textarea name="payment_text" rows="6" data-sp-editor><?php echo $e($t->payment_text ?? "Για την έναρξη των εργασιών απαιτείται προκαταβολή 40% επί του συνόλου, και η εξόφληση γίνεται με την παράδοση του έργου.\n\nΓια να κάνετε πληρωμές μπορείτε να χρησιμοποιήσετε κάποιον από τους ακόλουθους τραπεζικούς λογαριασμούς:"); ?></textarea></div>
-   <label class="sp-wide">Τίτλος όρων<input name="terms_title" value="<?php echo $e($t->terms_title ?? 'Όροι Προσφοράς / Παραπομπές'); ?>"></label>
-   <?php $this->layoutCtx = ['name' => 'terms', 'label' => 'Ενότητα όρων', 'break' => (int) ($t->terms_break ?? 0), 'space' => (int) ($t->terms_space ?? 5)]; echo $this->loadTemplate('sectionlayout'); ?>
-   <div class="sp-wide sp-field"><span class="sp-field-label">Όροι προσφοράς / παραπομπές</span><textarea name="terms_body" rows="10" data-sp-editor><?php echo $e($t->terms_body ?? 'Η ισχύς της παρούσας προσφοράς έχει διάρκεια 1 (ενός) μήνα από την ημερομηνία σύνταξής της.'); ?></textarea></div>
   </div>
   <?php echo $this->loadTemplate('markup'); ?>
  </div>

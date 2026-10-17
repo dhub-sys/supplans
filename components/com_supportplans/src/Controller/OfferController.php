@@ -14,7 +14,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
  */
 class OfferController extends BaseController
 {
-    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'intro_title', 'intro_body', 'payment_text', 'terms_title', 'terms_body'];
+    private const TEXT_FIELDS = ['doc_title', 'doc_subtitle', 'header_text', 'footer_title', 'intro_title', 'intro_body'];
 
     public function create(): void
     {
@@ -45,10 +45,6 @@ class OfferController extends BaseController
             'show_header'   => (int) ($template->show_header ?? 1),
             'header_logo'   => (int) ($template->header_logo ?? 28),
             'header_gap'    => (int) ($template->header_gap ?? 6),
-            'pricing_break' => (int) ($template->pricing_break ?? 0),
-            'pricing_space' => (int) ($template->pricing_space ?? 5),
-            'terms_break'   => (int) ($template->terms_break ?? 0),
-            'terms_space'   => (int) ($template->terms_space ?? 5),
             'intro_lists'   => (string) ($template->intro_lists ?? ''),
             'status'        => 'draft',
             'notes'         => '',
@@ -77,15 +73,15 @@ class OfferController extends BaseController
                     'service_id'       => (int) $service->id,
                     'kind'             => $kind,
                     'ordering'         => ++$ordering,
-                    'show_description' => (int) !empty($sel['show_description']),
-                    'in_table'         => $kind === 'description' ? 0 : (int) !empty($sel['in_table']),
+                    'show_description' => $kind === 'pricing' ? 1 : (int) !empty($sel['show_description']),
+                    'in_table'         => $kind === 'service' ? (int) !empty($sel['in_table']) : 0,
                     'page_break'       => (int) ($service->page_break ?? 0),
                     'space_before'     => (int) ($service->space_before ?? 5),
-                    'section_title'    => trim((string) $service->section_title) ?: (string) $service->name,
+                    'section_title'    => trim((string) $service->section_title) ?: ($kind === 'pricing' ? OfferHelper::PRICING_TITLE : (string) $service->name),
                     'table_label'      => trim((string) $service->table_label) ?: (string) $service->name,
                     'body'             => (string) $service->body,
                     'lists'            => (string) ($service->lists ?? ''),
-                    'price'            => $kind === 'description' ? 0 : (float) $service->price,
+                    'price'            => $kind === 'service' ? (float) $service->price : 0,
                     'discount'         => 0,
                 ];
                 $db->insertObject('#__supportplans_offer_items', $item);
@@ -175,10 +171,6 @@ class OfferController extends BaseController
             'show_header'   => $in->getInt('show_header', 0) ? 1 : 0,
             'header_logo'   => max(12, min(120, $in->getInt('header_logo', 28))),
             'header_gap'    => max(0, min(40, $in->getInt('header_gap', 6))),
-            'pricing_break' => $in->getInt('pricing_break', 0) ? 1 : 0,
-            'pricing_space' => max(0, min(80, $in->getInt('pricing_space', 5))),
-            'terms_break'   => $in->getInt('terms_break', 0) ? 1 : 0,
-            'terms_space'   => max(0, min(80, $in->getInt('terms_space', 5))),
             'intro_lists'   => json_encode(OfferHelper::lists((array) $in->get('intro_lists', [], 'array')), JSON_UNESCAPED_UNICODE),
             'status'        => isset(OfferHelper::STATUSES[$status]) ? $status : 'draft',
             'notes'         => trim((string) $in->get('notes', '', 'raw')),
@@ -186,7 +178,7 @@ class OfferController extends BaseController
         ];
         foreach (self::TEXT_FIELDS as $field) {
             $value = str_replace("\r\n", "\n", (string) $in->get($field, '', 'raw'));
-            $offer->$field = in_array($field, ['doc_subtitle', 'header_text', 'footer_title', 'pricing_title', 'intro_title', 'terms_title'], true) ? trim(strip_tags($value)) : $value;
+            $offer->$field = in_array($field, ['doc_subtitle', 'header_text', 'footer_title', 'intro_title'], true) ? trim(strip_tags($value)) : $value;
         }
 
         $items = [];
@@ -196,19 +188,22 @@ class OfferController extends BaseController
             }
             $title = trim(strip_tags((string) ($raw['section_title'] ?? '')));
             $label = trim(strip_tags((string) ($raw['table_label'] ?? '')));
+            $kind = OfferHelper::kind($raw['kind'] ?? 'service');
+            if ($kind === 'pricing' && $title === '') {
+                $title = OfferHelper::PRICING_TITLE;
+            }
             if ($title === '' && $label === '') {
                 continue;
             }
-            $kind = OfferHelper::kind($raw['kind'] ?? 'service');
-            $price = $kind === 'description' ? 0.0 : round((float) str_replace(',', '.', (string) ($raw['price'] ?? 0)), 2);
-            $discount = $kind === 'description' ? 0.0 : round(abs((float) str_replace(',', '.', (string) ($raw['discount'] ?? 0))), 2);
+            $price = $kind === 'service' ? round((float) str_replace(',', '.', (string) ($raw['price'] ?? 0)), 2) : 0.0;
+            $discount = $kind === 'service' ? round(abs((float) str_replace(',', '.', (string) ($raw['discount'] ?? 0))), 2) : 0.0;
             $items[] = (object) [
                 'offer_id'         => $id,
                 'service_id'       => (int) ($raw['service_id'] ?? 0),
                 'kind'             => $kind,
                 'ordering'         => count($items) + 1,
-                'show_description' => empty($raw['show_description']) ? 0 : 1,
-                'in_table'         => $kind === 'description' || empty($raw['in_table']) ? 0 : 1,
+                'show_description' => $kind === 'pricing' || !empty($raw['show_description']) ? 1 : 0,
+                'in_table'         => $kind === 'service' && !empty($raw['in_table']) ? 1 : 0,
                 'page_break'       => empty($raw['page_break']) ? 0 : 1,
                 'space_before'     => max(0, min(80, (int) ($raw['space_before'] ?? 5))),
                 'section_title'    => $title !== '' ? $title : $label,

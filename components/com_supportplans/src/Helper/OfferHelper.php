@@ -188,7 +188,10 @@ final class OfferHelper
      * Accepts the stored JSON (blocks without a type are lists, as saved by v1.6.0)
      * or the posted form array. Empty blocks are dropped.
      */
-    public const KINDS = ['service' => 'Υπηρεσία', 'description' => 'Περιγραφή'];
+    public const KINDS = ['service' => 'Υπηρεσία', 'description' => 'Περιγραφή', 'pricing' => 'Τιμές'];
+
+    /** Default heading of a price block ("Τιμές" entry). */
+    public const PRICING_TITLE = 'Αξία Έργου – Τρόπος Πληρωμής';
 
     public static function kind($value): string
     {

@@ -15,6 +15,7 @@ class Com_SupportplansInstallerScript
   $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');
   $this->installSystemPlugin('supportplansnocpnb','System - Support Plans No CPNB','Hides Web357 CPNB inside the Support Plans Service Hub');
   $this->syncMedia($parent);
+  if($ok) $this->migrateOfferBlocks();
   return $ok;
  }
  private function ensureSchema():bool
@@ -114,6 +115,64 @@ class Com_SupportplansInstallerScript
    }
   }catch(\Throwable $e){
    Factory::getApplication()->enqueueMessage('Support Plans: media files could not be refreshed ('.$e->getMessage().').','warning');
+  }
+ }
+ // v1.9.0: the price section and the terms of templates/offers become entries of the library
+ // ("Τιμές" block and a description) placed in the items, so they can be moved anywhere.
+ // Runs once (flag in the component params); the PDF output of existing offers stays the same.
+ private function migrateOfferBlocks(): void
+ {
+  try{
+   $db=Factory::getContainer()->get('DatabaseDriver');
+   $q=$db->getQuery(true)->select($db->quoteName(['extension_id','params']))->from($db->quoteName('#__extensions'))
+    ->where($db->quoteName('type').'='.$db->quote('component'))->where($db->quoteName('element').'='.$db->quote('com_supportplans'));
+   $ext=$db->setQuery($q)->loadObject();
+   if(!$ext) return;
+   $params=json_decode((string)$ext->params,true); if(!is_array($params)) $params=[];
+   if(!empty($params['offer_blocks_v190'])) return;
+   $now=Factory::getDate()->toSql();
+   $defaultPricing='Αξία Έργου – Τρόπος Πληρωμής';
+   $library=[]; // signature => service id
+   $nextOrdering=(int)$db->setQuery('SELECT COALESCE(MAX(`ordering`),0) FROM '.$db->quoteName('#__supportplans_offer_services'))->loadResult();
+   $entry=function(string $kind,string $title,string $body,int $break,int $space,string $name) use ($db,$now,&$library,&$nextOrdering): int {
+    $sig=md5($kind.'|'.$title.'|'.$body.'|'.$break.'|'.$space);
+    if(isset($library[$sig])) return $library[$sig];
+    $row=(object)['kind'=>$kind,'name'=>$name,'section_title'=>$title,'table_label'=>'','body'=>$body,'lists'=>'[]','price'=>0,
+     'show_description'=>1,'in_table'=>0,'page_break'=>$break,'space_before'=>$space,'published'=>1,'ordering'=>++$nextOrdering,'created'=>$now,'modified'=>$now];
+    $db->insertObject('#__supportplans_offer_services',$row,'id');
+    return $library[$sig]=(int)$row->id;
+   };
+   $db->transactionStart();
+   // Templates: append the two entries to the selected items.
+   foreach($db->setQuery('SELECT * FROM '.$db->quoteName('#__supportplans_offer_templates'))->loadObjectList() as $t){
+    $items=json_decode((string)$t->items,true); if(!is_array($items)) $items=[];
+    $title=trim((string)$t->pricing_title)?:$defaultPricing;
+    $items[]=['service_id'=>$entry('pricing',$title,(string)$t->payment_text,(int)$t->pricing_break,(int)$t->pricing_space,'Τιμές – '.$t->name),'show_description'=>1,'in_table'=>0];
+    if(trim((string)$t->terms_body)!==''){
+     $items[]=['service_id'=>$entry('description',trim((string)$t->terms_title)?:'Όροι Προσφοράς',(string)$t->terms_body,(int)$t->terms_break,(int)$t->terms_space,'Όροι – '.$t->name),'show_description'=>1,'in_table'=>0];
+    }
+    $db->setQuery('UPDATE '.$db->quoteName('#__supportplans_offer_templates').' SET `items`='.$db->quote(json_encode($items)).",`payment_text`='',`terms_body`='' WHERE `id`=".(int)$t->id)->execute();
+   }
+   // Offers: the same two sections as items at the end (where the PDF printed them).
+   foreach($db->setQuery('SELECT * FROM '.$db->quoteName('#__supportplans_offers'))->loadObjectList() as $o){
+    $order=(int)$db->setQuery('SELECT COALESCE(MAX(`ordering`),0) FROM '.$db->quoteName('#__supportplans_offer_items').' WHERE `offer_id`='.(int)$o->id)->loadResult();
+    $base=['offer_id'=>(int)$o->id,'service_id'=>0,'show_description'=>1,'in_table'=>0,'table_label'=>'','lists'=>'[]','price'=>0,'discount'=>0];
+    $item=(object)($base+['kind'=>'pricing','ordering'=>++$order,'page_break'=>(int)$o->pricing_break,'space_before'=>(int)$o->pricing_space,
+     'section_title'=>trim((string)$o->pricing_title)?:$defaultPricing,'body'=>(string)$o->payment_text]);
+    $db->insertObject('#__supportplans_offer_items',$item);
+    if(trim((string)$o->terms_body)!==''){
+     $item=(object)($base+['kind'=>'description','ordering'=>++$order,'page_break'=>(int)$o->terms_break,'space_before'=>(int)$o->terms_space,
+      'section_title'=>trim((string)$o->terms_title)?:'Όροι Προσφοράς','body'=>(string)$o->terms_body]);
+     $db->insertObject('#__supportplans_offer_items',$item);
+    }
+    $db->setQuery('UPDATE '.$db->quoteName('#__supportplans_offers')." SET `payment_text`='',`terms_body`='' WHERE `id`=".(int)$o->id)->execute();
+   }
+   $params['offer_blocks_v190']=1;
+   $db->setQuery('UPDATE '.$db->quoteName('#__extensions').' SET `params`='.$db->quote(json_encode($params)).' WHERE `extension_id`='.(int)$ext->extension_id)->execute();
+   $db->transactionCommit();
+  }catch(\Throwable $e){
+   try{ Factory::getContainer()->get('DatabaseDriver')->transactionRollback(); }catch(\Throwable $ignored){}
+   Factory::getApplication()->enqueueMessage('Support Plans: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
   }
  }
  private function installSystemPlugin(string $element,string $name,string $description): void

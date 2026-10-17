@@ -77,35 +77,36 @@ $section = 0;
   <?php echo OfferHelper::renderBlocks($introBlocks, $vars); ?>
   <?php endif; ?>
 
-  <?php foreach ($this->items as $item): if (!(int) $item->show_description) continue; $section++; ?>
-  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($item->page_break ?? 0, $item->space_before ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title)); ?></span></h2>
-  <?php echo OfferHelper::render((string) $item->body, $vars); ?>
-  <?php echo OfferHelper::renderBlocks(OfferHelper::lists($item->lists ?? ''), $vars); ?>
-  <?php endforeach; ?>
-
-  <?php if ($totals['rows']): $section++; ?>
-  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->pricing_break ?? 0, $o->pricing_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2>
-  <table class="sp-od-card sp-od-fin">
+  <?php
+  // Price block: the summary card (with a discount column when any priced line has a discount),
+  // the final-price sentence, the block's own text (e.g. payment terms), its lists and the banks.
+  $finCols = $totals['discount'] > 0 ? 6 : 4;
+  $pricingCard = static function () use ($totals, $money, $e, $v, $vatLabel, $finCols): string {
+      if (!$totals['rows']) {
+          return '';
+      }
+      $withDiscount = $finCols === 6;
+      ob_start(); ?>
+  <table class="sp-od-card sp-od-fin<?php echo $withDiscount ? ' has-discount' : ''; ?>">
    <thead>
-    <tr class="sp-od-card-title"><th colspan="4">Οικονομική σύνοψη</th></tr>
-    <tr class="sp-od-card-head"><th>Περιγραφή υπηρεσίας</th><th>Αξία</th><th>Φ.Π.Α. <?php echo $e($vatLabel); ?>%</th><th>Σύνολο</th></tr>
+    <tr class="sp-od-card-title"><th colspan="<?php echo $finCols; ?>">Οικονομική σύνοψη</th></tr>
+    <tr class="sp-od-card-head"><th>Περιγραφή υπηρεσίας</th><?php if ($withDiscount): ?><th>Τιμή</th><th>Έκπτωση</th><?php endif; ?><th>Αξία</th><th>Φ.Π.Α. <?php echo $e($vatLabel); ?>%</th><th>Σύνολο</th></tr>
    </thead>
    <tbody>
     <?php foreach ($totals['rows'] as $r): ?>
-    <tr><td><?php echo $e($v($r['label'])); ?></td><td><?php echo $money($r['net']); ?> €</td><td><?php echo $money($r['vat']); ?> €</td><td><?php echo $money($r['gross']); ?> €</td></tr>
+    <tr><td><?php echo $e($v($r['label'])); ?></td><?php if ($withDiscount): ?><td><?php echo $money($r['price']); ?> €</td><td><?php echo $r['discount'] > 0 ? '-' . $money($r['discount']) . ' €' : '—'; ?></td><?php endif; ?><td><?php echo $money($r['net']); ?> €</td><td><?php echo $money($r['vat']); ?> €</td><td><?php echo $money($r['gross']); ?> €</td></tr>
     <?php endforeach; ?>
-    <tr class="sp-od-card-total"><td>Σύνολο</td><td><?php echo $money($totals['net']); ?> €</td><td><?php echo $money($totals['vat']); ?> €</td><td><?php echo $money($totals['gross']); ?> €</td></tr>
+    <tr class="sp-od-card-total"><td>Σύνολο</td><?php if ($withDiscount): ?><td><?php echo $money($totals['price']); ?> €</td><td>-<?php echo $money($totals['discount']); ?> €</td><?php endif; ?><td><?php echo $money($totals['net']); ?> €</td><td><?php echo $money($totals['vat']); ?> €</td><td><?php echo $money($totals['gross']); ?> €</td></tr>
    </tbody>
   </table>
   <p>Η τελική τιμή για την παροχή των άνω περιγραφόμενων υπηρεσιών ορίζεται στα <strong>€ <?php echo $money($totals['net']); ?></strong> πλέον Φ.Π.Α. <?php echo $e($vatLabel); ?>% <strong>€ <?php echo $money($totals['vat']); ?></strong>, σύνολο <strong>€ <?php echo $money($totals['gross']); ?></strong><?php if ($totals['discount'] > 0): ?> και περιλαμβάνει συνολική έκπτωση στην τιμή προ ΦΠΑ <strong>€ <?php echo $money($totals['discount']); ?></strong><?php endif; ?>.</p>
-  <?php endif; ?>
-
-  <?php if (trim((string) $o->payment_text) !== ''): ?>
-  <?php if (!$totals['rows']): $section++; ?><h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->pricing_break ?? 0, $o->pricing_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2><?php endif; ?>
-  <?php echo OfferHelper::render((string) $o->payment_text, $vars); ?>
-  <?php endif; ?>
-
-  <?php if ($banks): ?>
+  <?php return ob_get_clean();
+  };
+  $bankCard = static function () use ($banks, $e): string {
+      if (!$banks) {
+          return '';
+      }
+      ob_start(); ?>
   <table class="sp-od-card sp-od-bank">
    <thead>
     <tr class="sp-od-card-title"><th colspan="3">Τράπεζες / Λογαριασμοί</th></tr>
@@ -113,9 +114,35 @@ $section = 0;
    </thead>
    <tbody><?php foreach ($banks as $b): ?><tr><td><?php echo $e(mb_strtoupper($b['name'])); ?></td><td><?php echo $e($b['iban']); ?></td><td><?php echo $e($b['beneficiary']); ?></td></tr><?php endforeach; ?></tbody>
   </table>
-  <?php endif; ?>
+  <?php return ob_get_clean();
+  };
+  $hasPricingBlock = false;
+  ?>
+  <?php foreach ($this->items as $item):
+      $kind = OfferHelper::kind($item->kind ?? 'service');
+      if ($kind === 'pricing') {
+          $hasPricingBlock = true;
+          $blocks = OfferHelper::lists($item->lists ?? '');
+          if (!$totals['rows'] && trim((string) $item->body) === '' && !$blocks) continue;
+      } elseif (!(int) $item->show_description) {
+          continue;
+      }
+      $section++; ?>
+  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($item->page_break ?? 0, $item->space_before ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($v($item->section_title) ?: ($kind === 'pricing' ? OfferHelper::PRICING_TITLE : '')); ?></span></h2>
+  <?php if ($kind === 'pricing') echo $pricingCard(); ?>
+  <?php echo OfferHelper::render((string) $item->body, $vars); ?>
+  <?php echo OfferHelper::renderBlocks(OfferHelper::lists($item->lists ?? ''), $vars); ?>
+  <?php if ($kind === 'pricing') echo $bankCard(); ?>
+  <?php endforeach; ?>
 
-  <?php if (trim((string) $o->terms_body) !== ''): $section++; ?>
+  <?php // Offers saved before v1.9.0 that were not converted: price section and terms at the end, as before.
+  if (!$hasPricingBlock && trim((string) ($o->payment_text ?? '')) !== ''): $section++; ?>
+  <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->pricing_break ?? 0, $o->pricing_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e($pricingTitle); ?></span></h2>
+  <?php echo $pricingCard(); ?>
+  <?php echo OfferHelper::render((string) $o->payment_text, $vars); ?>
+  <?php echo $bankCard(); ?>
+  <?php endif; ?>
+  <?php if (trim((string) ($o->terms_body ?? '')) !== ''): $section++; ?>
   <h2 class="sp-od-h sp-o-keep<?php echo OfferHelper::sectionLayout($o->terms_break ?? 0, $o->terms_space ?? 5); ?>><span class="sp-od-h-no"><?php echo $section; ?>.</span><span class="sp-od-h-text"><?php echo $e(trim($v($o->terms_title)) ?: 'Όροι Προσφοράς'); ?></span></h2>
   <?php echo OfferHelper::render((string) $o->terms_body, $vars); ?>
   <?php endif; ?>
