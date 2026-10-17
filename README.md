@@ -668,3 +668,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Branding: με λογότυπο κρύβεται το κείμενο δίπλα του. Στη σύνδεση/OTP δεν τυπώνεται το «Support Plans / Workspace». Στην appbar το `.sp-brand:has(.sp-brandlogo) .sp-brand-copy` κρύβεται.
 - Νέα ρύθμιση `page_title` (site/admin settings, config.xml). Ο Dispatcher την ορίζει ως τίτλο του document και τη χρησιμοποιούν και οι σελίδες σύνδεσης/OTP. Το offerdoc κρατά τον δικό του τίτλο, που γίνεται όνομα αρχείου Pdf.
 - Launcher του admin μενού: ίδια markup με τα native στοιχεία του Atum (`li.item.item-level-1 > a.no-dropdown > span.icon-fw + span.sidebar-item-title`). Κρύβεται το εικονίδιο που βάζει το Atum σε κάθε `a[target=_blank]`.
+
+## v1.7.3
+- `Site\Helper\AuthCookie`: υπογεγραμμένο cookie `sp_hub_auth` (HttpOnly, SameSite=Lax, Secure σε https) με `userId.expires.HMAC-SHA256(secret, userId|expires|password hash)`. Εκδίδεται στο `otp.verify`, σβήνει στο `auth.logout`. Αλλαγή κωδικού, μπλοκάρισμα ή μικρότερη διάρκεια στις ρυθμίσεις το ακυρώνουν.
+- Dispatcher: αν η συνεδρία δεν είναι συνδεδεμένη, επαναφέρει τη σύνδεση από το cookie. Οι οθόνες σύνδεσης/OTP χωρίς task ανακατευθύνουν στα Πακέτα όταν ο χρήστης είναι ήδη συνδεδεμένος.
+- Νέα ρύθμιση `login_lifetime` (ώρες, προεπιλογή 12, 0 = χωρίς cookie, μέγιστο 2160).

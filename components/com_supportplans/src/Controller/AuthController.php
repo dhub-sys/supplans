@@ -84,6 +84,7 @@ final class AuthController extends BaseController
         $app = Factory::getApplication();
         $session = $app->getSession();
         $this->clearAuthState();
+        \Support\Component\Supportplans\Site\Helper\AuthCookie::clear();
         $session->clear('supportplans.pending.user_id');
         $session->clear('supportplans.pending.username');
         $session->clear('supportplans.pending.name');

@@ -71,6 +71,7 @@ class SettingsController extends BaseController
 
   $params['login_icon']=trim((string)$in->get('login_icon','','string'));
   $params['page_title']=trim((string)$in->get('page_title','','string'));
+  $params['login_lifetime']=max(0,min(2160,(int)$in->get('login_lifetime',12,'int')));
   $loginIcon=$in->files->get('login_icon_upload',null,'array');
   if(is_array($loginIcon) && !empty($loginIcon['name']) && (int)($loginIcon['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE){
    if((int)$loginIcon['error'] !== UPLOAD_ERR_OK || empty($loginIcon['tmp_name'])){

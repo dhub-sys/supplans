@@ -77,6 +77,7 @@ echo $savedWatermark!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($s
       <output id="watermark_opacity_value"><?php echo max(0,min(100,(int)$p->get('watermark_opacity',7))); ?>%</output>
      </div>
     </label>
+    <label><span class="sp-label-tooltip" tabindex="0" data-tooltip="Για πόσες ώρες μένετε συνδεδεμένοι μετά τον κωδικό OTP σε αυτόν τον browser (π.χ. 12, 24, 168 = 1 εβδομάδα, έως 2160). Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser.">Διάρκεια σύνδεσης (ώρες)</span><input class="form-control" type="number" min="0" max="2160" step="1" name="login_lifetime" value="<?php echo max(0,min(2160,(int)$p->get('login_lifetime',12))); ?>"></label>
     <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Ο τίτλος που εμφανίζεται στο tab του browser σε όλες τις σελίδες του Service Hub.">Τίτλος σελίδας (tab browser)</span><input class="form-control" name="page_title" value="<?php echo htmlspecialchars((string)$p->get('page_title','')); ?>" placeholder="Support Plans"></label>
     <label class="sp-wide sp-upload-setting"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Εικονίδιο που εμφανίζεται πάνω από τις οθόνες σύνδεσης και επιβεβαίωσης OTP.">Login icon</span>
      <div class="sp-media-row">

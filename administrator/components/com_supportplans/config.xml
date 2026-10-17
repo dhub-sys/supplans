@@ -13,6 +13,7 @@
     <field name="report_title" type="text" label="Τίτλος αναφοράς" default="Αναλυτικό δελτίο εργασιών πλάνου υποστήριξης" />
     <field name="report_footer" type="text" label="Footer αναφοράς" default="Αναλυτικό δελτίο εργασιών πλάνου υποστήριξης" />
   
+        <field name="login_lifetime" type="number" label="Διάρκεια σύνδεσης (ώρες)" description="Πόσες ώρες μένετε συνδεδεμένοι στο Service Hub μετά το OTP. 0 = μόνο για τη συνεδρία του browser." default="12" min="0" max="2160" />
         <field name="page_title" type="text" label="Τίτλος σελίδας" description="Ο τίτλος στο tab του browser για το Service Hub." default="" />
         <field name="login_icon" type="text" label="Login icon" description="Εικονίδιο που εμφανίζεται στις οθόνες σύνδεσης και OTP του Support Plans." />
       <field name="watermark_opacity" type="number" label="Watermark opacity (%)" default="7" min="0" max="100" step="1" />

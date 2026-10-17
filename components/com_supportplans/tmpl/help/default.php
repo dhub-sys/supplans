@@ -160,6 +160,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.7.3</div><div><ul>
+<li>Παραμονή σύνδεσης: μετά τον κωδικό OTP μένετε συνδεδεμένοι στον ίδιο browser. Όταν ανοίγετε ξανά το Support Plans από το Joomla, μπαίνετε κατευθείαν στα Πακέτα.</li>
+<li>Ρυθμίσεις → «Διάρκεια σύνδεσης (ώρες)»: προεπιλογή 12 ώρες, έως 2160 (90 ημέρες). Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser. Η Αποσύνδεση, η αλλαγή κωδικού ή το μπλοκάρισμα του χρήστη ακυρώνουν τη σύνδεση.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.2</div><div><ul>
 <li>Όταν έχετε ορίσει λογότυπο, εμφανίζεται μόνο του: χωρίς «Support Plans / Workspace» στη σύνδεση και στο OTP, και χωρίς επωνυμία / «Service Hub» στην μπάρα της εφαρμογής.</li>
 <li>Ρυθμίσεις → «Τίτλος σελίδας (tab browser)»: ο τίτλος που βλέπετε στο tab του browser.</li>

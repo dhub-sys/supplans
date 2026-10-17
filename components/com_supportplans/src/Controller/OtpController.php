@@ -121,6 +121,7 @@ final class OtpController extends BaseController
         $session->set('supportplans.auth.email', (string) $session->get('supportplans.pending.email', ''));
         $session->set('supportplans.auth.authenticated_at', time());
         $session->set('supportplans.otp.verified', true);
+        \Support\Component\Supportplans\Site\Helper\AuthCookie::issue($userId);
         $this->clearPending();
         $session->clear('supportplans.otp.hash');
         $session->clear('supportplans.otp.expires');
