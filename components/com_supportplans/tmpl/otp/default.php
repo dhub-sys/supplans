@@ -25,7 +25,7 @@ $spOtpLeft=$spSession->get('supportplans.otp.hash','')!=='' ? max(0,(int)$spSess
 $spResendLeft=max(0,60-(time()-(int)$spSession->get('supportplans.otp.last_sent',0)));
 ?>
 <!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Support Plans - Επιβεβαίωση</title>
+<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Support Plans', ENT_QUOTES, 'UTF-8'); ?></title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:linear-gradient(145deg,#eef4ff,#f8fafc 52%,#eef2ff);color:#172033}
 body{min-height:100vh;display:block;padding:28px 24px 24px}
@@ -57,7 +57,7 @@ h1{font-size:23px;margin:0 0 8px}p{font-size:14px;color:#667085;line-height:1.55
 @media(max-width:720px){body{padding-top:20px!important}}
 .shell{width:min(100%,430px);margin:0 auto}
 </style></head><body><main class="shell">
-<div class="brand"><div class="mark<?php echo $loginIcon ? ' has-image' : ''; ?>"><?php if ($loginIcon): ?><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Support Plans"><?php else: ?>SP<?php endif; ?></div><strong>Support Plans</strong></div>
+<div class="brand"><div class="mark<?php echo $loginIcon ? ' has-image' : ''; ?>"><?php if ($loginIcon): ?><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Support Plans"><?php else: ?>SP<?php endif; ?></div><?php if (!$loginIcon): ?><strong>Support Plans</strong><?php endif; ?></div>
 <section class="card" id="otp-card"><h1>Έλεγξε το email σου</h1><p>Στείλαμε έναν 6ψήφιο κωδικό στο <strong><?php echo htmlspecialchars($masked,ENT_QUOTES,'UTF-8'); ?></strong>. Ισχύει για 2 λεπτά.</p>
 <form id="otp-form" action="<?php echo Route::_('index.php?option=com_supportplans&task=otp.verify&tmpl=component&Itemid=' . (int) $spItemid,false); ?>" method="post">
 <div class="otp-boxes" id="otp-boxes" role="group" aria-label="6ψήφιος κωδικός">

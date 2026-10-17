@@ -512,3 +512,6 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 .sp-saas-root .sp-info-pop>span,.sp-saas-root .sp-info-pop>strong{display:block!important}
 .sp-saas-root .sp-info-pop>strong{font-size:13.5px!important;font-weight:700!important;color:#101828!important}
 .sp-saas-root .sp-info-pop b{font-weight:600!important;color:#101828}
+
+/* App bar: when a logo is set it stands alone, without the company name / "Service Hub" next to it. */
+.sp-brand:has(.sp-brandlogo) .sp-brand-copy{display:none!important}

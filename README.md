@@ -663,3 +663,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.7.1
 - Λίστες/κείμενα στην Εισαγωγή: νέα στήλη `intro_lists` (ίδιο JSON με το `lists` των υπηρεσιών) στα `offer_templates` και `offers`. Η φόρμα χρησιμοποιεί το `OfferHelper::listsEditor('intro_lists', …)`, το Pdf το `renderBlocks` μετά το κείμενο εισαγωγής. Η ενότητα εμφανίζεται αν υπάρχει κείμενο ή έστω ένα block.
+
+## v1.7.2
+- Branding: με λογότυπο κρύβεται το κείμενο δίπλα του. Στη σύνδεση/OTP δεν τυπώνεται το «Support Plans / Workspace». Στην appbar το `.sp-brand:has(.sp-brandlogo) .sp-brand-copy` κρύβεται.
+- Νέα ρύθμιση `page_title` (site/admin settings, config.xml). Ο Dispatcher την ορίζει ως τίτλο του document και τη χρησιμοποιούν και οι σελίδες σύνδεσης/OTP. Το offerdoc κρατά τον δικό του τίτλο, που γίνεται όνομα αρχείου Pdf.
+- Launcher του admin μενού: ίδια markup με τα native στοιχεία του Atum (`li.item.item-level-1 > a.no-dropdown > span.icon-fw + span.sidebar-item-title`). Κρύβεται το εικονίδιο που βάζει το Atum σε κάθε `a[target=_blank]`.

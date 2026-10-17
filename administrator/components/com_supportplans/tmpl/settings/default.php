@@ -74,6 +74,7 @@ echo $savedWatermark!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($s
       <output id="watermark_opacity_value"><?php echo max(0,min(100,(int)$p->get('watermark_opacity',7))); ?>%</output>
      </div>
     </label>
+    <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Ο τίτλος που εμφανίζεται στο tab του browser σε όλες τις σελίδες του Service Hub.">Τίτλος σελίδας (tab browser)</span><input class="form-control" name="page_title" value="<?php echo htmlspecialchars((string)$p->get('page_title','')); ?>" placeholder="Support Plans"></label>
     <label class="sp-wide sp-upload-setting"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Εικονίδιο που εμφανίζεται πάνω από τις οθόνες σύνδεσης και επιβεβαίωσης OTP.">Login icon</span>
      <div class="sp-media-row">
       <input class="form-control" id="login_icon" name="login_icon" value="<?php echo htmlspecialchars((string)$p->get('login_icon','')); ?>" placeholder="images/supportplans/login-icon.png ή URL">

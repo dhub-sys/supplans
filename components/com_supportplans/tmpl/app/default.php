@@ -27,7 +27,7 @@ HTMLHelper::_('behavior.keepalive');
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Support Plans</title>
+<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Support Plans', ENT_QUOTES, 'UTF-8'); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geom:opsz,wght@9..72,300..800&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@ body{min-height:100vh;display:block;padding:28px 24px 24px;overflow-x:hidden}
 .login-shell{width:min(100%,430px);position:relative;z-index:2;margin:0 auto}
 .brand{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 24px}
 .brand-icon{width:42px;height:42px;border-radius:12px;background:#2563eb;color:#fff;display:grid;place-items:center}
-.brand-icon svg{width:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.login-brand-image{display:flex;align-items:center;justify-content:center;max-width:140px;height:54px}.login-brand-image img{display:block;max-width:140px;max-height:54px;width:auto;height:auto;object-fit:contain}.login-brand-fallback{width:48px;height:48px;border-radius:14px;background:#2563eb;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px}
+.brand-icon svg{width:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.login-brand-image{display:flex;align-items:center;justify-content:center;max-width:220px;height:64px}.login-brand-image img{display:block;max-width:220px;max-height:64px;width:auto;height:auto;object-fit:contain}.login-brand-fallback{width:48px;height:48px;border-radius:14px;background:#2563eb;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px}
 .brand-text strong{display:block;font-size:16px}.brand-text span{font-size:12px;color:#7a8493}
 .card{background:#fff;border:1px solid #e5e9f0;border-radius:18px;padding:30px;box-shadow:0 24px 70px rgba(30,64,175,.12)}
 h1{font-size:24px;letter-spacing:-.5px;margin:0 0 7px}p{font-size:14px;color:#667085;line-height:1.55;margin:0 0 24px}
@@ -57,8 +57,8 @@ h1{font-size:24px;letter-spacing:-.5px;margin:0 0 7px}p{font-size:14px;color:#66
  <div class="brand">
   <?php if($loginIcon): ?>
   <span class="login-brand-image"><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Support Plans"></span>
-  <?php else: ?><span class="login-brand-fallback">SP</span><?php endif; ?>
-  <span class="brand-text"><strong>Support Plans</strong><span>Workspace</span></span>
+  <?php else: ?><span class="login-brand-fallback">SP</span>
+  <span class="brand-text"><strong>Support Plans</strong><span>Workspace</span></span><?php endif; ?>
  </div>
  <section class="card">
   <h1>Σύνδεση</h1>

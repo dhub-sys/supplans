@@ -61,43 +61,39 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
     }
     if (!host) return;
 
+    // Same markup as Joomla's own first-level sidebar items, so it aligns with "Home Dashboard".
     var isList = host.tagName === 'UL' || host.tagName === 'OL';
     var wrap = document.createElement(isList ? 'li' : 'div');
     wrap.id = 'supportplans-top-launcher';
-    wrap.className = isList ? 'nav-item supportplans-launcher-item' : 'supportplans-launcher-item';
+    wrap.className = 'item item-level-1';
 
     var a = document.createElement('a');
     a.href = serviceHubUrl;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.className = 'supportplans-launcher-link';
+    a.className = 'no-dropdown';
     a.setAttribute('aria-label', 'Support Plans');
-
     a.innerHTML =
-      '<span class="supportplans-launcher-icon" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+      '<span class="icon-fw supportplans-launcher-icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
           '<path d="M6 2.75h9l3 3V21.25H6z"></path>' +
           '<path d="M15 2.75v3h3M9 10h6M9 14h6M9 18h4"></path>' +
         '</svg>' +
-      '</span><span class="supportplans-launcher-text">Support Plans</span>';
-
+      '</span><span class="sidebar-item-title">Support Plans</span>';
     wrap.appendChild(a);
 
-    // Put it visibly near the top, but after Joomla's home/dashboard item.
+    // Put it near the top, after Joomla's home/dashboard item.
     if (host.children.length > 1) host.insertBefore(wrap, host.children[1]);
     else host.appendChild(wrap);
 
     if (!document.getElementById('supportplans-launcher-style')) {
       var st = document.createElement('style');
       st.id = 'supportplans-launcher-style';
+      // Atum prefixes every target=_blank link with an "external link" icon; the Service Hub keeps only its own icon.
       st.textContent =
-        '#supportplans-top-launcher{margin:5px 8px!important;list-style:none!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-link{display:flex!important;align-items:center!important;gap:10px!important;min-height:42px!important;padding:9px 12px!important;border-radius:8px!important;text-decoration:none!important;color:#fff!important;font-weight:600!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-link:visited{color:#fff!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-link:hover{background:rgba(255,255,255,.10)!important;color:#fff!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 22px!important;color:#fff!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-icon svg{stroke:#fff!important}' +
-        '#supportplans-top-launcher .supportplans-launcher-text{white-space:nowrap!important;color:#fff!important}';
+        '#supportplans-top-launcher a::before,a[href*="option=com_supportplans"][target=_blank]::before{content:none!important;display:none!important}' +
+        '#supportplans-top-launcher .supportplans-launcher-icon{display:inline-flex;align-items:center;justify-content:center}' +
+        '#supportplans-top-launcher .supportplans-launcher-icon svg{width:1.05em;height:1.05em}';
       document.head.appendChild(st);
     }
   }

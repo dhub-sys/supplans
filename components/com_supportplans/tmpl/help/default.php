@@ -160,6 +160,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.7.2</div><div><ul>
+<li>Όταν έχετε ορίσει λογότυπο, εμφανίζεται μόνο του: χωρίς «Support Plans / Workspace» στη σύνδεση και στο OTP, και χωρίς επωνυμία / «Service Hub» στην μπάρα της εφαρμογής.</li>
+<li>Ρυθμίσεις → «Τίτλος σελίδας (tab browser)»: ο τίτλος που βλέπετε στο tab του browser.</li>
+<li>Στο μενού του Joomla, το «Support Plans» έχει ένα μόνο εικονίδιο (αρχείο) και στοιχίζεται με τα υπόλοιπα στοιχεία, χωρίς το εικονίδιο εξωτερικού συνδέσμου.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.1</div><div><ul>
 <li>Η Εισαγωγή έχει πλέον κουμπιά «+ Λίστα» και «+ Κείμενο», όπως οι υπηρεσίες: λίστες σε κάρτα (1 ή 2 στήλες) και επιπλέον κείμενα με drag & drop σειρά. Μεταφέρονται από το template στη νέα προσφορά.</li>
 </ul></div></div>
