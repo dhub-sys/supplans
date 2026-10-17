@@ -188,6 +188,19 @@ final class OfferHelper
      * Accepts the stored JSON (blocks without a type are lists, as saved by v1.6.0)
      * or the posted form array. Empty blocks are dropped.
      */
+    public const KINDS = ['service' => 'Υπηρεσία', 'description' => 'Περιγραφή'];
+
+    public static function kind($value): string
+    {
+        return isset(self::KINDS[(string) $value]) ? (string) $value : 'service';
+    }
+
+    public static function kindBadge($value): string
+    {
+        $kind = self::kind($value);
+        return '<span class="sp-kind-badge is-' . $kind . '">' . self::KINDS[$kind] . '</span>';
+    }
+
     public static function lists($raw): array
     {
         if (is_string($raw)) {

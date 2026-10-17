@@ -345,3 +345,34 @@
 /* v1.6.3 – header never in capitals; bold cover title */
 .sp-od-header-text,.sp-od-header-brand{text-transform:none!important;letter-spacing:0!important}
 .sp-od-title{font-weight:700!important}
+
+/* v1.8.0 — Υπηρεσίες / Περιγραφές and accordion rows in the offer editor. */
+.sp-kind-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;line-height:1.5;white-space:nowrap;background:#e8effd;color:#1d4ed8}
+.sp-kind-badge.is-description{background:#f2ecfd;color:#6d28d9}
+.sp-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sp-primary-action.is-secondary{background:#fff!important;color:var(--sp-ui-primary,#2563eb)!important;border:1px solid #c7d4f5;box-shadow:none!important}
+#sp-svc-grid[data-kind="description"] .sp-svc-only,.sp-oi[data-kind="description"] .sp-svc-only{display:none!important}
+.sp-oi-all{display:flex;gap:6px}
+.sp-oi{padding:0;overflow:hidden}
+.sp-oi-bar{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 10px}
+.sp-oi-bar .sp-grip{margin:0!important;align-self:center!important}
+.sp-oi-bar .sp-icon-btn.sp-oi-remove{align-self:center;margin:0}
+.sp-oi-toggle{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:6px 4px;font:inherit;color:#101828;text-align:left;cursor:pointer;border-radius:8px}
+.sp-oi-toggle:hover{background:#f5f7fb}
+.sp-oi-toggle:focus-visible{outline:2px solid #93b4f5;outline-offset:1px}
+.sp-oi-sum-title{flex:1 1 auto;min-width:0;font-weight:650;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-oi-sum-tags{flex:0 0 auto;font-size:12px;color:#98a2b3;white-space:nowrap}
+.sp-oi-sum-net{flex:0 0 auto;min-width:90px;text-align:right;font-size:14px;font-weight:700}
+.sp-oi-chevron{flex:0 0 18px;width:18px;height:18px;fill:none;stroke:#667085;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.sp-oi:not(.is-collapsed) .sp-oi-chevron{transform:rotate(180deg)}
+.sp-oi:not(.is-collapsed){border-color:#c7d4f5;box-shadow:0 4px 14px rgba(37,99,235,.07)}
+.sp-oi:not(.is-collapsed) .sp-oi-bar{border-bottom:1px solid #edf0f5;background:#fafbfe}
+.sp-oi-panel{padding:12px 14px 14px}
+.sp-oi.is-collapsed .sp-oi-panel{display:none}
+.sp-oi .sp-oi-head{grid-template-columns:140px minmax(160px,1.3fr) minmax(160px,1.3fr) 110px 110px}
+.sp-oi[data-kind="description"] .sp-oi-head{grid-template-columns:140px minmax(160px,1fr)}
+.sp-oi-kind select{padding:8px 9px;border:1px solid #c9d1dc;border-radius:7px;font-size:14px;font-weight:400;background:#fff}
+.sp-oi .sp-oi-flags{margin-left:0}
+.sp-oi.is-excluded .sp-oi-sum-net{opacity:.45}
+.sp-oi.is-hidden-text .sp-oi-sum-title{color:#98a2b3}
+@media (max-width:900px){.sp-oi .sp-oi-head,.sp-oi[data-kind="description"] .sp-oi-head{grid-template-columns:1fr 1fr}.sp-oi-sum-tags{display:none}}

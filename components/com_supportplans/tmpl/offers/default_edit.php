@@ -9,22 +9,33 @@ $docUrl = OfferHelper::url('view=offerdoc&id=' . (int) $o->id);
 $fileTitle = trim($o->offer_number . ' - ' . ($o->project_name ?: $o->customer_name), ' -');
 $num = static fn($v) => number_format((float) $v, 2, '.', '');
 
-$row = static function ($i, $item) use ($e, $num) {
+$row = static function ($i, $item, bool $open = false) use ($e, $num) {
+    $kind = OfferHelper::kind($item->kind ?? 'service');
     ob_start(); ?>
-  <div class="sp-oi" data-row data-sort-item>
-   <div class="sp-oi-head">
+  <div class="sp-oi<?php echo $open ? '' : ' is-collapsed'; ?>" data-row data-sort-item data-kind="<?php echo $kind; ?>">
+   <div class="sp-oi-bar">
     <button type="button" class="sp-grip" data-sort-handle title="Σύρετε για αλλαγή σειράς" aria-label="Αλλαγή σειράς (σύρετε ή χρησιμοποιήστε τα βελάκια)"><svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-    <input type="hidden" name="items[<?php echo $i; ?>][service_id]" value="<?php echo (int) ($item->service_id ?? 0); ?>">
-    <label class="sp-oi-field sp-oi-title">Τίτλος ενότητας<input name="items[<?php echo $i; ?>][section_title]" value="<?php echo $e($item->section_title ?? ''); ?>" data-field="section_title"></label>
-    <label class="sp-oi-field sp-oi-label">Περιγραφή στον πίνακα τιμών<input name="items[<?php echo $i; ?>][table_label]" value="<?php echo $e($item->table_label ?? ''); ?>" data-field="table_label"></label>
-    <label class="sp-oi-field sp-oi-money">Τιμή €<input type="number" step="0.01" name="items[<?php echo $i; ?>][price]" value="<?php echo $num($item->price ?? 0); ?>" data-field="price" data-calc></label>
-    <label class="sp-oi-field sp-oi-money">Έκπτωση €<input type="number" step="0.01" min="0" name="items[<?php echo $i; ?>][discount]" value="<?php echo $num($item->discount ?? 0); ?>" data-field="discount" data-calc></label>
-    <div class="sp-oi-net"><span>Αξία</span><strong data-net>0,00 €</strong></div>
+    <button type="button" class="sp-oi-toggle" data-toggle aria-expanded="<?php echo $open ? 'true' : 'false'; ?>">
+     <span class="sp-kind-badge is-<?php echo $kind; ?>" data-kind-badge><?php echo OfferHelper::KINDS[$kind]; ?></span>
+     <span class="sp-oi-sum-title" data-sum-title><?php echo $e(($item->section_title ?? '') ?: 'Χωρίς τίτλο'); ?></span>
+     <span class="sp-oi-sum-tags" data-sum-tags></span>
+     <strong class="sp-oi-sum-net" data-net>0,00 €</strong>
+     <svg class="sp-oi-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
     <button type="button" class="sp-icon-btn is-danger sp-oi-remove" data-remove title="Αφαίρεση από την προσφορά" aria-label="Αφαίρεση από την προσφορά"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+   </div>
+   <div class="sp-oi-panel">
+   <div class="sp-oi-head">
+    <input type="hidden" name="items[<?php echo $i; ?>][service_id]" value="<?php echo (int) ($item->service_id ?? 0); ?>">
+    <label class="sp-oi-field sp-oi-kind">Τύπος<select name="items[<?php echo $i; ?>][kind]" data-field="kind"><?php foreach (OfferHelper::KINDS as $k => $label): ?><option value="<?php echo $k; ?>"<?php echo $kind === $k ? ' selected' : ''; ?>><?php echo $label; ?></option><?php endforeach; ?></select></label>
+    <label class="sp-oi-field sp-oi-title">Τίτλος ενότητας<input name="items[<?php echo $i; ?>][section_title]" value="<?php echo $e($item->section_title ?? ''); ?>" data-field="section_title"></label>
+    <label class="sp-oi-field sp-oi-label sp-svc-only">Περιγραφή στον πίνακα τιμών<input name="items[<?php echo $i; ?>][table_label]" value="<?php echo $e($item->table_label ?? ''); ?>" data-field="table_label"></label>
+    <label class="sp-oi-field sp-oi-money sp-svc-only">Τιμή €<input type="number" step="0.01" name="items[<?php echo $i; ?>][price]" value="<?php echo $num($item->price ?? 0); ?>" data-field="price" data-calc></label>
+    <label class="sp-oi-field sp-oi-money sp-svc-only">Έκπτωση €<input type="number" step="0.01" min="0" name="items[<?php echo $i; ?>][discount]" value="<?php echo $num($item->discount ?? 0); ?>" data-field="discount" data-calc></label>
    </div>
    <div class="sp-oi-flags">
     <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][show_description]" value="1" data-field="show_description" <?php echo !empty($item->show_description) ? 'checked' : ''; ?>> Περιγράφεται στο έγγραφο</label>
-    <label class="sp-check"><input type="checkbox" name="items[<?php echo $i; ?>][in_table]" value="1" data-field="in_table" data-calc <?php echo !empty($item->in_table) ? 'checked' : ''; ?>> Στον πίνακα τιμών</label>
+    <label class="sp-check sp-svc-only"><input type="checkbox" name="items[<?php echo $i; ?>][in_table]" value="1" data-field="in_table" data-calc <?php echo !empty($item->in_table) ? 'checked' : ''; ?>> Στον πίνακα τιμών</label>
     <span class="sp-oi-layout" data-layout>
      <select name="items[<?php echo $i; ?>][page_break]" data-field="page_break" aria-label="Θέση στο Pdf">
       <option value="0"<?php echo empty($item->page_break) ? ' selected' : ''; ?>>Συνέχεια στην ίδια σελίδα</option>
@@ -32,8 +43,9 @@ $row = static function ($i, $item) use ($e, $num) {
      </select>
      <label class="sp-oi-space" data-space>απόσταση <input type="number" min="0" max="80" step="1" name="items[<?php echo $i; ?>][space_before]" value="<?php echo (int) ($item->space_before ?? 5); ?>" data-field="space_before" aria-label="Απόσταση από την προηγούμενη ενότητα σε mm"> mm</label>
     </span>
-    <details class="sp-oi-body"><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body" data-sp-editor><?php echo $e($item->body ?? ''); ?></textarea></details>
+    <details class="sp-oi-body" open><summary>Κείμενο περιγραφής</summary><textarea name="items[<?php echo $i; ?>][body]" rows="10" data-field="body" data-sp-editor><?php echo $e($item->body ?? ''); ?></textarea></details>
     <?php echo OfferHelper::listsEditor('items[' . $i . '][lists]', OfferHelper::lists($item->lists ?? '')); ?>
+   </div>
    </div>
   </div>
 <?php return ob_get_clean();
@@ -44,6 +56,7 @@ foreach ($this->services as $s) {
     if (!(int) $s->published) continue;
     $library[(int) $s->id] = [
         'service_id' => (int) $s->id,
+        'kind' => OfferHelper::kind($s->kind ?? 'service'),
         'section_title' => trim((string) $s->section_title) ?: $s->name,
         'table_label' => trim((string) $s->table_label) ?: $s->name,
         'price' => (float) $s->price,
@@ -94,19 +107,22 @@ foreach ($this->services as $s) {
  </div>
 
  <div class="sp-card">
-  <div class="sp-title-row"><h3>Υπηρεσίες προσφοράς</h3></div>
-  <p class="sp-foot">Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
+  <div class="sp-title-row"><h3>Υπηρεσίες / Περιγραφές προσφοράς</h3><div class="sp-oi-all"><button type="button" class="btn btn-sm btn-outline-secondary" data-expand-all>Άνοιγμα όλων</button><button type="button" class="btn btn-sm btn-outline-secondary" data-collapse-all>Κλείσιμο όλων</button></div></div>
+  <p class="sp-foot">Πατήστε σε μια γραμμή για να την ανοίξετε και να την επεξεργαστείτε. Για κάθε υπηρεσία επιλέξτε αν <b>περιγράφεται</b> ως ενότητα στο έγγραφο ή/και αν μπαίνει στον <b>πίνακα τιμών</b>. Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά στο Pdf. Οι αλλαγές αφορούν μόνο αυτή την προσφορά.</p>
   <div id="sp-offer-items" data-sortable>
    <?php $i = 0; foreach ($this->items as $item) { echo $row($i++, $item); } ?>
   </div>
-  <template id="sp-offer-row-template"><?php echo $row('__i__', (object) ['show_description' => 1, 'in_table' => 1, 'page_break' => 0, 'space_before' => 5]); ?></template>
+  <template id="sp-offer-row-template"><?php echo $row('__i__', (object) ['show_description' => 1, 'in_table' => 1, 'page_break' => 0, 'space_before' => 5], true); ?></template>
   <div class="sp-oi-add">
    <select id="sp-offer-library">
-    <option value="">— Προσθήκη υπηρεσίας από τη βιβλιοθήκη —</option>
-    <?php foreach ($library as $id => $s): ?><option value="<?php echo $id; ?>"><?php echo $e($s['section_title'] . ($s['price'] ? ' — ' . OfferHelper::money($s['price']) . ' €' : '')); ?></option><?php endforeach; ?>
+    <option value="">— Προσθήκη από τη βιβλιοθήκη —</option>
+    <?php foreach (['service' => 'Υπηρεσίες', 'description' => 'Περιγραφές'] as $group => $groupLabel): $opts = array_filter($library, static fn($x) => $x['kind'] === $group); if (!$opts) continue; ?>
+    <optgroup label="<?php echo $groupLabel; ?>"><?php foreach ($opts as $id => $s): ?><option value="<?php echo $id; ?>"><?php echo $e($s['section_title'] . ($group === 'service' && $s['price'] ? ' — ' . OfferHelper::money($s['price']) . ' €' : '')); ?></option><?php endforeach; ?></optgroup>
+    <?php endforeach; ?>
    </select>
    <button type="button" class="btn btn-outline-primary" id="sp-offer-add">＋ Προσθήκη</button>
-   <button type="button" class="btn btn-outline-secondary" id="sp-offer-add-blank">＋ Κενή γραμμή</button>
+   <button type="button" class="btn btn-outline-secondary" id="sp-offer-add-blank">＋ Κενή υπηρεσία</button>
+   <button type="button" class="btn btn-outline-secondary" id="sp-offer-add-blank-desc">＋ Κενή περιγραφή</button>
   </div>
   <div class="sp-offer-totals" id="sp-offer-totals">
    <div><span>Σύνολο τιμών</span><strong data-total="price">0,00 €</strong></div>
@@ -171,12 +187,27 @@ foreach ($this->services as $s) {
     const t = {price: 0, discount: 0, net: 0, vat: 0, gross: 0};
     const rate = parseFloat(vat.value || 0) || 0;
     list.querySelectorAll('[data-row]').forEach(row => {
-      const price = val(row, 'price');
-      const discount = Math.min(Math.abs(val(row, 'discount')), Math.abs(price));
+      const kind = row.querySelector('[data-field="kind"]').value;
+      const isDesc = kind === 'description';
+      if (row.dataset.kind !== kind) {
+        row.dataset.kind = kind;
+        const badge = row.querySelector('[data-kind-badge]');
+        badge.className = 'sp-kind-badge is-' + kind;
+        badge.textContent = isDesc ? 'Περιγραφή' : 'Υπηρεσία';
+      }
+      const price = isDesc ? 0 : val(row, 'price');
+      const discount = isDesc ? 0 : Math.min(Math.abs(val(row, 'discount')), Math.abs(price));
       const net = price - discount;
-      const inTable = row.querySelector('[data-field="in_table"]').checked;
-      row.querySelector('[data-net]').textContent = money(net);
-      row.classList.toggle('is-excluded', !inTable);
+      const inTable = !isDesc && row.querySelector('[data-field="in_table"]').checked;
+      const shown = row.querySelector('[data-field="show_description"]').checked;
+      row.querySelector('[data-net]').textContent = isDesc ? '' : money(net);
+      row.querySelector('[data-sum-title]').textContent = row.querySelector('[data-field="section_title"]').value.trim() || row.querySelector('[data-field="table_label"]').value.trim() || 'Χωρίς τίτλο';
+      const tags = [];
+      if (!shown) tags.push('εκτός κειμένου');
+      if (!isDesc && !inTable) tags.push('εκτός πίνακα');
+      if (shown && row.querySelector('[data-field="page_break"]').value === '1') tags.push('νέα σελίδα');
+      row.querySelector('[data-sum-tags]').textContent = tags.join(' · ');
+      row.classList.toggle('is-excluded', !isDesc && !inTable);
       row.classList.toggle('is-hidden-text', !row.querySelector('[data-field="show_description"]').checked);
       // Layout applies to sections shown in the document; spacing only when continuing on the same page.
       row.querySelector('[data-layout]').classList.toggle('is-disabled', !row.querySelector('[data-field="show_description"]').checked);
@@ -206,12 +237,20 @@ foreach ($this->services as $s) {
     if (data && data.lists && window.SpLists) data.lists.forEach(l => window.SpLists.add(row.querySelector('[data-lists]'), l));
     dirty = true;
     recalc();
+    row.scrollIntoView({block: 'nearest'});
     row.querySelector('[data-field="section_title"]').focus();
   }
 
+  const setOpen = (row, open) => {
+    row.classList.toggle('is-collapsed', !open);
+    row.querySelector('[data-toggle]').setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  document.querySelector('[data-expand-all]').addEventListener('click', () => list.querySelectorAll('[data-row]').forEach(r => setOpen(r, true)));
+  document.querySelector('[data-collapse-all]').addEventListener('click', () => list.querySelectorAll('[data-row]').forEach(r => setOpen(r, false)));
   list.addEventListener('click', ev => {
     const row = ev.target.closest('[data-row]');
     if (!row) return;
+    if (ev.target.closest('[data-toggle]')) { setOpen(row, row.classList.contains('is-collapsed')); return; }
     if (ev.target.closest('[data-remove]')) {
       const title = row.querySelector('[data-field="section_title"]').value || 'τη γραμμή';
       if (confirm('Αφαίρεση «' + title + '» από την προσφορά;')) { row.remove(); dirty = true; recalc(); }
@@ -226,7 +265,8 @@ foreach ($this->services as $s) {
     addRow(library[sel.value]);
     sel.value = '';
   });
-  document.getElementById('sp-offer-add-blank').addEventListener('click', () => addRow({section_title: '', table_label: '', price: '0.00', discount: '0.00', show_description: 1, in_table: 1, page_break: 0, space_before: 5}));
+  document.getElementById('sp-offer-add-blank').addEventListener('click', () => addRow({kind: 'service', section_title: '', table_label: '', price: '0.00', discount: '0.00', show_description: 1, in_table: 1, page_break: 0, space_before: 5}));
+  document.getElementById('sp-offer-add-blank-desc').addEventListener('click', () => addRow({kind: 'description', section_title: '', table_label: '', price: '0.00', discount: '0.00', show_description: 1, in_table: 0, page_break: 0, space_before: 5}));
   window.addEventListener('beforeunload', ev => { if (dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 
   const origSubmit = window.spSubmit;

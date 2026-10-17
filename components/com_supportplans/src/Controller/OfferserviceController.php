@@ -23,20 +23,22 @@ class OfferserviceController extends BaseController
         $id = $in->getInt('id');
         $name = trim($in->getString('name'));
         if ($name === '') {
-            $app->enqueueMessage('Συμπληρώστε το όνομα της υπηρεσίας.', 'error');
+            $app->enqueueMessage('Συμπληρώστε το όνομα.', 'error');
             OfferHelper::redirect('view=offers&section=services' . ($id ? '&id=' . $id : '&mode=new'));
             return;
         }
         $now = Factory::getDate()->toSql();
+        $kind = OfferHelper::kind($in->getCmd('kind', 'service'));
         $row = (object) [
+            'kind'             => $kind,
             'name'             => $name,
             'section_title'    => trim($in->getString('section_title')),
             'table_label'      => trim($in->getString('table_label')),
             'body'             => str_replace("\r\n", "\n", (string) $in->get('body', '', 'raw')),
             'lists'            => json_encode(OfferHelper::lists((array) $in->get('lists', [], 'array')), JSON_UNESCAPED_UNICODE),
-            'price'            => round($in->getFloat('price', 0), 2),
+            'price'            => $kind === 'description' ? 0 : round($in->getFloat('price', 0), 2),
             'show_description' => $in->getInt('show_description', 0) ? 1 : 0,
-            'in_table'         => $in->getInt('in_table', 0) ? 1 : 0,
+            'in_table'         => $kind === 'description' ? 0 : ($in->getInt('in_table', 0) ? 1 : 0),
             'page_break'       => $in->getInt('page_break', 0) ? 1 : 0,
             'space_before'     => max(0, min(80, $in->getInt('space_before', 5))),
             'published'        => $in->getInt('published', 1) ? 1 : 0,

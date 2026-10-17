@@ -71,19 +71,21 @@ class OfferController extends BaseController
                 if (!$service) {
                     continue;
                 }
+                $kind = OfferHelper::kind($service->kind ?? 'service');
                 $item = (object) [
                     'offer_id'         => (int) $offer->id,
                     'service_id'       => (int) $service->id,
+                    'kind'             => $kind,
                     'ordering'         => ++$ordering,
                     'show_description' => (int) !empty($sel['show_description']),
-                    'in_table'         => (int) !empty($sel['in_table']),
+                    'in_table'         => $kind === 'description' ? 0 : (int) !empty($sel['in_table']),
                     'page_break'       => (int) ($service->page_break ?? 0),
                     'space_before'     => (int) ($service->space_before ?? 5),
                     'section_title'    => trim((string) $service->section_title) ?: (string) $service->name,
                     'table_label'      => trim((string) $service->table_label) ?: (string) $service->name,
                     'body'             => (string) $service->body,
                     'lists'            => (string) ($service->lists ?? ''),
-                    'price'            => (float) $service->price,
+                    'price'            => $kind === 'description' ? 0 : (float) $service->price,
                     'discount'         => 0,
                 ];
                 $db->insertObject('#__supportplans_offer_items', $item);
@@ -197,14 +199,16 @@ class OfferController extends BaseController
             if ($title === '' && $label === '') {
                 continue;
             }
-            $price = round((float) str_replace(',', '.', (string) ($raw['price'] ?? 0)), 2);
-            $discount = round(abs((float) str_replace(',', '.', (string) ($raw['discount'] ?? 0))), 2);
+            $kind = OfferHelper::kind($raw['kind'] ?? 'service');
+            $price = $kind === 'description' ? 0.0 : round((float) str_replace(',', '.', (string) ($raw['price'] ?? 0)), 2);
+            $discount = $kind === 'description' ? 0.0 : round(abs((float) str_replace(',', '.', (string) ($raw['discount'] ?? 0))), 2);
             $items[] = (object) [
                 'offer_id'         => $id,
                 'service_id'       => (int) ($raw['service_id'] ?? 0),
+                'kind'             => $kind,
                 'ordering'         => count($items) + 1,
                 'show_description' => empty($raw['show_description']) ? 0 : 1,
-                'in_table'         => empty($raw['in_table']) ? 0 : 1,
+                'in_table'         => $kind === 'description' || empty($raw['in_table']) ? 0 : 1,
                 'page_break'       => empty($raw['page_break']) ? 0 : 1,
                 'space_before'     => max(0, min(80, (int) ($raw['space_before'] ?? 5))),
                 'section_title'    => $title !== '' ? $title : $label,

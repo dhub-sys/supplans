@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS `#__supportplans_entries` (
 
 CREATE TABLE IF NOT EXISTS `#__supportplans_offer_services` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `kind` varchar(20) NOT NULL DEFAULT 'service',
   `name` varchar(190) NOT NULL,
   `section_title` varchar(255) NOT NULL DEFAULT '',
   `table_label` varchar(255) NOT NULL DEFAULT '',
@@ -152,6 +153,7 @@ CREATE TABLE IF NOT EXISTS `#__supportplans_offer_items` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `offer_id` int unsigned NOT NULL,
   `service_id` int unsigned NOT NULL DEFAULT 0,
+  `kind` varchar(20) NOT NULL DEFAULT 'service',
   `ordering` int NOT NULL DEFAULT 0,
   `show_description` tinyint NOT NULL DEFAULT 1,
   `in_table` tinyint NOT NULL DEFAULT 1,

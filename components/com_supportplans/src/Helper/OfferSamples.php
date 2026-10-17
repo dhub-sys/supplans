@@ -18,6 +18,7 @@ final class OfferSamples
         $ordering = 0;
         foreach (self::services() as $service) {
             $row = (object) [
+                'kind'             => $service['table'] || $service['price'] ? 'service' : 'description',
                 'name'             => $service['name'],
                 'section_title'    => $service['section_title'],
                 'table_label'      => $service['table_label'],

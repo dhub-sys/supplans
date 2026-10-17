@@ -15,7 +15,7 @@ $spInitials = '';
 foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= mb_strtoupper(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
 if ($spInitials === '') $spInitials = 'SP';
 $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
-$tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες', 'variables' => 'Μεταβλητές'];
+$tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες / Περιγραφές', 'variables' => 'Μεταβλητές'];
 ?>
 <div class="sp-saas-root">
 <header class="sp-appbar">

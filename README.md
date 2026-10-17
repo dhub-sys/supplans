@@ -673,3 +673,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Site\Helper\AuthCookie`: υπογεγραμμένο cookie `sp_hub_auth` (HttpOnly, SameSite=Lax, Secure σε https) με `userId.expires.HMAC-SHA256(secret, userId|expires|password hash)`. Εκδίδεται στο `otp.verify`, σβήνει στο `auth.logout`. Αλλαγή κωδικού, μπλοκάρισμα ή μικρότερη διάρκεια στις ρυθμίσεις το ακυρώνουν.
 - Dispatcher: αν η συνεδρία δεν είναι συνδεδεμένη, επαναφέρει τη σύνδεση από το cookie. Οι οθόνες σύνδεσης/OTP χωρίς task ανακατευθύνουν στα Πακέτα όταν ο χρήστης είναι ήδη συνδεδεμένος.
 - Νέα ρύθμιση `login_lifetime` (ώρες, προεπιλογή 12, 0 = χωρίς cookie, μέγιστο 2160).
+
+## v1.8.0
+- Υπηρεσίες / Περιγραφές: νέα στήλη `kind` (`service` | `description`) στα `offer_services` και `offer_items`. Όταν προστίθεται η στήλη, οι εγγραφές με `in_table=0` και `price=0` γίνονται `description`. Οι περιγραφές αποθηκεύονται πάντα με τιμή/έκπτωση 0 και `in_table=0`, και οι φόρμες κρύβουν τα πεδία τιμής (`.sp-svc-only`). Υπάρχουν badges στις λίστες και optgroups στη βιβλιοθήκη της προσφοράς.
+- Επεξεργασία προσφοράς: κάθε γραμμή είναι accordion. Η μπάρα δείχνει λαβή, τύπο, τίτλο, ετικέτες κατάστασης, αξία, chevron και διαγραφή, και ενημερώνεται ζωντανά. Οι αποθηκευμένες γραμμές ανοίγουν κλειστές, οι νέες ανοιχτές.
