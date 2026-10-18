@@ -63,8 +63,12 @@ function supportPlansPrintReport() {
     if (!frame || !frame.contentWindow) {
         return;
     }
+    // Chrome names the saved Pdf after the page title: customer and form number.
+    const title = document.title;
+    document.title = <?php echo json_encode(\Support\Component\Supportplans\Site\View\Report\HtmlView::fileTitle($this->selected), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG); ?>;
     frame.contentWindow.focus();
     frame.contentWindow.print();
+    setTimeout(() => { document.title = title; }, 1000);
 }
 </script><div class="sp-purchase-hero"><span><?php echo $ongoing?'Ημερομηνία έναρξης':'Ημερομηνία αγοράς'; ?></span><strong><?php echo htmlspecialchars($dateGr($this->selected->purchase_date)); ?></strong></div><div class="sp-stats"><?php if($ongoing): ?><div><b>Πραγματικός χρόνος</b><strong><?php echo $fmt($actualUsed); ?></strong></div><div><b>Χρεώσιμος χρόνος</b><strong><?php echo $fmt($used); ?></strong></div><div><b>Συνολικό κόστος</b><strong><?php echo number_format($spent,2,',','.'); ?> €</strong></div><?php else: ?><div><b>Υπόλοιπο χρόνου</b><strong><?php echo $fmt($rem); ?></strong></div><div><b>Διαθέσιμο ποσό</b><strong><?php echo number_format($money,2,',','.'); ?> €</strong></div><div><b>Χρησιμοποιήθηκαν</b><strong><?php echo $fmt($used); ?></strong></div><?php endif; ?></div></div>
 <?php
