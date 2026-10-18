@@ -23,6 +23,15 @@ final class Dispatcher extends ComponentDispatcher
 
         // Customer link to a package report (?view=report&t=<96 hex>): public, read-only.
         $sharedReport = $view === 'report' && $task === '' && ShareLink::isToken((string) $input->getString('t', ''));
+        if ($sharedReport) {
+            // Links sent before v1.10.1 lack the Itemid / spapp parameters: move them to the full URL.
+            $canonical = ShareLink::url((string) $input->getString('t', ''));
+            parse_str((string) parse_url($canonical, PHP_URL_QUERY), $want);
+            if ($input->getInt('spapp', 0) !== 1 || $input->getInt('Itemid', 0) !== (int) $want['Itemid']) {
+                $app->redirect($canonical, 301);
+                return;
+            }
+        }
         $needsAuth = !$sharedReport && (!in_array($view, $publicViews, true) || ($task !== '' && !in_array($task, $publicTasks, true)));
         $session = $app->getSession();
         $signedIn = (int) $session->get('supportplans.auth.user_id', 0) > 0 && (bool) $session->get('supportplans.otp.verified', false);

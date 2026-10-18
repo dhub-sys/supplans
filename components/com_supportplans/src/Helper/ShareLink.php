@@ -3,6 +3,7 @@ namespace Support\Component\Supportplans\Site\Helper;
 
 \defined('_JEXEC') or die;
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 
@@ -29,7 +30,10 @@ final class ShareLink
 
     public static function url(string $token): string
     {
-        return rtrim(Uri::root(), '/') . '/index.php?option=com_supportplans&view=report&tmpl=component&t=' . $token;
+        // Same page parameters as the report printed from the Service Hub (menu item → same site
+        // template style; spapp=1 → no cookie banner), so both Pdf files look identical.
+        $itemid = max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));
+        return rtrim(Uri::root(), '/') . '/index.php?option=com_supportplans&view=report&tmpl=component&spapp=1&Itemid=' . $itemid . '&t=' . $token;
     }
 
     /** Plan for a token, or null. */
