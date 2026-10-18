@@ -8,6 +8,7 @@ use Joomla\CMS\Dispatcher\ComponentDispatcher;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Support\Component\Supportplans\Site\Helper\AuthCookie;
+use Support\Component\Supportplans\Site\Helper\ShareLink;
 
 final class Dispatcher extends ComponentDispatcher
 {
@@ -20,7 +21,9 @@ final class Dispatcher extends ComponentDispatcher
         $publicViews = ['app', 'otp'];
         $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify'];
 
-        $needsAuth = !in_array($view, $publicViews, true) || ($task !== '' && !in_array($task, $publicTasks, true));
+        // Customer link to a package report (?view=report&t=<96 hex>): public, read-only.
+        $sharedReport = $view === 'report' && $task === '' && ShareLink::isToken((string) $input->getString('t', ''));
+        $needsAuth = !$sharedReport && (!in_array($view, $publicViews, true) || ($task !== '' && !in_array($task, $publicTasks, true)));
         $session = $app->getSession();
         $signedIn = (int) $session->get('supportplans.auth.user_id', 0) > 0 && (bool) $session->get('supportplans.otp.verified', false);
         if (!$signedIn && $task !== 'auth.logout') {

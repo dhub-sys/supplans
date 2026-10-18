@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `#__supportplans_plans` (
   `plan_description` text NULL,
   `vat_rate` decimal(5,2) NOT NULL DEFAULT 24.00,
   `status` varchar(20) NOT NULL DEFAULT 'active',
+  `share_token` varchar(100) NOT NULL DEFAULT '',
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_sequence_no` (`sequence_no`),

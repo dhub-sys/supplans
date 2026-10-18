@@ -688,3 +688,11 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
   - Η μεταφορά γίνεται σε transaction.
   - Το offerdoc κρατά fallback για τυχόν μη μεταφερμένα δεδομένα.
 - Το παράδειγμα (OfferSamples) περιλαμβάνει block τιμών και όρους ως εγγραφές της βιβλιοθήκης.
+
+## v1.10.0
+- Σύνδεσμος πελάτη: νέα στήλη `plans.share_token` με 96 hex χαρακτήρες από `random_bytes(48)`.
+  - URL: `index.php?option=com_supportplans&view=report&tmpl=component&t=<token>`.
+  - Ο Dispatcher επιτρέπει το `view=report` χωρίς σύνδεση μόνο με έγκυρη μορφή token. Το `Report\HtmlView` φορτώνει το πακέτο από το token (`hash_equals`), αλλιώς επιστρέφει 404.
+  - Headers `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`, `Referrer-Policy: no-referrer`, `Cache-Control: private, no-store`, και meta robots/referrer.
+- `ShareController`: `share.create` (νέο ή αντικατάσταση), `share.revoke` και `share.send` (email με το mailer του Joomla, HTML και text). Όλα απαιτούν σύνδεση και CSRF token.
+- Νέα κάρτα «Σύνδεσμος για τον πελάτη» στην οθόνη του πακέτου. Το email προσυμπληρώνεται από τον χρήστη Joomla του πακέτου, αν υπάρχει.

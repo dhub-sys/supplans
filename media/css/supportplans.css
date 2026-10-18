@@ -515,3 +515,17 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 
 /* App bar: when a logo is set it stands alone, without the company name / "Service Hub" next to it. */
 .sp-brand:has(.sp-brandlogo) .sp-brand-copy{display:none!important}
+
+/* v1.10.0 — customer link of a package */
+.sp-share .sp-title-row{margin-bottom:10px}
+.sp-share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp-share-url{flex:1 1 360px;min-width:0;padding:8px 10px;border:1px solid #c9d1dc;border-radius:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#344054;background:#f8fafc}
+.sp-share-mail{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.sp-share-mail label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:#475467;margin:0}
+.sp-share-mail input,.sp-share-mail textarea{padding:8px 9px;border:1px solid #c9d1dc;border-radius:7px;font:inherit;font-size:14px;font-weight:400;color:#101828;width:100%}
+.sp-share-mail .sp-wide{grid-column:1/-1}
+.sp-share-actions{grid-column:1/-1}
+.sp-share-manage,.sp-share-create{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.sp-share-manage form{margin:0}
+.sp-share-manage .sp-foot,.sp-share-create .sp-foot{margin:0}
+@media(max-width:640px){.sp-share-mail{grid-template-columns:1fr}}
