@@ -419,20 +419,23 @@ if ($ongoing || $subscription): ?>
 .sp-work-card-table small{display:block;margin-top:2px;font-size:10.5px;color:#667085;line-height:1.4}
 @media print{.sp-work-card-table tr{break-inside:avoid;page-break-inside:avoid}}
 </style>
-<?php if (!empty($this->shared)): ?>
-<?php /* Customer link: show the report exactly as the printed Pdf — the same @media print rules
-         applied on screen, as A4 sheets — instead of the continuous web layout. */ ?>
+<?php /* The report is laid out as the printed Pdf on screen too (the same @media print rules,
+         A4 sheets), and the work list continues on extra pages instead of being cut at the
+         bottom of page 2. Used by the Service Hub print and by the customer link alike. */ ?>
 <style>
+.sp-report-page-more{break-before:page!important;page-break-before:always!important}
 @media screen{
  html,body{background:#e9edf2!important;width:auto!important;max-width:none!important}
  body{margin:0!important;padding:0 0 28px!important}
- .sp-report{position:relative!important;left:auto!important;top:auto!important;margin:0 auto!important;background:transparent!important;transform-origin:top center}
+ .sp-report{position:relative!important;left:auto!important;top:auto!important;margin:0 auto!important;background:transparent!important}
  .sp-report .sp-report-page{background:#fff!important;box-shadow:0 8px 28px rgba(15,23,42,.14)!important;margin:0 auto 22px!important}
  .sp-report .sp-no-print{display:flex!important;justify-content:center;padding:18px 0!important;margin:0 auto!important;width:210mm;background:transparent!important}
 }
 </style>
 <script>
 (function () {
+  var overrides = document.currentScript.previousElementSibling;
+  // 1. Print rules on screen, before the screen overrides above so those still win on screen.
   var css = '';
   for (var i = 0; i < document.styleSheets.length; i++) {
     var rules;
@@ -448,22 +451,80 @@ if ($ongoing || $subscription): ?>
   var st = document.createElement('style');
   st.setAttribute('data-sp-print-on-screen', '');
   st.textContent = css;
-  // Before the screen overrides above, so they still win on screen.
-  var overrides = document.currentScript.previousElementSibling;
   overrides.parentNode.insertBefore(st, overrides);
-  // Fit the A4 sheets on narrow screens (phones).
+
   var report = document.querySelector('.sp-report');
+  // 2. Work list pagination.
+  function overflows(page) {
+    var box = page.querySelector('.sp-page-content');
+    var limit = box.getBoundingClientRect().bottom + 0.5;
+    for (var c = box.firstElementChild; c; c = c.nextElementSibling) {
+      if (c.getBoundingClientRect().bottom > limit) return true;
+    }
+    return false;
+  }
+  function paginate() {
+    var first = report && report.querySelector('.sp-report-page-two');
+    if (!first || first.dataset.paginated) return;
+    first.dataset.paginated = '1';
+    var tbody = first.querySelector('.sp-work-card-table tbody');
+    var bottom = first.querySelector('.sp-page-two-bottom');
+    if (!tbody) return;
+    var rows = Array.prototype.slice.call(tbody.rows);
+    // Empty skeleton for continuation pages: same card and table head, no rows, no summary.
+    var skeleton = first.cloneNode(true);
+    skeleton.removeAttribute('data-paginated');
+    skeleton.classList.add('sp-report-page-more');
+    skeleton.querySelector('.sp-work-card-table tbody').innerHTML = '';
+    var sb = skeleton.querySelector('.sp-page-two-bottom'); if (sb) sb.remove();
+    var title = skeleton.querySelector('.sp-work-card-title');
+    if (title) title.textContent += ' (συνέχεια)';
+    if (bottom) bottom.remove();
+    rows.forEach(function (row) { row.remove(); });
+
+    var page = first, body = tbody, pages = [first];
+    function newPage(withCard) {
+      var p = skeleton.cloneNode(true);
+      if (!withCard) { var card = p.querySelector('.sp-work-card'); if (card) card.remove(); }
+      pages[pages.length - 1].after(p);
+      pages.push(p);
+      return p;
+    }
+    rows.forEach(function (row, index) {
+      body.appendChild(row);
+      if (index > 0 && body.rows.length > 1 && overflows(page)) {
+        row.remove();
+        page = newPage(true);
+        body = page.querySelector('.sp-work-card-table tbody');
+        body.appendChild(row);
+      }
+    });
+    if (bottom) {
+      page.querySelector('.sp-page-content').appendChild(bottom);
+      if (overflows(page)) {
+        bottom.remove();
+        page = newPage(false);
+        page.querySelector('.sp-page-content').appendChild(bottom);
+      }
+    }
+    var numbers = report.querySelectorAll('.sp-report-page .sp-page-number');
+    for (var n = 0; n < numbers.length; n++) numbers[n].textContent = String(n + 1);
+  }
+  // 3. Fit the A4 sheets on narrow screens (phones).
   function fit() {
-    var page = document.querySelector('.sp-report-page');
-    if (!report || !page) return;
+    var page = report && report.querySelector('.sp-report-page');
+    if (!page) return;
     report.style.zoom = '';
     var scale = Math.min(1, (document.documentElement.clientWidth - 16) / page.offsetWidth);
     report.style.zoom = scale < 1 ? String(scale) : '';
   }
+  var ready = (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    paginate();
+    fit();
+  });
+  window.spReportReady = ready;
   window.addEventListener('resize', fit);
-  window.addEventListener('beforeprint', function () { report.style.zoom = ''; });
+  window.addEventListener('beforeprint', function () { if (report) report.style.zoom = ''; paginate(); });
   window.addEventListener('afterprint', fit);
-  fit();
 })();
 </script>
-<?php endif; ?>
