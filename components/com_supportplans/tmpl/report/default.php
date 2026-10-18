@@ -419,3 +419,51 @@ if ($ongoing || $subscription): ?>
 .sp-work-card-table small{display:block;margin-top:2px;font-size:10.5px;color:#667085;line-height:1.4}
 @media print{.sp-work-card-table tr{break-inside:avoid;page-break-inside:avoid}}
 </style>
+<?php if (!empty($this->shared)): ?>
+<?php /* Customer link: show the report exactly as the printed Pdf — the same @media print rules
+         applied on screen, as A4 sheets — instead of the continuous web layout. */ ?>
+<style>
+@media screen{
+ html,body{background:#e9edf2!important;width:auto!important;max-width:none!important}
+ body{margin:0!important;padding:0 0 28px!important}
+ .sp-report{position:relative!important;left:auto!important;top:auto!important;margin:0 auto!important;background:transparent!important;transform-origin:top center}
+ .sp-report .sp-report-page{background:#fff!important;box-shadow:0 8px 28px rgba(15,23,42,.14)!important;margin:0 auto 22px!important}
+ .sp-report .sp-no-print{display:flex!important;justify-content:center;padding:18px 0!important;margin:0 auto!important;width:210mm;background:transparent!important}
+}
+</style>
+<script>
+(function () {
+  var css = '';
+  for (var i = 0; i < document.styleSheets.length; i++) {
+    var rules;
+    try { rules = document.styleSheets[i].cssRules; } catch (e) { continue; } // cross-origin (fonts)
+    if (!rules) continue;
+    for (var j = 0; j < rules.length; j++) {
+      var r = rules[j];
+      if (r.type === 4 && r.media && /(^|,)\s*print\s*(,|$)/i.test(r.media.mediaText)) {
+        for (var k = 0; k < r.cssRules.length; k++) css += r.cssRules[k].cssText + '\n';
+      }
+    }
+  }
+  var st = document.createElement('style');
+  st.setAttribute('data-sp-print-on-screen', '');
+  st.textContent = css;
+  // Before the screen overrides above, so they still win on screen.
+  var overrides = document.currentScript.previousElementSibling;
+  overrides.parentNode.insertBefore(st, overrides);
+  // Fit the A4 sheets on narrow screens (phones).
+  var report = document.querySelector('.sp-report');
+  function fit() {
+    var page = document.querySelector('.sp-report-page');
+    if (!report || !page) return;
+    report.style.zoom = '';
+    var scale = Math.min(1, (document.documentElement.clientWidth - 16) / page.offsetWidth);
+    report.style.zoom = scale < 1 ? String(scale) : '';
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('beforeprint', function () { report.style.zoom = ''; });
+  window.addEventListener('afterprint', fit);
+  fit();
+})();
+</script>
+<?php endif; ?>

@@ -699,3 +699,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.10.1
 - Ο σύνδεσμος πελάτη περιέχει `spapp=1&Itemid={standalone_itemid}`, όπως το iframe εκτύπωσης του Service Hub: ίδιο template style του site και χωρίς Web357 cookie banner. Οι παλιοί σύνδεσμοι κάνουν 301 στο πλήρες URL.
+
+## v1.10.2
+- Σύνδεσμος πελάτη: η αναφορά εφαρμόζει στην οθόνη τους ίδιους κανόνες `@media print` με την εκτύπωση. Ένα script τους αντιγράφει από τα stylesheets της σελίδας σε `<style>`, και με μερικά screen overrides οι σελίδες φαίνονται ως φύλλα A4 κεντραρισμένα σε γκρι φόντο. Σε στενές οθόνες γίνεται κλιμάκωση με `zoom`, που μηδενίζεται στο `beforeprint`. Το Pdf του συνδέσμου είναι ίδιο pixel προς pixel με την εκτύπωση από το Service Hub.

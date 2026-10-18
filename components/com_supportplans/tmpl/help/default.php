@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.10.2</div><div><ul>
+<li>Ο σύνδεσμος του πελάτη εμφανίζει την αναφορά ακριβώς όπως το Pdf της εκτύπωσης: σελίδες A4 με υποσέλιδο και αρίθμηση, και όχι ως συνεχόμενη ιστοσελίδα. Στο κινητό οι σελίδες προσαρμόζονται στο πλάτος της οθόνης. Και το Pdf που αποθηκεύει ο πελάτης είναι ίδιο με αυτό της εκτύπωσης από το πακέτο.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.10.1</div><div><ul>
 <li>Ο σύνδεσμος του πελάτη ανοίγει την αναφορά με τις ίδιες ρυθμίσεις σελίδας με την εκτύπωση από το Service Hub (ίδιο template του site, χωρίς cookie banner), οπότε το Pdf βγαίνει ίδιο. Οι σύνδεσμοι που έχετε ήδη στείλει μεταφέρονται αυτόματα στη νέα μορφή.</li>
 </ul></div></div>
