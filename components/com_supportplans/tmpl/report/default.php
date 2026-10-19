@@ -423,6 +423,8 @@ if ($ongoing || $subscription): ?>
          A4 sheets), and the work list continues on extra pages instead of being cut at the
          bottom of page 2. Used by the Service Hub print and by the customer link alike. */ ?>
 <style id="sp-report-paging">
+/* Green section headings rounded like the other boxes of the report (10px). */
+.sp-report .sp-report-section h2,.sp-report .sp-summary-heading{border-radius:10px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .sp-report-page-more{break-before:page!important;page-break-before:always!important}
 /* A4 geometry of the pages, set here (not only in @media print) so the paginator measures the
    real printed layout even when a site optimizer merges or moves the component stylesheets. */

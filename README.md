@@ -720,3 +720,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.10.6
 - Λίστα εργασιών πακέτου (site και admin): αφαιρέθηκε η στήλη «Διάρκεια» (`actual_minutes`). Μένουν Ημ/νία, Αίτημα, Χρεώσιμο, Κόστος και ενέργειες.
+
+## v1.10.7
+- Αναφορά πακέτου: `border-radius:10px` στις επικεφαλίδες `.sp-report-section h2` και `.sp-summary-heading`, όπως στις κάρτες εργασιών, τραπεζών και σύνοψης.

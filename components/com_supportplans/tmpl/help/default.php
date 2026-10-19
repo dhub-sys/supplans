@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.10.7</div><div><ul>
+<li>Pdf πακέτων: οι πράσινες επικεφαλίδες «Πληροφορίες πλάνου υποστήριξης» και «Σύνοψη πλάνου» έχουν πλέον στρογγυλεμένες γωνίες (10px), όπως τα υπόλοιπα πλαίσια.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.10.6</div><div><ul>
 <li>Στη λίστα εργασιών του πακέτου αφαιρέθηκε η στήλη «Διάρκεια». Μένει μόνο ο «Χρεώσιμος» χρόνος, ώστε οι στήλες να μη στριμώχνονται. Ο πραγματικός χρόνος συνεχίζει να καταχωρείται και να φαίνεται στην επεξεργασία της εργασίας.</li>
 </ul></div></div>
