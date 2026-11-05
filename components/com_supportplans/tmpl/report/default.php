@@ -9,6 +9,7 @@ $actualUsed = array_sum(array_map(fn($e)=>(int)$e->actual_minutes, $this->entrie
 $mode = $this->plan->billing_mode ?? 'prepaid';
 $ongoing = $mode === 'ongoing';
 $subscription = $mode === 'subscription';
+$fixed = $mode === 'fixed';
 $vatRate = (float)($this->plan->vat_rate ?? 24);
 $subscriptionNet = (float)$this->plan->initial_amount;
 $subscriptionGross = $subscriptionNet * (1 + $vatRate/100);
@@ -22,6 +23,8 @@ $planDescription = trim((string)($this->plan->plan_description ?? ''));
 if ($planDescription === '') {
     if ($subscription) {
         $planDescription = sprintf('Συνδρομητικό πλάνο διάρκειας %d μήνα/μηνών με σταθερή αξία %s € προ Φ.Π.Α. Οι εργασίες καταγράφονται αναλυτικά χωρίς ωριαία χρέωση και χωρίς υπολογισμό χρεώσιμου χρόνου.', (int)($this->plan->subscription_months ?? 1), number_format($subscriptionNet, 2, ',', '.'));
+    } elseif ($fixed) {
+        $planDescription = sprintf('Το πλάνο %s χρεώνεται με σταθερή τιμή ανά εργασία, όπως αναγράφεται σε κάθε εργασία του δελτίου. Οι τιμές είναι προ Φ.Π.Α.', $planLabel);
     } elseif ($ongoing) {
         $planDescription = sprintf('Το Ongoing πλάνο %s χρεώνεται με %s € / ώρα, με ελάχιστη χρέωση %d′ ανά αίτημα και στη συνέχεια διαβάθμιση ανά %d′. Οι τιμές είναι προ Φ.Π.Α.', $planLabel, number_format($rate, 2, ',', '.'), (int)$this->plan->min_minutes, (int)$this->plan->step_minutes);
     } else {
@@ -106,7 +109,7 @@ $logoSrc = $brandLogo !== '' ? (preg_match('#^https?://#i', $brandLogo) ? $brand
 <section class="sp-report-section sp-plan-info-first-page">
     <h2><?php echo htmlspecialchars($sectionTitle); ?></h2>
     <p class="sp-plan-description"><?php echo nl2br(htmlspecialchars($planDescription)); ?></p>
-    <div class="sp-info-row"><b><?php echo ($ongoing||$subscription)?'Ημερομηνία έναρξης πλάνου':'Ημερομηνία αγοράς πλάνου'; ?></b><span><?php echo htmlspecialchars($dateGr($this->plan->purchase_date)); ?></span></div>
+    <div class="sp-info-row"><b><?php echo ($ongoing||$subscription||$fixed)?'Ημερομηνία έναρξης πλάνου':'Ημερομηνία αγοράς πλάνου'; ?></b><span><?php echo htmlspecialchars($dateGr($this->plan->purchase_date)); ?></span></div>
     <div class="sp-info-row"><b><?php echo htmlspecialchars($spServicesLabel, ENT_QUOTES, 'UTF-8'); ?></b><span><?php echo htmlspecialchars($this->plan->supported_websites ?: '—'); ?></span></div>
 </section>
 
@@ -117,6 +120,9 @@ $logoSrc = $brandLogo !== '' ? (preg_match('#^https?://#i', $brandLogo) ? $brand
         <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3.5v4M16 3.5v4M4 9.5h16"/></svg></div><div class="sp-summary-label">Διάρκεια συνδρομής</div><div class="sp-summary-value"><?php echo (int)($this->plan->subscription_months??1); ?> μήν.</div></div>
         <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="sp-summary-label">Αξία προ Φ.Π.Α.</div><div class="sp-summary-value"><?php echo number_format($subscriptionNet,2,',','.'); ?> €</div></div>
         <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M18 7.2A6.5 6.5 0 0 0 7.2 9.5M6 11h9M6 14h8.5M7.2 15.5A6.5 6.5 0 0 0 18 17"/></svg></div><div class="sp-summary-label">Αξία με Φ.Π.Α. <?php echo number_format($vatRate,0); ?>%</div><div class="sp-summary-value"><?php echo number_format($subscriptionGross,2,',','.'); ?> €</div></div>
+        <?php elseif($fixed): ?>
+        <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="sp-summary-label">Εργασίες</div><div class="sp-summary-value"><?php echo count($this->entries); ?></div></div>
+        <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 6.5h12.5a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2h10"/><path d="M14.5 11h5v5h-5a2.5 2.5 0 0 1 0-5Z"/><circle cx="15.3" cy="13.5" r=".55"/></svg></div><div class="sp-summary-label">Συνολικό κόστος</div><div class="sp-summary-value"><?php echo number_format($spent,2,',','.'); ?> €</div></div>
         <?php elseif($ongoing): ?>
         <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2v5.1l3.5 2.1"/></svg></div><div class="sp-summary-label">Συνολικός χρόνος</div><div class="sp-summary-value"><?php echo $fmt($used); ?></div></div>
         <div class="sp-summary-card"><div class="sp-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 6.5h12.5a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2h10"/><path d="M14.5 11h5v5h-5a2.5 2.5 0 0 1 0-5Z"/><circle cx="15.3" cy="13.5" r=".55"/></svg></div><div class="sp-summary-label">Συνολικό κόστος</div><div class="sp-summary-value"><?php echo number_format($spent,2,',','.'); ?> €</div></div>
@@ -139,8 +145,8 @@ $logoSrc = $brandLogo !== '' ? (preg_match('#^https?://#i', $brandLogo) ? $brand
 <div class="sp-page-content">
 <section class="sp-work-card">
     <div class="sp-work-card-title"><?php echo htmlspecialchars($workTitle); ?></div>
-    <table class="sp-work-card-table"><thead><tr><th>Ημ/νία</th><th>Αίτημα</th><th><?php echo $subscription?'Χρέωση':'Διάρκεια / κόστος'; ?></th></tr></thead><tbody>
-    <?php foreach($this->entries as $e): ?><tr><td><?php echo htmlspecialchars($e->request_date); ?></td><td><span class="sp-work-request"><?php echo htmlspecialchars($e->work_type); ?></span><?php if(trim((string)$e->description)!==''): ?><small><?php echo nl2br(htmlspecialchars($e->description)); ?></small><?php endif; ?></td><td><?php if($subscription): ?>Περιλαμβάνεται στη συνδρομή<?php else: ?><?php echo (int)$e->billable_minutes; ?>′ / <?php echo number_format((float)$e->cost,2,',','.'); ?> €<?php endif; ?></td></tr><?php endforeach; ?>
+    <table class="sp-work-card-table"><thead><tr><th>Ημ/νία</th><th>Αίτημα</th><th><?php echo $subscription?'Χρέωση':($fixed?'Τιμή':'Διάρκεια / κόστος'); ?></th></tr></thead><tbody>
+    <?php foreach($this->entries as $e): ?><tr><td><?php echo htmlspecialchars($e->request_date); ?></td><td><span class="sp-work-request"><?php echo htmlspecialchars($e->work_type); ?></span><?php if(trim((string)$e->description)!==''): ?><small><?php echo nl2br(htmlspecialchars($e->description)); ?></small><?php endif; ?></td><td><?php if($subscription): ?>Περιλαμβάνεται στη συνδρομή<?php elseif($fixed): ?><?php echo number_format((float)$e->cost,2,',','.'); ?> €<?php else: ?><?php echo (int)$e->billable_minutes; ?>′ / <?php echo number_format((float)$e->cost,2,',','.'); ?> €<?php endif; ?></td></tr><?php endforeach; ?>
     <?php if (!$this->entries): ?><tr><td colspan="3">Δεν υπάρχουν καταχωρισμένες εργασίες.</td></tr><?php endif; ?>
     </tbody></table>
 </section>
@@ -154,17 +160,18 @@ foreach ($this->entries as $spEntry) {
 $spHours = intdiv($spTotalBillableMinutes, 60);
 $spMinutesPart = $spTotalBillableMinutes % 60;
 $spBillableTimeFormatted = sprintf('%02d:%02d', $spHours, $spMinutesPart);
-$spNet = $ongoing ? (float)$spent : (float)($this->plan->initial_amount ?? 0);
+$spNet = ($ongoing || $fixed) ? (float)$spent : (float)($this->plan->initial_amount ?? 0);
 $spVatRate = (float)($this->plan->vat_rate ?? 0);
 $spVat = $spNet * ($spVatRate / 100);
 $spGross = $spNet + $spVat;
 ?>
 <?php // Prepaid plans are paid in advance: no financial summary or bank accounts in their report.
-if ($ongoing || $subscription): ?>
+if ($ongoing || $subscription || $fixed): ?>
 <div class="sp-page-two-bottom sp-financial-force">
 <section class="sp-financial-summary">
     <div class="sp-financial-title sp-financial-heading-force">Οικονομική σύνοψη</div>
-    <div class="sp-financial-row"><span>Σύνολο χρεώσιμου χρόνου</span><strong><?php echo $spBillableTimeFormatted; ?></strong></div>
+    <?php if ($fixed): ?><div class="sp-financial-row"><span>Πλήθος εργασιών</span><strong><?php echo count($this->entries); ?></strong></div><?php else: ?>
+    <div class="sp-financial-row"><span>Σύνολο χρεώσιμου χρόνου</span><strong><?php echo $spBillableTimeFormatted; ?></strong></div><?php endif; ?>
     <div class="sp-financial-row"><span>Καθαρή αξία</span><strong><?php echo number_format($spNet,2,',','.'); ?> €</strong></div>
     <div class="sp-financial-row"><span>Φ.Π.Α. <?php echo number_format($spVatRate,0,',','.'); ?>%</span><strong><?php echo number_format($spVat,2,',','.'); ?> €</strong></div>
     <div class="sp-financial-row sp-financial-total"><span>Σύνολο με Φ.Π.Α.</span><strong><?php echo number_format($spGross,2,',','.'); ?> €</strong></div>
@@ -429,9 +436,10 @@ if ($ongoing || $subscription): ?>
 /* A4 geometry of the pages, set here (not only in @media print) so the paginator measures the
    real printed layout even when a site optimizer merges or moves the component stylesheets. */
 .sp-report.sp-paged .sp-report-page{width:210mm!important;height:296mm!important;margin:0!important;padding:12mm 12mm 10mm!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
-.sp-report.sp-paged .sp-page-content{position:relative!important;flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+.sp-report.sp-paged .sp-page-content{position:relative!important;flex:1 1 auto!important;min-height:0!important;display:block!important}
 .sp-report.sp-paged .sp-document-footer{flex:0 0 12mm!important;min-height:12mm!important;margin:0!important}
-.sp-report.sp-paged .sp-page-two-bottom{margin-top:auto!important}
+/* The summary follows the work list (not pushed to the page bottom), so it is measured by its real height. */
+.sp-report.sp-paged .sp-page-two-bottom{margin-top:0!important}
 /* Without the paginator (script blocked or failed) the work list must never be cut: page 2 grows
    and the browser splits the table over as many printed pages as needed. */
 @media print{

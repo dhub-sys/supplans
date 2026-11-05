@@ -17,6 +17,10 @@ class EntryController extends BaseController
         $mode=$plan->billing_mode??'prepaid';
         if($mode==='subscription'){
             $actual=max(0,$in->getInt('actual_minutes',0)); $billable=0; $cost=0;
+        }elseif($mode==='fixed'){
+            // Fixed price per entry: the price is typed for each entry, the time is only informative.
+            $actual=max(0,$in->getInt('actual_minutes',0)); $billable=$actual;
+            $cost=round(max(0,(float)str_replace(',','.',(string)$in->getString('price','0'))),2);
         }else{
             if((float)$plan->hourly_rate<=0){throw new \RuntimeException('Δεν έχει οριστεί ωριαία χρέωση στο πλάνο.');}
             $min=max(1,(int)$plan->min_minutes); $step=max(1,(int)$plan->step_minutes); $actual=max($min,$in->getInt('actual_minutes',$min));
