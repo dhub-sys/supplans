@@ -160,6 +160,9 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.11.2</div><div><ul>
+<li>Νέο πακέτο: το πεδίο «Ημερομηνία αγοράς» είναι πλέον στο ίδιο ύψος με τα υπόλοιπα πεδία, χωρίς το πράσινο πλαίσιο.</li>
+</ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.11.1</div><div><ul>
 <li>Διορθώθηκε το σφάλμα «Data too long for column 'plan_type'» σε sites που ξεκίνησαν από πολύ παλιά έκδοση: το πεδίο του ονόματος πλάνου μεγαλώνει αυτόματα στην αναβάθμιση.</li>
 <li>Πακέτα σταθερής τιμής για custom εργασίες: όταν επιλέγετε πλάνο «Σταθερή τιμή ανά εργασία», το πακέτο έχει δικό του <b>Τίτλο</b> και <b>Περιγραφή</b>, που εμφανίζονται στη λίστα, στο πακέτο και στο Pdf. Ένα γενικό πλάνο (π.χ. «Custom εργασίες») αρκεί για όσα πακέτα θέλετε.</li>

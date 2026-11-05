@@ -737,3 +737,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.11.1
 - Αναβάθμιση: το `plans.plan_type` γίνεται `varchar(190)`, αν είναι μικρότερο. Οι εκδόσεις 1.0.1 το δημιουργούσαν ως `varchar(20)`, με αποτέλεσμα «Data too long for column 'plan_type'». Ο έλεγχος διαβάζει το πλήρες `Type` με `getTableColumns(false)`.
 - Πακέτα με πλάνο `fixed`: πεδία `package_title` / `package_description` στη φόρμα νέου πακέτου και στην επεξεργασία. Εμφανίζονται μόνο όταν το επιλεγμένο πλάνο είναι σταθερής τιμής και αποθηκεύονται ως `plan_type` / `plan_description` του πακέτου. Αν μείνουν κενά, χρησιμοποιούνται το όνομα και η περιγραφή του πλάνου.
+
+## v1.11.2
+- Φόρμα νέου πακέτου: αφαιρέθηκε η κλάση `sp-purchase-field` (φόντο και padding 10px) από την ημερομηνία αγοράς, ώστε να στοιχίζεται με τα υπόλοιπα πεδία.
