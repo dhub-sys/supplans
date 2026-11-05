@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `#__supportplans_plans` (
   `supported_websites` varchar(500) NOT NULL DEFAULT '',
   `form_number` varchar(80) NOT NULL DEFAULT '',
   `service_plan_id` int unsigned NOT NULL DEFAULT 0,
-  `plan_type` varchar(100) NOT NULL,
+  `plan_type` varchar(190) NOT NULL DEFAULT '',
   `billing_mode` varchar(20) NOT NULL DEFAULT 'prepaid',
   `subscription_months` int unsigned NOT NULL DEFAULT 1,
   `purchase_date` date NOT NULL,
