@@ -13,7 +13,7 @@ use Joomla\CMS\Uri\Uri;
  * campaigns and the e-mail queue ("Πελάτες & Ειδοποιήσεις").
  *
  * Every e-mail is first written to #__supportplans_notify_messages (the queue and the log),
- * then sent by the queue: from the Joomla Scheduled Task "Support Plans – Ειδοποιήσεις"
+ * then sent by the queue: from the Joomla Scheduled Task "Back Office – Ειδοποιήσεις"
  * or immediately for manual actions. Each message is claimed with an atomic UPDATE before
  * it is sent, so two overlapping runs never send the same message twice.
  */
@@ -757,7 +757,7 @@ final class Notify
 
     /**
      * Logo for the e-mails (absolute URL, PNG/JPG/GIF; '' = none). Mail clients do not show SVG:
-     * the PNG made in "Ρυθμίσεις email" (notify_email_logo) wins, then the Support Plans logo if
+     * the PNG made in "Ρυθμίσεις email" (notify_email_logo) wins, then the Back Office logo if
      * it is already PNG/JPG/GIF.
      */
     public static function emailLogoUrl(): string
@@ -914,7 +914,7 @@ final class Notify
         }, $html);
     }
 
-    /** True when the Support Plans logo is an SVG (the e-mails need a PNG made from it). */
+    /** True when the Back Office logo is an SVG (the e-mails need a PNG made from it). */
     public static function brandLogoIsSvg(): bool
     {
         return (bool) preg_match('/\.svg(\?.*)?$/i', trim((string) ComponentHelper::getParams('com_supportplans')->get('brand_logo', '')));

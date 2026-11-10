@@ -27,7 +27,7 @@ HTMLHelper::_('behavior.keepalive');
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Support Plans', ENT_QUOTES, 'UTF-8'); ?></title>
+<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Back Office', ENT_QUOTES, 'UTF-8'); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geom:opsz,wght@9..72,300..800&display=swap" rel="stylesheet">
@@ -56,13 +56,13 @@ h1{font-size:24px;letter-spacing:-.5px;margin:0 0 7px}p{font-size:14px;color:#66
 <main class="login-shell">
  <div class="brand">
   <?php if($loginIcon): ?>
-  <span class="login-brand-image"><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Support Plans"></span>
+  <span class="login-brand-image"><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Back Office"></span>
   <?php else: ?><span class="login-brand-fallback">SP</span>
-  <span class="brand-text"><strong>Support Plans</strong><span>Workspace</span></span><?php endif; ?>
+  <span class="brand-text"><strong>Back Office</strong><span>Workspace</span></span><?php endif; ?>
  </div>
  <section class="card">
   <h1>Σύνδεση</h1>
-  <p>Χρησιμοποίησε τον λογαριασμό σου για πρόσβαση στο Support Plans.</p>
+  <p>Χρησιμοποίησε τον λογαριασμό σου για πρόσβαση στο Back Office.</p>
   <form action="<?php echo Route::_('index.php?option=com_supportplans&task=auth.authenticate&tmpl=component&Itemid=' . (int) $spItemid, false); ?>" method="post">
    <div class="field"><label for="sp-user">Username</label><input id="sp-user" name="username" type="text" autocomplete="username" required autofocus></div>
    <div class="field"><label for="sp-pass">Password</label><input id="sp-pass" name="password" type="password" autocomplete="current-password" required></div>

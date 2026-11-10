@@ -37,7 +37,7 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
    <div class="sp-n-logo-box"><?php if ($mailLogo !== ''): ?><img id="sp-n-logo-current" src="<?php echo $e($mailLogo); ?>" alt=""><?php else: ?><span class="text-muted" id="sp-n-logo-current">Χωρίς λογότυπο — εμφανίζεται η επωνυμία</span><?php endif; ?></div>
    <div>
     <?php if (Notify::brandLogoIsSvg() && $brandLogo !== ''): ?>
-    <p><button type="button" class="btn btn-outline-primary" id="sp-n-logo-make" data-src="<?php echo $e($brandLogo); ?>">Δημιουργία PNG από το λογότυπο του Support Plans</button></p>
+    <p><button type="button" class="btn btn-outline-primary" id="sp-n-logo-make" data-src="<?php echo $e($brandLogo); ?>">Δημιουργία PNG από το λογότυπο του Back Office</button></p>
     <?php endif; ?>
     <label class="sp-field-label">ή ανεβάστε PNG / JPG<br><input type="file" name="notify_email_logo_upload" accept="image/png,image/jpeg,image/gif"></label>
     <?php if ((string) $this->params->get('notify_email_logo', '') !== ''): ?><p><label class="sp-check"><input type="checkbox" name="notify_email_logo_remove" value="1"> Αφαίρεση του λογοτύπου email</label></p><?php endif; ?>
@@ -123,7 +123,7 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
 <div class="sp-card">
   <h2>Αυτόματη εκτέλεση</h2>
   <ol>
-    <li>Joomla Administrator → <b>Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα</b> → <b>Support Plans – Ειδοποιήσεις</b>. Επανάληψη: κάθε 5 λεπτά.</li>
+    <li>Joomla Administrator → <b>Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα</b> → <b>Back Office – Ειδοποιήσεις</b>. Επανάληψη: κάθε 5 λεπτά.</li>
     <li>Για αξιόπιστη εκτέλεση (ανεξάρτητα από επισκέψεις), cron στο hosting κάθε 5 λεπτά:<br><code>php <?php echo $e(JPATH_ROOT); ?>/cli/joomla.php scheduler:run --all</code><br>
     ή, αν δεν υπάρχει πρόσβαση σε PHP CLI, ενεργοποιήστε το Web Cron στις επιλογές των Χρονοπρογραμματισμένων εργασιών και καλέστε το URL του.</li>
   </ol>

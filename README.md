@@ -813,3 +813,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Helper\Sidebar`: κοινή πλοήγηση για τα νέα views· «Client Management» και «Ιστορικό ενεργειών» και στα παλιά templates.
 - Πεδίο λήξης: info icon με tooltip (`.sp-label-tooltip`) αντί για κείμενο κάτω από το πεδίο· checkboxes στοιχισμένα· links στους πίνακες ίδιου μεγέθους, semibold.
 - Σημείωση: καταγράφονται οι ενέργειες του Service Hub (site). Το Joomla Administrator του component δεν καταγράφεται.
+
+## v1.19.0 — Back Office, συμπτυσσόμενο sidebar
+- Όλα τα ορατά «Support Plans» έγιναν «Back Office» (manifest name και admin menu, plugins, task, login/OTP, email OTP, τίτλοι, οδηγίες). Το element παραμένει `com_supportplans`, ώστε η αναβάθμιση να κρατά δεδομένα και ρυθμίσεις· το `installPlugin()` ενημερώνει πλέον και το `name` των ήδη εγκατεστημένων plugins. Ένας τίτλος σελίδας που έχει οριστεί χειροκίνητα στις Ρυθμίσεις («page_title») δεν αλλάζει.
+- `Sidebar::head()`: label + burger (`.sp-sb-toggle`) σε όλα τα templates του Service Hub. Κλάση `sp-sb-collapsed` στο `<html>` (εφαρμόζεται inline πριν το paint από `localStorage.spSidebar`), `sp-sb-anim` μόνο μετά από κλικ, ώστε το animation (πλάτος 248→78px, grid columns, opacity των labels, γραμμές του burger) να μη γίνεται σε κάθε φόρτωση. Tooltips (title) στα links. Κάτω από 900px το sidebar είναι ήδη συμπτυγμένο και το κουμπί κρύβεται.

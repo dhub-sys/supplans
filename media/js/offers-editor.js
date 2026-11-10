@@ -1,5 +1,5 @@
 /**
- * Support Plans – visual text editor for offer texts.
+ * Back Office – visual text editor for offer texts.
  *
  * Turns <textarea data-sp-editor> into a small WYSIWYG editor with a toolbar.
  * The textarea stays the form field and keeps the light markup that the PDF

@@ -10,7 +10,7 @@ use Support\Component\Supportplans\Site\Helper\Sidebar;
 
 echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css', 'offers.css', 'notify.css');
 $spItemid = OfferHelper::itemid();
-$spCompany = trim((string) $this->params->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Support Plans');
+$spCompany = trim((string) $this->params->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Back Office');
 $spLogoUrl = OfferHelper::assetUrl((string) $this->params->get('brand_logo', ''));
 $spInitials = '';
 foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= mb_strtoupper(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
@@ -29,7 +29,7 @@ $badge = ['ok' => 'is-accepted', 'warning' => 'sp-n-warn', 'error' => 'is-reject
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
-  <div class="sp-sidebar-section-label">Διαχείριση</div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo Sidebar::nav('activity'); ?>
   <div class="sp-sidebar-bottom">
     <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>

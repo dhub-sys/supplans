@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="component" method="upgrade">
-    <name>Support Plans</name>
+    <name>Back Office</name>
     <element>com_supportplans</element>
-    <version>1.18.0</version>
+    <version>1.19.0</version>
     <creationDate>2026-11-10</creationDate>
     <author>White Label Joomla Component</author>
     <license>GPL-2.0-or-later</license>
@@ -30,7 +30,7 @@
             <folder>plugins</folder>
             <filename>config.xml</filename>
         </files>
-            <menu link="option=com_supportplans&amp;view=plans&amp;tmpl=component&amp;spapp=1">Support Plans</menu>
+            <menu link="option=com_supportplans&amp;view=plans&amp;tmpl=component&amp;spapp=1">Back Office</menu>
     </administration>
 
     <install>

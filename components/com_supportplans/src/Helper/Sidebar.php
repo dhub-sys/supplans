@@ -31,6 +31,26 @@ final class Sidebar
         return $html . '</nav>';
     }
 
+    /**
+     * Top of the sidebar: section label and the burger button that collapses the sidebar to its
+     * icons. The state is kept per browser (localStorage) and applied before the page is painted,
+     * so the sidebar does not jump on every page load.
+     */
+    public static function head(): string
+    {
+        return '<script>(function(){try{if(localStorage.getItem("spSidebar")==="collapsed")document.documentElement.classList.add("sp-sb-collapsed");}catch(e){}})();</script>'
+            . '<div class="sp-sb-head"><div class="sp-sidebar-section-label">Διαχείριση</div>'
+            . '<button type="button" class="sp-sb-toggle" aria-label="Σύμπτυξη μενού" title="Σύμπτυξη / ανάπτυξη μενού" aria-expanded="true"><span></span><span></span><span></span></button></div>'
+            . '<script>(function(){'
+            . 'var root=document.documentElement,btn=document.currentScript.previousElementSibling.querySelector(".sp-sb-toggle");'
+            . 'function sync(){var c=root.classList.contains("sp-sb-collapsed");btn.setAttribute("aria-expanded",c?"false":"true");btn.setAttribute("aria-label",c?"Ανάπτυξη μενού":"Σύμπτυξη μενού");}'
+            // Labels as tooltips of the icons when the sidebar is collapsed.
+            . 'function titles(){document.querySelectorAll(".sp-sidebar .sp-side-link,.sp-sidebar .sp-side-joomla").forEach(function(a){if(!a.title){var t=a.classList.contains("sp-side-link")?a.querySelector("span:last-child"):a;if(t)a.title=t.textContent.replace(/[↪]/g,"").trim();}});}'
+            . 'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",titles);else titles();'
+            . 'btn.addEventListener("click",function(){root.classList.add("sp-sb-anim");var c=root.classList.toggle("sp-sb-collapsed");try{localStorage.setItem("spSidebar",c?"collapsed":"expanded");}catch(e){}sync();});'
+            . 'sync();})();</script>';
+    }
+
     /** Links added to the older templates, which keep their own static navigation. */
     public static function extraLink(string $view): string
     {

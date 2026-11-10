@@ -538,7 +538,7 @@ if ($ongoing || $subscription || $fixed): ?>
     } catch (e) {
       // Something unexpected: fall back to the uncut layout (see the CSS above).
       report.classList.remove('sp-paged');
-      if (window.console) console.error('Support Plans report pagination', e);
+      if (window.console) console.error('Back Office report pagination', e);
     }
   }
   function fit() {

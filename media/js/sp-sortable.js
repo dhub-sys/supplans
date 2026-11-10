@@ -1,5 +1,5 @@
 /**
- * Support Plans – drag & drop ordering.
+ * Back Office – drag & drop ordering.
  *
  * <div data-sortable>               container (or <tbody data-sortable>)
  *   <div data-sort-item>            each sortable row

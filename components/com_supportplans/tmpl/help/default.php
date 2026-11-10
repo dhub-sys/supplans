@@ -8,7 +8,7 @@ use Joomla\CMS\Uri\Uri;
 echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');
 $spParams=ComponentHelper::getParams('com_supportplans');
 $spItemid=max(1,(int)$spParams->get('standalone_itemid',785));
-$spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Support Plans');
+$spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Back Office');
 $spLogo=trim((string)$spParams->get('brand_logo',''));
 $spInitials='';
 foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=mb_strtoupper(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
@@ -25,7 +25,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 </div><div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div></header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
-  <div class="sp-sidebar-section-label">Διαχείριση</div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=notify&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2"/></svg></span><span>Client Management</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
 <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::extraLink('activity'); ?><a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg></span><span>Οδηγίες</span></a></nav>
   <div class="sp-sidebar-bottom">
@@ -59,7 +59,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <div class="sp-help-head">
   <div>
    <h1>Οδηγίες &amp; Changelog</h1>
-   <p>Οδηγός χρήσης και ιστορικό αλλαγών του Support Plans.</p>
+   <p>Οδηγός χρήσης και ιστορικό αλλαγών του Back Office.</p>
   </div>
  </div>
 
@@ -75,13 +75,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
    <li>Ανοίξτε τις <strong>Ρυθμίσεις</strong> και συμπληρώστε τα στοιχεία εταιρείας, το λογότυπο, τα στοιχεία επικοινωνίας και τα χρώματα του PDF.</li>
    <li>Ορίστε την ονομασία του πεδίου υπηρεσιών/υποστηριζόμενων websites όπως θέλετε να εμφανίζεται στα Πακέτα και στα PDF.</li>
    <li>Προσθέστε όσους τραπεζικούς λογαριασμούς χρειάζεστε. Κάθε γραμμή περιλαμβάνει Τράπεζα, IBAN και Όνομα δικαιούχου.</li>
-   <li>Ελέγξτε ότι το Itemid Κέντρου Υπηρεσιών αντιστοιχεί στο Joomla menu item που χρησιμοποιείται για το Support Plans.</li>
+   <li>Ελέγξτε ότι το Itemid Κέντρου Υπηρεσιών αντιστοιχεί στο Joomla menu item που χρησιμοποιείται για το Back Office.</li>
   </ol>
  </section>
 
  <section class="sp-help-card">
   <h2>2. Σύνδεση στο Service Hub</h2>
-  <p>Η είσοδος γίνεται από το Service Hub του Support Plans χωρίς μετάβαση στο Joomla Administrator.</p>
+  <p>Η είσοδος γίνεται από το Service Hub του Back Office χωρίς μετάβαση στο Joomla Administrator.</p>
   <ol>
    <li>Συμπληρώστε Joomla username και password.</li>
    <li>Θα αποσταλεί εξαψήφιος κωδικός OTP στο email του λογαριασμού. Ισχύει 2 λεπτά — η μπάρα δείχνει τον χρόνο που απομένει.</li>
@@ -111,7 +111,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 
  <section class="sp-help-card">
   <h2>5. Καταχώρηση εργασιών</h2>
-  <p>Σε κάθε Πακέτο μπορείτε να προσθέτετε ημερομηνία/περίοδο, αίτημα ή εργασία, περιγραφή και διάρκεια. Στα χρεώσιμα πλάνα το Support Plans υπολογίζει τον χρεώσιμο χρόνο και το αντίστοιχο κόστος σύμφωνα με τους κανόνες του Πλάνου.</p>
+  <p>Σε κάθε Πακέτο μπορείτε να προσθέτετε ημερομηνία/περίοδο, αίτημα ή εργασία, περιγραφή και διάρκεια. Στα χρεώσιμα πλάνα το Back Office υπολογίζει τον χρεώσιμο χρόνο και το αντίστοιχο κόστος σύμφωνα με τους κανόνες του Πλάνου.</p>
  </section>
 
  <section class="sp-help-card">
@@ -175,7 +175,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <h3>Χειροκίνητη υπενθύμιση</h3>
   <p>Στη σελίδα του πελάτη, «Χειροκίνητη υπενθύμιση ανανέωσης»: τσεκάρετε τις υπηρεσίες που θα μπουν σε ένα μήνυμα (όσες θέλετε, ανεξάρτητα από τις ημερομηνίες), «Προεπισκόπηση» και «Αποστολή τώρα».</p>
   <h3>Λογότυπο στα email</h3>
-  <p>Μπαίνει πάνω δεξιά. Αν το λογότυπο του Support Plans είναι SVG, πατήστε στις Ρυθμίσεις email «Δημιουργία PNG από το λογότυπο» και αποθηκεύστε (τα Gmail/Outlook δεν δείχνουν SVG)· εναλλακτικά ανεβάστε PNG/JPG.</p>
+  <p>Μπαίνει πάνω δεξιά. Αν το λογότυπο του Back Office είναι SVG, πατήστε στις Ρυθμίσεις email «Δημιουργία PNG από το λογότυπο» και αποθηκεύστε (τα Gmail/Outlook δεν δείχνουν SVG)· εναλλακτικά ανεβάστε PNG/JPG.</p>
   <h3>Τιμές, ΦΠΑ και τράπεζες</h3>
   <p>Οι τιμές είναι προ ΦΠΑ. Το email έχει «Οικονομική σύνοψη» (αξία, ΦΠΑ, σύνολο ανά υπηρεσία και συνολικά) και τους τραπεζικούς λογαριασμούς των Ρυθμίσεων, όπως στις Προσφορές. Ο συντελεστής ΦΠΑ ορίζεται στις Ρυθμίσεις email.</p>
   <h3>Αναφορές maintenance</h3>
@@ -184,7 +184,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <p>Ελεύθερο μήνυμα σε όλους, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους πελάτες. Τα μηνύματα φεύγουν σταδιακά από την ουρά. Κάθε μήνυμα έχει σύνδεσμο διαγραφής· οι υπενθυμίσεις ανανέωσης και οι αναφορές στέλνονται πάντα, γιατί αφορούν υπηρεσίες του πελάτη.</p>
   <h3>Αυτόματη εκτέλεση</h3>
   <ol>
-   <li>Joomla Administrator → Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → <strong>Support Plans – Ειδοποιήσεις</strong>, κάθε 5 λεπτά.</li>
+   <li>Joomla Administrator → Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → <strong>Back Office – Ειδοποιήσεις</strong>, κάθε 5 λεπτά.</li>
    <li>Για αξιόπιστη εκτέλεση, cron στο hosting κάθε 5 λεπτά: <code>php /διαδρομή/του/site/cli/joomla.php scheduler:run --all</code> (ή το Web Cron των Χρονοπρογραμματισμένων εργασιών).</li>
    <li>Στις <strong>Ρυθμίσεις email</strong> ορίστε αποστολέα, Reply-To και τα κείμενα, και στείλτε ένα δοκιμαστικό. Χρησιμοποιήστε SMTP με SPF, DKIM και DMARC στο domain σας.</li>
   </ol>
@@ -200,6 +200,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.19.0</div><div><ul>
+<li>Το extension λέγεται πλέον <b>Back Office</b> (μενού Joomla, οθόνες σύνδεσης/OTP, email OTP, τίτλοι, χρονοπρογραμματισμένη εργασία, plugins). Τα δεδομένα και η εγκατάσταση δεν αλλάζουν.</li>
+<li>Burger κουμπί πάνω δεξιά στο sidebar: μαζεύει το μενού ώστε να φαίνονται μόνο τα εικονίδια (με tooltip), με animation· η επιλογή θυμάται ανά browser.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.18.0</div><div><ul>
 <li>Νέο μενού <b>Ιστορικό ενεργειών</b>: κάθε ενέργεια στο Service Hub (συνδέσεις και αποτυχημένες προσπάθειες, πακέτα, εργασίες, πλάνα, προσφορές, ρυθμίσεις, σύνδεσμοι πελάτη, πελάτες, υπηρεσίες, πληρωμές, υπενθυμίσεις, αποστολές, Excel, αυτόματες εκτελέσεις) με χρήστη, IP, στοιχείο και αποτέλεσμα. Φίλτρα (ημερομηνίες, ενότητα, χρήστης, αποτέλεσμα, αναζήτηση) και εξαγωγή σε Excel με τα ίδια φίλτρα. Δεν καταγράφονται κωδικοί ούτε κείμενα.</li>
@@ -243,7 +248,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <div class="sp-change"><div class="sp-version">v1.16.0</div><div><ul>
 <li><b>Χειροκίνητη υπενθύμιση με επιλογή υπηρεσιών</b>: στη σελίδα του πελάτη τσεκάρετε όσες υπηρεσίες θέλετε να μπουν σε ένα μήνυμα (προεπιλέγεται η ομάδα με κοντινές λήξεις), βλέπετε προεπισκόπηση και στέλνετε. Τα κουμπιά «Υπενθύμιση…» των λιστών οδηγούν εκεί.</li>
 <li>Πιο συμπαγή email: οικονομική σύνοψη σε δύο στήλες με σύνολα από κάτω, τράπεζες σε μία γραμμή η καθεμία με τα IBAN σε εναλλάξ έντονες τετράδες, κοινό κείμενο λήξης μία φορά για όλες τις υπηρεσίες που το μοιράζονται.</li>
-<li>Λογότυπο πάνω δεξιά στα email. Επειδή τα προγράμματα email δεν δείχνουν SVG, οι Ρυθμίσεις email φτιάχνουν PNG από το λογότυπο του Support Plans ή δέχονται PNG/JPG.</li>
+<li>Λογότυπο πάνω δεξιά στα email. Επειδή τα προγράμματα email δεν δείχνουν SVG, οι Ρυθμίσεις email φτιάχνουν PNG από το λογότυπο του Back Office ή δέχονται PNG/JPG.</li>
 <li>Διόρθωση: σε κάποιες φόρμες της ενότητας Πελάτες η διεύθυνση αποστολής ήταν κωδικοποιημένη δύο φορές και ο browser έχανε την ενέργεια (π.χ. Πληρώθηκε, διαγραφή, εισαγωγή Excel).</li>
 </ul></div></div>
 
@@ -265,7 +270,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 
   <div class="sp-change"><div class="sp-version">v1.12.0</div><div><ul>
 <li>Νέα ενότητα <b>Πελάτες</b>: πελάτες, κατάλογος υπηρεσιών (τιμή, διάρκεια, ημέρες υπενθύμισης), ανάθεση υπηρεσιών σε πελάτες, αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance, αποστολές ενημερώσεων και ιστορικό μηνυμάτων.</li>
-<li>Νέα χρονοπρογραμματισμένη εργασία Joomla «Support Plans – Ειδοποιήσεις» για τις αυτόματες αποστολές.</li>
+<li>Νέα χρονοπρογραμματισμένη εργασία Joomla «Back Office – Ειδοποιήσεις» για τις αυτόματες αποστολές.</li>
 <li>Ασφάλεια: στο Service Hub συνδέονται μόνο Super Users του Joomla· άλλοι λογαριασμοί απορρίπτονται ακόμα και με σωστό κωδικό. Κλείδωμα 15 λεπτών μετά από 5 λάθος κωδικούς ανά χρήστη ή 10 ανά IP, που δεν παρακάμπτεται με νέο browser. Η «Διάρκεια σύνδεσης» έχει πλέον ανώτατο όριο 24 ώρες.</li>
 </ul></div></div>
 
@@ -320,13 +325,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <li>Στην επεξεργασία προσφοράς οι υπηρεσίες και οι περιγραφές εμφανίζονται κλειστές (accordion), με τύπο, τίτλο και αξία. Πατήστε μια γραμμή για να ανοίξει. Υπάρχουν και κουμπιά «Άνοιγμα / Κλείσιμο όλων», καθώς και «＋ Κενή περιγραφή».</li>
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.3</div><div><ul>
-<li>Παραμονή σύνδεσης: μετά τον κωδικό OTP μένετε συνδεδεμένοι στον ίδιο browser. Όταν ανοίγετε ξανά το Support Plans από το Joomla, μπαίνετε κατευθείαν στα Πακέτα.</li>
+<li>Παραμονή σύνδεσης: μετά τον κωδικό OTP μένετε συνδεδεμένοι στον ίδιο browser. Όταν ανοίγετε ξανά το Back Office από το Joomla, μπαίνετε κατευθείαν στα Πακέτα.</li>
 <li>Ρυθμίσεις → «Διάρκεια σύνδεσης (ώρες)»: προεπιλογή 12 ώρες, έως 24 ώρες. Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser. Η Αποσύνδεση, η αλλαγή κωδικού ή το μπλοκάρισμα του χρήστη ακυρώνουν τη σύνδεση.</li>
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.2</div><div><ul>
-<li>Όταν έχετε ορίσει λογότυπο, εμφανίζεται μόνο του: χωρίς «Support Plans / Workspace» στη σύνδεση και στο OTP, και χωρίς επωνυμία / «Service Hub» στην μπάρα της εφαρμογής.</li>
+<li>Όταν έχετε ορίσει λογότυπο, εμφανίζεται μόνο του: χωρίς «Back Office / Workspace» στη σύνδεση και στο OTP, και χωρίς επωνυμία / «Service Hub» στην μπάρα της εφαρμογής.</li>
 <li>Ρυθμίσεις → «Τίτλος σελίδας (tab browser)»: ο τίτλος που βλέπετε στο tab του browser.</li>
-<li>Στο μενού του Joomla, το «Support Plans» έχει ένα μόνο εικονίδιο (αρχείο) και στοιχίζεται με τα υπόλοιπα στοιχεία, χωρίς το εικονίδιο εξωτερικού συνδέσμου.</li>
+<li>Στο μενού του Joomla, το «Back Office» έχει ένα μόνο εικονίδιο (αρχείο) και στοιχίζεται με τα υπόλοιπα στοιχεία, χωρίς το εικονίδιο εξωτερικού συνδέσμου.</li>
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.1</div><div><ul>
 <li>Η Εισαγωγή έχει πλέον κουμπιά «+ Λίστα» και «+ Κείμενο», όπως οι υπηρεσίες: λίστες σε κάρτα (1 ή 2 στήλες) και επιπλέον κείμενα με drag & drop σειρά. Μεταφέρονται από το template στη νέα προσφορά.</li>
@@ -420,8 +425,8 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <li>Η επικόλληση γίνεται ως καθαρό κείμενο, ώστε να μη μεταφέρεται μορφοποίηση από Word ή ιστοσελίδες.</li>
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.1.1</div><div><ul>
-<li>Διορθώθηκε η εγκατάσταση του launcher σε Joomla 6: το «Support Plans» εμφανίζεται ξανά στο αριστερό menu του administrator και ανοίγει το Service Hub σε νέο tab.</li>
-<li>Και το «Components → Support Plans» ανοίγει πλέον το Service Hub σε νέο tab.</li>
+<li>Διορθώθηκε η εγκατάσταση του launcher σε Joomla 6: το «Back Office» εμφανίζεται ξανά στο αριστερό menu του administrator και ανοίγει το Service Hub σε νέο tab.</li>
+<li>Και το «Components → Back Office» ανοίγει πλέον το Service Hub σε νέο tab.</li>
 <li>Ο launcher χρησιμοποιεί το Standalone Menu Item ID των Ρυθμίσεων αντί για σταθερό 785.</li>
 <li>Διορθώθηκε το ανέβασμα λογοτύπου / login icon / υπογραφής σε Joomla 6.</li>
 </ul></div></div>
@@ -476,7 +481,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.0.42–1.0.50</div><div><ul>
-   <li>Ανεξάρτητη σύνδεση Support Plans με Joomla username/password και εξαψήφιο Email OTP.</li>
+   <li>Ανεξάρτητη σύνδεση Back Office με Joomla username/password και εξαψήφιο Email OTP.</li>
    <li>Βελτιώσεις routing/Itemid του Κέντρου Υπηρεσιών, branding και PDF watermark.</li>
   </ul></div></div>
 

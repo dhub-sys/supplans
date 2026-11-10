@@ -15,7 +15,7 @@
   
         <field name="login_lifetime" type="number" label="Διάρκεια σύνδεσης (ώρες)" description="Πόσες ώρες μένετε συνδεδεμένοι στο Service Hub μετά το OTP. 0 = μόνο για τη συνεδρία του browser." default="12" min="0" max="24" />
         <field name="page_title" type="text" label="Τίτλος σελίδας" description="Ο τίτλος στο tab του browser για το Service Hub." default="" />
-        <field name="login_icon" type="text" label="Login icon" description="Εικονίδιο που εμφανίζεται στις οθόνες σύνδεσης και OTP του Support Plans." />
+        <field name="login_icon" type="text" label="Login icon" description="Εικονίδιο που εμφανίζεται στις οθόνες σύνδεσης και OTP του Back Office." />
       <field name="watermark_opacity" type="number" label="Watermark opacity (%)" default="7" min="0" max="100" step="1" />
    <field name="standalone_itemid" type="number" label="Standalone Menu Item ID" default="785" min="0" step="1" />
    <field name="supported_websites_label" type="text" label="Ονομασία πεδίου Υπηρεσιών στα Πακέτα" default="Υποστηριζόμενα websites" />

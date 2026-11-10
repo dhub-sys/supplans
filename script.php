@@ -12,9 +12,9 @@ class Com_SupportplansInstallerScript
   foreach(['/components/com_supportplans/tmpl/offers/default_variables.php'] as $obsolete){ if(is_file(JPATH_SITE.$obsolete)) @unlink(JPATH_SITE.$obsolete); }
   // Bundled system plugins: the launcher opens the Service Hub in a new tab from the
   // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
-  $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');
-  $this->installSystemPlugin('supportplansnocpnb','System - Support Plans No CPNB','Hides Web357 CPNB inside the Support Plans Service Hub');
-  // Scheduled Task routine "Support Plans – Ειδοποιήσεις" (v1.12.0).
+  $this->installSystemPlugin('supportplanslauncher','System - Back Office Launcher','Visible top-level Back Office launcher');
+  $this->installSystemPlugin('supportplansnocpnb','System - Back Office No CPNB','Hides Web357 CPNB inside the Back Office Service Hub');
+  // Scheduled Task routine "Back Office – Ειδοποιήσεις" (v1.12.0).
   $this->installPlugin('task','supportplansnotify','plg_task_supportplansnotify','PLG_TASK_SUPPORTPLANSNOTIFY_XML_DESCRIPTION');
   $this->syncMedia($parent);
   if($ok) $this->migrateOfferBlocks();
@@ -151,7 +151,7 @@ class Com_SupportplansInstallerScript
     @chmod($target,0644);
    }
   }catch(\Throwable $e){
-   Factory::getApplication()->enqueueMessage('Support Plans: media files could not be refreshed ('.$e->getMessage().').','warning');
+   Factory::getApplication()->enqueueMessage('Back Office: media files could not be refreshed ('.$e->getMessage().').','warning');
   }
  }
  // v1.9.0: the price section and the terms of templates/offers become entries of the library
@@ -209,7 +209,7 @@ class Com_SupportplansInstallerScript
    $db->transactionCommit();
   }catch(\Throwable $e){
    try{ Factory::getContainer()->get('DatabaseDriver')->transactionRollback(); }catch(\Throwable $ignored){}
-   Factory::getApplication()->enqueueMessage('Support Plans: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
+   Factory::getApplication()->enqueueMessage('Back Office: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
   }
  }
  // v1.13.0: the v1.12.0 default renewal texts are replaced by the new defaults (grouped services,
@@ -272,13 +272,14 @@ class Com_SupportplansInstallerScript
    }else{
     $q=$db->getQuery(true)->update($db->quoteName('#__extensions'))
       ->set($db->quoteName('enabled').'=1')
+      ->set($db->quoteName('name').'='.$db->quote($name))
       ->set($db->quoteName('manifest_cache').'='.$db->quote($cache))
       ->where($db->quoteName('extension_id').'='.$id);
     $db->setQuery($q)->execute();
    }
    try{Factory::getApplication()->getCache('com_plugins')->clean();}catch(\Throwable $e){}
   }catch(\Throwable $e){
-   try{Factory::getApplication()->enqueueMessage('Support Plans: δεν ήταν δυνατή η εγκατάσταση του plugin '.$element.' ('.$e->getMessage().').','warning');}catch(\Throwable $ignored){}
+   try{Factory::getApplication()->enqueueMessage('Back Office: δεν ήταν δυνατή η εγκατάσταση του plugin '.$element.' ('.$e->getMessage().').','warning');}catch(\Throwable $ignored){}
   }
  }
 }

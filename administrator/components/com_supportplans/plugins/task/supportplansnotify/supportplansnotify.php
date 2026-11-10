@@ -1,8 +1,8 @@
 <?php
 /**
- * Task - Support Plans Notifications.
+ * Task - Back Office Notifications.
  *
- * Adds the routine "Support Plans – Ειδοποιήσεις" to Joomla's Scheduled Tasks. Each run
+ * Adds the routine "Back Office – Ειδοποιήσεις" to Joomla's Scheduled Tasks. Each run
  * queues the renewal reminders that are due and sends the next batch of queued e-mails
  * (reminders, maintenance reports, campaigns). Schedule it every 5 minutes.
  */
@@ -40,7 +40,7 @@ final class PlgTaskSupportplansnotify extends CMSPlugin implements SubscriberInt
         $helper = JPATH_SITE . '/components/com_supportplans/src/Helper/Notify.php';
         if (!class_exists(\Support\Component\Supportplans\Site\Helper\Notify::class)) {
             if (!is_file($helper)) {
-                $this->logTask('Support Plans is not installed.', 'error');
+                $this->logTask('Back Office is not installed.', 'error');
                 return Status::KNOCKOUT;
             }
             require_once JPATH_SITE . '/components/com_supportplans/src/Helper/OfferHelper.php';

@@ -53,11 +53,11 @@ final class OtpController extends BaseController
 
         $mailer = Factory::getMailer();
         $mailer->addRecipient($email);
-        $mailer->setSubject('Support Plans - Κωδικός επιβεβαίωσης');
+        $mailer->setSubject('Back Office - Κωδικός επιβεβαίωσης');
         $mailer->isHtml(true);
         $mailer->setBody(
             '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">' .
-            '<h2>Support Plans</h2><p>Ο κωδικός επιβεβαίωσής σου είναι:</p>' .
+            '<h2>Back Office</h2><p>Ο κωδικός επιβεβαίωσής σου είναι:</p>' .
             '<div style="font-size:32px;font-weight:700;letter-spacing:8px;margin:24px 0">' . $code . '</div>' .
             '<p>Ο κωδικός ισχύει για 2 λεπτά και χρησιμοποιείται μόνο μία φορά.</p>' .
             '<p style="color:#667085;font-size:13px">Αν δεν προσπάθησες να συνδεθείς, αγνόησε αυτό το μήνυμα.</p></div>'
@@ -114,7 +114,7 @@ final class OtpController extends BaseController
             return;
         }
 
-        // Promote pending identity to the private Support Plans session.
+        // Promote pending identity to the private Back Office session.
         $session->set('supportplans.auth.user_id', $userId);
         $session->set('supportplans.auth.username', (string) $session->get('supportplans.pending.username', ''));
         $session->set('supportplans.auth.name', (string) $session->get('supportplans.pending.name', ''));
