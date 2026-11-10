@@ -28,3 +28,5 @@
 .sp-n-logo-row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
 .sp-n-logo-box{min-width:220px;min-height:70px;padding:12px 16px;border:1px dashed #cfd6e1;border-radius:10px;display:flex;align-items:center;justify-content:flex-end;background:#fff}
 .sp-n-logo-box img{height:44px;width:auto;max-width:220px}
+.sp-n-expiry-check{display:block;font-weight:400;font-size:12px;color:#475467;margin-top:4px;min-height:16px}
+.sp-n-expiry-check.is-warn{color:#b45309;font-weight:600}

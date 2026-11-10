@@ -32,7 +32,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     <option value="<?php echo (int) $k->id; ?>" data-price="<?php echo $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" data-duration="<?php echo (int) $k->duration_months; ?>" data-remind="<?php echo (int) $k->auto_remind; ?>" data-days="<?php echo $e($k->reminder_days !== '' ? $k->reminder_days : Notify::setting('notify_reminder_days')); ?>"<?php echo (int) $k->id === $catalogId ? ' selected' : ''; ?>><?php echo $e($k->name); ?></option>
     <?php endforeach; ?></select></label>
    <label>Domain / περιγραφή<input name="label" value="<?php echo $e($s->label ?? ''); ?>" placeholder="π.χ. example.gr"></label>
-   <label>Λήξη (τρέχουσα) *<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
+   <label>Λήξη (τρέχουσα) *<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"><small id="sp-n-expiry-check" class="sp-n-expiry-check" aria-live="polite"></small></label>
    <label>Τιμή ανανέωσης (€ προ ΦΠΑ)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
    <label>Ανανέωση για (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
    <label>Έναρξη (προαιρετικά)<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? ''); ?>"></label>
@@ -68,6 +68,21 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     price.value = o.dataset.price; dur.value = o.dataset.duration; remind.checked = o.dataset.remind === '1'; suggest();
   });
   expiry.addEventListener('input', suggest);
+  // Live check of the expiry: weekday, full date and distance from today, with a warning when it
+  // is more than a year away (e.g. a year that the browser kept from an earlier value).
+  var check = document.getElementById('sp-n-expiry-check');
+  var todayYmd = <?php echo json_encode(Notify::today()); ?>;
+  function checkExpiry() {
+    if (!expiry.value) { check.textContent = ''; check.className = 'sp-n-expiry-check'; return; }
+    var p = expiry.value.split('-'), t = todayYmd.split('-');
+    var d = Date.UTC(+p[0], +p[1] - 1, +p[2]), n = Date.UTC(+t[0], +t[1] - 1, +t[2]);
+    var days = Math.round((d - n) / 86400000);
+    var wd = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'][new Date(d).getUTCDay()];
+    var when = days > 1 ? 'λήγει σε ' + days + ' ημέρες' : days === 1 ? 'λήγει αύριο' : days === 0 ? 'λήγει σήμερα' : 'έληξε πριν από ' + (-days) + ' ημέρες';
+    check.textContent = wd + ' ' + p[2] + '/' + p[1] + '/' + p[0] + ' · ' + when + (days > 365 ? ' — προσοχή: πάνω από ένα έτος, ελέγξτε ότι το έτος είναι σωστό' : '');
+    check.className = 'sp-n-expiry-check' + (days > 365 ? ' is-warn' : '');
+  }
+  expiry.addEventListener('input', checkExpiry); expiry.addEventListener('change', checkExpiry); checkExpiry();
   start.addEventListener('change', suggest); dur.addEventListener('change', suggest);
   showDays();
   if (isNew && opt() && opt().value) cat.dispatchEvent(new Event('change'));
@@ -91,8 +106,12 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
    <?php echo HTMLHelper::_('form.token'); ?>
    <div class="sp-n-actions"><button class="btn btn-primary">Πληρώθηκε – ανανέωση έως <?php echo $e(Notify::dateGr($next)); ?></button></div>
   </form>
-  <?php if ($this->renewals): ?>
   <h3>Ιστορικό πληρωμών / ανανεώσεων</h3>
+  <?php $undoable = array_filter($this->renewals, static fn($r) => Notify::canUndo($r, $s->expiry_date)); ?>
+  <?php if (!$this->renewals): ?>
+  <p class="sp-n-help">Δεν έχει καταχωρηθεί καμία πληρωμή για αυτή την υπηρεσία, οπότε δεν υπάρχει κάτι για αναίρεση: η τρέχουσα λήξη (<b><?php echo $e(Notify::dateGr($s->expiry_date)); ?></b>) είναι αυτή που αποθηκεύτηκε στη φόρμα ή από εισαγωγή Excel. Αν είναι λάθος, διορθώστε την στο πεδίο «Λήξη (τρέχουσα)» παραπάνω και πατήστε «Αποθήκευση».</p>
+  <?php else: ?>
+  <?php if (!$undoable): ?><p class="sp-n-help">Η τρέχουσα λήξη (<b><?php echo $e(Notify::dateGr($s->expiry_date)); ?></b>) δεν είναι αυτή που όρισε η τελευταία πληρωμή (άλλαξε από τη φόρμα ή από Excel), οπότε η αναίρεση δεν είναι διαθέσιμη. Αν η λήξη είναι λάθος, διορθώστε την στο πεδίο «Λήξη (τρέχουσα)» παραπάνω.</p><?php endif; ?>
   <div class="table-responsive"><table class="table sp-offer-table">
    <thead><tr><th>Πληρωμή</th><th>Λήξη πριν</th><th>Νέα λήξη</th><th class="sp-num">Ποσό</th><th>Σημείωση</th><th></th></tr></thead>
    <tbody><?php foreach ($this->renewals as $r): ?><tr><td><?php echo $e(Notify::dateGr($r->paid_on)); ?></td><td><?php echo $e(Notify::dateGr($r->old_expiry)); ?></td><td><?php echo $e(Notify::dateGr($r->new_expiry)); ?></td><td class="sp-num"><?php echo $e(Notify::money($r->amount) ?: '—'); ?></td><td><?php echo $e($r->note); ?></td>
