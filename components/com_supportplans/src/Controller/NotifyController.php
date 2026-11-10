@@ -255,6 +255,7 @@ class NotifyController extends BaseController
             'price' => $this->price('price'),
             'duration_months' => max(1, min(120, $this->input->post->getInt('duration_months', 12))),
             'reminder_days' => $this->days('reminder_days'),
+            'expired_text' => mb_substr(trim($this->text('expired_text')), 0, 20000),
             'auto_remind' => $this->input->post->getInt('auto_remind', 0) ? 1 : 0,
             'published' => $this->input->post->getInt('published', 1) ? 1 : 0,
             'ordering' => $this->input->post->getInt('ordering', 0),
@@ -510,6 +511,16 @@ class NotifyController extends BaseController
             'notify_bcc' => $this->email('notify_bcc'),
             'notify_reminder_days' => $this->days('notify_reminder_days') ?: Notify::DEFAULT_REMINDER_DAYS,
             'notify_batch_size' => max(1, min(200, $this->input->post->getInt('notify_batch_size', 20))),
+            'notify_vat_rate' => max(0, min(100, round((float) str_replace(',', '.', (string) $this->input->post->getString('notify_vat_rate', '24')), 2))),
+            'notify_group_days' => max(0, min(60, $this->input->post->getInt('notify_group_days', 7))),
+            'notify_subject_today' => $this->str('notify_subject_today', 255),
+            'notify_subject_after' => $this->str('notify_subject_after', 255),
+            'notify_intro_single' => mb_substr(trim($this->text('notify_intro_single')), 0, 2000),
+            'notify_intro_multi' => mb_substr(trim($this->text('notify_intro_multi')), 0, 2000),
+            'notify_phrase_before' => $this->str('notify_phrase_before', 255),
+            'notify_phrase_today' => $this->str('notify_phrase_today', 255),
+            'notify_phrase_after' => $this->str('notify_phrase_after', 255),
+            'notify_expired_text' => mb_substr(trim($this->text('notify_expired_text')), 0, 20000),
             'notify_footer' => mb_substr(trim((string) $this->input->post->getString('notify_footer', '')), 0, 2000),
             'notify_renewal_subject' => $this->str('notify_renewal_subject', 255),
             'notify_renewal_body' => $this->text('notify_renewal_body'),
@@ -536,7 +547,16 @@ class NotifyController extends BaseController
         $client->email = $to;
         $service = (object) ['id' => 0, 'client_id' => 0, 'service_name' => 'Web Hosting', 'label' => 'example.gr', 'price' => 120,
             'duration_months' => 12, 'expiry_date' => Notify::addDays(Notify::today(), 14), 'status' => 'active'];
-        if ($this->input->post->getCmd('template') === 'report') {
+        $tpl = $this->input->post->getCmd('template');
+        if ($tpl === 'group') {
+            // One message for three services of the same client: expired, expiring today, upcoming.
+            $demo = [
+                (object) ['id' => 0, 'service_name' => 'Ανανέωση Domain .gr', 'label' => 'example.gr', 'price' => 15, 'duration_months' => 24, 'expiry_date' => Notify::addDays(Notify::today(), -2), 'catalog_expired_text' => ''],
+                (object) ['id' => 0, 'service_name' => 'Web Hosting', 'label' => 'example.gr', 'price' => 120, 'duration_months' => 12, 'expiry_date' => Notify::today(), 'catalog_expired_text' => ''],
+                (object) ['id' => 0, 'service_name' => 'SSL Certificate', 'label' => 'example.gr', 'price' => 40, 'duration_months' => 12, 'expiry_date' => Notify::addDays(Notify::today(), 3), 'catalog_expired_text' => ''],
+            ];
+            [$subject, $body] = Notify::buildRenewal($demo, $client);
+        } elseif ($tpl === 'report') {
             $service->service_name = 'Maintenance';
             $report = (object) ['period' => 'Δοκιμή', 'summary' => 'Έγινε πλήρες backup, έλεγχος ασφαλείας και ενημέρωση όλων των στοιχείων.',
                 'items' => "Joomla | Core | 6.2.0 | 6.2.1\nExtension | Support Plans | 1.11.2 | 1.12.0"];

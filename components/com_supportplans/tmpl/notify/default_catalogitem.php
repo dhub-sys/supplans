@@ -20,13 +20,15 @@ $next = ($this->catalog ? max(array_map(static fn($x) => (int) $x->ordering, $th
   <h2><?php echo $k ? $e($k->name) : 'Νέα υπηρεσία καταλόγου'; ?></h2>
   <div class="sp-grid">
    <label class="sp-wide">Όνομα *<input name="name" required value="<?php echo $e($v('name')); ?>" placeholder="π.χ. Web Hosting Green"></label>
-   <label>Τιμή (€)<input name="price" inputmode="decimal" value="<?php echo $k && $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" placeholder="π.χ. 120,00"></label>
+   <label>Τιμή (€ προ ΦΠΑ)<input name="price" inputmode="decimal" value="<?php echo $k && $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" placeholder="π.χ. 120,00"></label>
    <label>Διάρκεια (μήνες)<input type="number" min="1" max="120" name="duration_months" value="<?php echo (int) $v('duration_months', 12); ?>"></label>
    <label>Ημέρες υπενθύμισης<input name="reminder_days" value="<?php echo $e($v('reminder_days')); ?>" placeholder="<?php echo $e(Notify::setting('notify_reminder_days')); ?>"></label>
    <label>Σειρά<input type="number" name="ordering" value="<?php echo (int) $v('ordering', $next); ?>"></label>
    <label>Κατάσταση<?php echo NotifyUi::select('published', [1 => 'Ενεργή', 0 => 'Ανενεργή'], (int) $v('published', 1)); ?></label>
    <div class="sp-wide sp-check-row"><label class="sp-check"><input type="checkbox" name="auto_remind" value="1" <?php echo (int) $v('auto_remind', 1) ? 'checked' : ''; ?>> Αυτόματες υπενθυμίσεις ανανέωσης (προεπιλογή για νέες αναθέσεις)</label></div>
    <label class="sp-wide">Περιγραφή (εσωτερική)<textarea name="description" rows="3"><?php echo $e($v('description')); ?></textarea></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τη λήξη (διακοπή &amp; επίπτωση στο project)</span><textarea name="expired_text" rows="6" data-sp-editor placeholder="<?php echo $e(Notify::setting('notify_expired_text')); ?>"><?php echo $e($v('expired_text')); ?></textarea>
+   <p class="sp-n-help">Μπαίνει στην υπενθύμιση μόνο όταν η υπηρεσία έχει ήδη λήξει, σε πλαίσιο με κόκκινη γραμμή. Π.χ. για domain: «Το domain **{label}** δεν θα είναι προσβάσιμο και θα σταματήσουν τα email του. Μετά την περίοδο χάριτος μπορεί να καταχωρηθεί από τρίτους.» Μεταβλητές: <code>{service_full}</code> <code>{service}</code> <code>{label}</code> <code>{date}</code> <code>{company}</code>. Κενό = το γενικό κείμενο από τις Ρυθμίσεις email.</p></div>
   </div>
   <p class="sp-n-help">Ημέρες υπενθύμισης: χωρισμένες με κόμμα, π.χ. <code>30,14,7,1,0,-3</code>. <code>0</code> = την ημέρα λήξης, αρνητικό = μετά τη λήξη. Κενό = η γενική ρύθμιση (<?php echo $e(Notify::setting('notify_reminder_days')); ?>). Αλλαγές εδώ ισχύουν για όλους τους πελάτες με αυτή την υπηρεσία, εκτός αν έχουν δικές τους ημέρες.</p>
  </div>

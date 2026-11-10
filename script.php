@@ -36,11 +36,13 @@ class Com_SupportplansInstallerScript
 
   // Clients & notifications (v1.12.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_clients` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL DEFAULT '',`company` varchar(190) NOT NULL DEFAULT '',`email` varchar(190) NOT NULL,`phone` varchar(50) NOT NULL DEFAULT '',`notes` text NULL,`status` varchar(20) NOT NULL DEFAULT 'active',`unsubscribed_at` datetime NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_email` (`email`),KEY `idx_status` (`status`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
-  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_catalog` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL,`description` text NULL,`price` decimal(10,2) NULL,`duration_months` smallint unsigned NOT NULL DEFAULT 12,`reminder_days` varchar(100) NOT NULL DEFAULT '',`auto_remind` tinyint NOT NULL DEFAULT 1,`published` tinyint NOT NULL DEFAULT 1,`ordering` int NOT NULL DEFAULT 0,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_catalog` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL,`description` text NULL,`price` decimal(10,2) NULL,`duration_months` smallint unsigned NOT NULL DEFAULT 12,`reminder_days` varchar(100) NOT NULL DEFAULT '',`expired_text` mediumtext NULL,`auto_remind` tinyint NOT NULL DEFAULT 1,`published` tinyint NOT NULL DEFAULT 1,`ordering` int NOT NULL DEFAULT 0,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_client_services` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_id` int unsigned NOT NULL,`catalog_id` int unsigned NOT NULL DEFAULT 0,`label` varchar(190) NOT NULL DEFAULT '',`price` decimal(10,2) NULL,`duration_months` smallint unsigned NOT NULL DEFAULT 12,`start_date` date NULL,`expiry_date` date NULL,`reminder_days` varchar(100) NOT NULL DEFAULT '',`auto_remind` tinyint NOT NULL DEFAULT 1,`status` varchar(20) NOT NULL DEFAULT 'active',`notes` text NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_client_id` (`client_id`),KEY `idx_catalog_id` (`catalog_id`),KEY `idx_expiry` (`status`,`expiry_date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_reports` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_service_id` int unsigned NOT NULL,`period` varchar(100) NOT NULL DEFAULT '',`summary` mediumtext NULL,`items` mediumtext NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`sent` datetime NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_client_service_id` (`client_service_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_campaigns` (`id` int unsigned NOT NULL AUTO_INCREMENT,`subject` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`audience` text NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`recipients` int unsigned NOT NULL DEFAULT 0,`created` datetime NOT NULL,`modified` datetime NULL,`queued` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
-  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_messages` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_id` int unsigned NOT NULL DEFAULT 0,`service_id` int unsigned NULL,`campaign_id` int unsigned NULL,`kind` varchar(20) NOT NULL,`ref` varchar(190) NULL,`to_email` varchar(190) NOT NULL,`subject` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`unsub_url` varchar(500) NOT NULL DEFAULT '',`status` varchar(20) NOT NULL DEFAULT 'queued',`attempts` tinyint unsigned NOT NULL DEFAULT 0,`last_error` text NULL,`created` datetime NOT NULL,`scheduled` datetime NOT NULL,`claimed` datetime NULL,`sent` datetime NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_ref` (`ref`),KEY `idx_queue` (`status`,`scheduled`),KEY `idx_client_id` (`client_id`),KEY `idx_campaign_id` (`campaign_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_messages` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_id` int unsigned NOT NULL DEFAULT 0,`service_id` int unsigned NULL,`campaign_id` int unsigned NULL,`service_ids` varchar(1000) NOT NULL DEFAULT '',`kind` varchar(20) NOT NULL,`ref` varchar(190) NULL,`to_email` varchar(190) NOT NULL,`subject` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`unsub_url` varchar(500) NOT NULL DEFAULT '',`status` varchar(20) NOT NULL DEFAULT 'queued',`attempts` tinyint unsigned NOT NULL DEFAULT 0,`last_error` text NULL,`created` datetime NOT NULL,`scheduled` datetime NOT NULL,`claimed` datetime NULL,`sent` datetime NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_ref` (`ref`),KEY `idx_queue` (`status`,`scheduled`),KEY `idx_client_id` (`client_id`),KEY `idx_campaign_id` (`campaign_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  // Reminder days already covered per client service and expiry (v1.13.0, grouped reminders).
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_sent` (`id` int unsigned NOT NULL AUTO_INCREMENT,`service_id` int unsigned NOT NULL,`expiry_date` date NOT NULL,`offset_days` smallint NOT NULL,`message_id` int unsigned NOT NULL DEFAULT 0,`created` datetime NOT NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_service_offset` (`service_id`,`expiry_date`,`offset_days`),KEY `idx_message_id` (`message_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Failed Service Hub logins, per IP and username (v1.12.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_login_attempts` (`id` int unsigned NOT NULL AUTO_INCREMENT,`ip` varchar(45) NOT NULL DEFAULT '',`username` varchar(150) NOT NULL DEFAULT '',`attempted` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_ip` (`ip`,`attempted`),KEY `idx_username` (`username`,`attempted`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
 
@@ -72,6 +74,8 @@ class Com_SupportplansInstallerScript
     'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
     'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5','intro_title'=>"varchar(255) NOT NULL DEFAULT ''",'intro_body'=>'mediumtext NULL','intro_lists'=>'mediumtext NULL',
    ],
+   '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
+   '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
    '#__supportplans_offers'=>[
     'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
     'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5','intro_title'=>"varchar(255) NOT NULL DEFAULT ''",'intro_body'=>'mediumtext NULL','intro_lists'=>'mediumtext NULL',
@@ -102,6 +106,14 @@ class Com_SupportplansInstallerScript
   $db->setQuery("UPDATE `#__supportplans_plans` SET `sequence_no`=`id` WHERE `sequence_no`=0")->execute();
   $db->setQuery("UPDATE `#__supportplans_plans` p JOIN `#__supportplans_serviceplans` s ON s.`name`=p.`plan_type` SET p.`service_plan_id`=s.`id` WHERE p.`service_plan_id`=0")->execute();
   $db->setQuery("UPDATE `#__supportplans_serviceplans` SET `hourly_rate`=ROUND((`total_cost`/(`total_minutes`/60)),2) WHERE `billing_mode`='prepaid' AND `hourly_rate`=0 AND `total_minutes`>0")->execute();
+
+  // v1.13.0: reminders of v1.12.0 (one per service, ref renewal:{service}:{expiry}:{day}) become
+  // markers, so updating does not send them again.
+  $db->setQuery("INSERT IGNORE INTO `#__supportplans_notify_sent` (`service_id`,`expiry_date`,`offset_days`,`message_id`,`created`)
+   SELECT CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`ref`,':',2),':',-1) AS UNSIGNED), SUBSTRING_INDEX(SUBSTRING_INDEX(`ref`,':',3),':',-1),
+          CAST(SUBSTRING_INDEX(`ref`,':',-1) AS SIGNED), `id`, `created`
+   FROM `#__supportplans_notify_messages` WHERE `ref` LIKE 'renewal:%' AND `status` IN ('queued','sending','sent')")->execute();
+  $this->resetOldRenewalTexts($db);
 
   // No default service plans are created or restored.
   // Existing user-created/renamed plans remain untouched during updates.
@@ -192,6 +204,25 @@ class Com_SupportplansInstallerScript
    try{ Factory::getContainer()->get('DatabaseDriver')->transactionRollback(); }catch(\Throwable $ignored){}
    Factory::getApplication()->enqueueMessage('Support Plans: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
   }
+ }
+ // v1.13.0: the v1.12.0 default renewal texts are replaced by the new defaults (grouped services,
+ // net prices with VAT, wording before/on/after expiry). Texts the user changed are kept.
+ private function resetOldRenewalTexts($db): void
+ {
+  try{
+   $q=$db->getQuery(true)->select($db->quoteName(['extension_id','params']))->from($db->quoteName('#__extensions'))
+    ->where($db->quoteName('type').'='.$db->quote('component'))->where($db->quoteName('element').'='.$db->quote('com_supportplans'));
+   $ext=$db->setQuery($q)->loadObject();
+   if(!$ext) return;
+   $params=json_decode((string)$ext->params,true); if(!is_array($params)) return;
+   $old=[
+    'notify_renewal_subject'=>'Υπενθύμιση ανανέωσης: {service} {label}',
+    'notify_renewal_body'=>"Αγαπητέ/ή {client_name},\n\nΣας ενημερώνουμε ότι η υπηρεσία **{service}** {label} {expiry_phrase} (**{expiry_date}**).\n\n{price_line}\n\nΓια να μη διακοπεί η λειτουργία της, απαντήστε σε αυτό το email ή επικοινωνήστε μαζί μας ώστε να προχωρήσουμε στην ανανέωση.\n\nΜε εκτίμηση,\n{company}",
+   ];
+   $changed=false;
+   foreach($old as $k=>$v){ if(isset($params[$k]) && str_replace("\r\n","\n",(string)$params[$k])===$v){ unset($params[$k]); $changed=true; } }
+   if($changed) $db->setQuery('UPDATE '.$db->quoteName('#__extensions').' SET `params`='.$db->quote(json_encode($params,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)).' WHERE `extension_id`='.(int)$ext->extension_id)->execute();
+  }catch(\Throwable $e){}
  }
  private function installSystemPlugin(string $element,string $name,string $description): void
  {

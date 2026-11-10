@@ -12,7 +12,7 @@ $global = (string) Notify::setting('notify_reminder_days');
 </section>
 <div class="sp-card">
   <div class="table-responsive"><table class="table sp-offer-table">
-    <thead><tr><th>Σειρά</th><th>Υπηρεσία</th><th class="sp-num">Τιμή</th><th>Διάρκεια</th><th>Υπενθυμίσεις (ημέρες πριν)</th><th class="sp-center">Πελάτες</th><th></th></tr></thead>
+    <thead><tr><th>Σειρά</th><th>Υπηρεσία</th><th class="sp-num">Τιμή (προ ΦΠΑ)</th><th>Διάρκεια</th><th>Υπενθυμίσεις (ημέρες πριν)</th><th class="sp-center">Πελάτες</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($this->catalog as $k): ?>
       <tr class="<?php echo (int) $k->published ? '' : 'is-off'; ?>">

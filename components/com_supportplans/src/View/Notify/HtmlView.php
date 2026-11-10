@@ -36,6 +36,10 @@ class HtmlView extends BaseHtmlView
     public int $total = 0;
     public int $page = 1;
     public array $preview = [];
+    /** service id => ['date' => next reminder, 'size' => services in its group] */
+    public array $schedule = [];
+    /** Reminder groups of the selected client. */
+    public array $groups = [];
 
     public function display($tpl = null): void
     {
@@ -51,6 +55,7 @@ class HtmlView extends BaseHtmlView
         switch ($this->section) {
             case 'overview':
                 $this->rows = Notify::services(['status' => 'active', 'expiring' => 60]);
+                $this->schedule = Notify::schedule();
                 $this->clients = Notify::clients('', 'active');
                 $this->catalog = Notify::catalog();
                 $this->mode = 'list';
@@ -64,6 +69,13 @@ class HtmlView extends BaseHtmlView
                     $this->selected = Notify::client($id);
                     if ($this->selected) {
                         $this->services = Notify::services(['client_id' => $id]);
+                        $this->schedule = Notify::schedule($id);
+                        $this->groups = Notify::groups(Notify::candidates($id));
+                        $g = $in->getInt('preview', 0);
+                        if ($g > 0 && isset($this->groups[$g - 1])) {
+                            [$subject, $body] = Notify::buildRenewal($this->groups[$g - 1], $this->selected);
+                            $this->preview = ['to' => $this->selected->email, 'subject' => $subject, 'body' => $body, 'group' => $g];
+                        }
                         [$this->messages] = Notify::messages(['client_id' => $id], 1, 20);
                     }
                 }
@@ -84,6 +96,7 @@ class HtmlView extends BaseHtmlView
                         'expiring' => $in->getString('expiring', ''),
                     ];
                     $this->rows = Notify::services($this->filters);
+                    $this->schedule = Notify::schedule();
                 } else {
                     $this->clients = Notify::clients();
                     $this->selected = $id ? Notify::service($id) : null;

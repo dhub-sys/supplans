@@ -28,7 +28,7 @@ $dis = $locked ? ' disabled' : '';
   <div class="sp-grid">
    <label class="sp-wide">Θέμα *<input name="subject" required value="<?php echo $e($k->subject ?? ''); ?>"<?php echo $dis; ?>></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο</span><textarea name="body" rows="14"<?php echo $locked ? ' disabled' : ' data-sp-editor'; ?>><?php echo $e($k->body ?? ''); ?></textarea>
-   <p class="sp-n-help">Μεταβλητές: <code>{client_name}</code> <code>{client_company}</code> <code>{client_email}</code> <code>{services_list}</code> (οι ενεργές υπηρεσίες του πελάτη, σε δική της γραμμή) <code>{company}</code>. Ο σύνδεσμος διαγραφής από τις ενημερώσεις μπαίνει αυτόματα στο τέλος.</p></div>
+   <p class="sp-n-help">Μεταβλητές: <code>{client_name}</code> <code>{client_company}</code> <code>{client_email}</code> <code>{services_list}</code> (οι ενεργές υπηρεσίες του πελάτη) και <code>{banks}</code> (τραπεζικοί λογαριασμοί), σε δική τους γραμμή, <code>{company}</code>. Ο σύνδεσμος διαγραφής από τις ενημερώσεις μπαίνει αυτόματα στο τέλος.</p></div>
    <fieldset class="sp-wide sp-n-audience"<?php echo $dis; ?>>
     <span class="sp-field-label">Παραλήπτες</span>
     <label><input type="radio" name="aud_mode" value="all" <?php echo $mode === 'all' ? 'checked' : ''; ?>> Όλοι οι ενεργοί πελάτες</label>

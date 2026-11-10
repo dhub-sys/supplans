@@ -25,6 +25,8 @@ final class Notify
     public const T_REPORTS = '#__supportplans_notify_reports';
     public const T_CAMPAIGNS = '#__supportplans_notify_campaigns';
     public const T_MESSAGES = '#__supportplans_notify_messages';
+    /** One row per (client service, expiry date, reminder day) already covered by a reminder. */
+    public const T_SENT = '#__supportplans_notify_sent';
 
     public const MAX_ATTEMPTS = 3;
     public const DEFAULT_REMINDER_DAYS = '30,14,7,1,0,-3';
@@ -46,8 +48,18 @@ final class Notify
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
             'notify_batch_size'      => 20,
             'notify_footer'          => '',
-            'notify_renewal_subject' => 'Υπενθύμιση ανανέωσης: {service} {label}',
-            'notify_renewal_body'    => "Αγαπητέ/ή {client_name},\n\nΣας ενημερώνουμε ότι η υπηρεσία **{service}** {label} {expiry_phrase} (**{expiry_date}**).\n\n{price_line}\n\nΓια να μη διακοπεί η λειτουργία της, απαντήστε σε αυτό το email ή επικοινωνήστε μαζί μας ώστε να προχωρήσουμε στην ανανέωση.\n\nΜε εκτίμηση,\n{company}",
+            'notify_vat_rate'        => 24,
+            'notify_group_days'      => 7,
+            'notify_renewal_subject' => 'Υπενθύμιση ανανέωσης: {services}',
+            'notify_subject_today'   => 'Λήγει σήμερα: {services}',
+            'notify_subject_after'   => 'Έληξε: {services} – απαιτείται ανανέωση',
+            'notify_intro_single'    => 'Θα θέλαμε να σας ενημερώσουμε ότι η υπηρεσία **{service_full}** {phrase}.',
+            'notify_intro_multi'     => 'Θα θέλαμε να σας ενημερώσουμε για τη λήξη των παρακάτω υπηρεσιών σας:',
+            'notify_phrase_before'   => 'λήγει στις **{date}**',
+            'notify_phrase_today'    => 'λήγει **σήμερα, {date}**',
+            'notify_phrase_after'    => 'έληξε στις **{date}**',
+            'notify_expired_text'    => 'Η υπηρεσία **{service_full}** έχει λήξει. Αν δεν ανανεωθεί άμεσα, θα διακοπεί και η διακοπή θα επηρεάσει τη λειτουργία του project σας.',
+            'notify_renewal_body'    => "Αγαπητέ/ή {client_name},\n\n{services_status}\n\n{expired_notice}\n\n{price_table}\n\n{banks}\n\nΓια να προχωρήσουμε στην ανανέωση, απαντήστε σε αυτό το email ή επικοινωνήστε μαζί μας.\n\nΜε εκτίμηση,\n{company}",
             'notify_report_subject'  => 'Αναφορά συντήρησης {label} – {period}',
             'notify_report_body'     => "Αγαπητέ/ή {client_name},\n\nΣας αποστέλλουμε την αναφορά συντήρησης για το **{label}** για την περίοδο **{period}**.\n\n{summary}\n\n{updates}\n\nΓια οποιαδήποτε απορία είμαστε στη διάθεσή σας.\n\nΜε εκτίμηση,\n{company}",
         ];
@@ -267,7 +279,7 @@ final class Notify
     {
         $db = self::db();
         return $db->getQuery(true)
-            ->select('s.*, k.name AS service_name, k.reminder_days AS catalog_reminder_days, c.name AS client_name, c.company AS client_company, c.email AS client_email, c.status AS client_status')
+            ->select('s.*, k.name AS service_name, k.reminder_days AS catalog_reminder_days, k.expired_text AS catalog_expired_text, c.name AS client_name, c.company AS client_company, c.email AS client_email, c.status AS client_status')
             ->from($db->quoteName(self::T_SERVICES, 's'))
             ->join('LEFT', $db->quoteName(self::T_CATALOG, 'k') . ' ON k.id=s.catalog_id')
             ->join('INNER', $db->quoteName(self::T_CLIENTS, 'c') . ' ON c.id=s.client_id');
@@ -416,10 +428,31 @@ final class Notify
         $new = self::addMonths($s->expiry_date ?: self::today(), max(1, (int) $s->duration_months));
         $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_SERVICES))
             ->set(['expiry_date=' . $db->quote($new), "status='active'", 'modified=' . $db->quote(self::now())])->where('id=' . $id))->execute();
-        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_MESSAGES))
-            ->set(["status='cancelled'", 'last_error=' . $db->quote('Η υπηρεσία ανανεώθηκε.')])
-            ->where('service_id=' . $id)->where("kind='renewal'")->where("status='queued'"))->execute();
+        self::cancelQueuedRenewals($id, 'Η υπηρεσία ανανεώθηκε.');
         return $new;
+    }
+
+    /**
+     * Cancels queued renewal reminders that include a client service (also combined ones) and
+     * frees their markers, so the next run rebuilds the reminder for the remaining services.
+     */
+    public static function cancelQueuedRenewals(int $serviceId, string $reason): void
+    {
+        $db = self::db();
+        $ids = $db->setQuery($db->getQuery(true)->select('id')->from($db->quoteName(self::T_MESSAGES))
+            ->where("kind='renewal'")->where("status='queued'")
+            ->where('(service_id=' . $serviceId . ' OR CONCAT(' . $db->quote(',') . ', service_ids) LIKE ' . $db->quote('%,' . $serviceId . ':%') . ')'))->loadColumn();
+        foreach ($ids as $mid) {
+            self::cancelRenewal((int) $mid, $reason);
+        }
+    }
+
+    private static function cancelRenewal(int $messageId, string $reason): void
+    {
+        $db = self::db();
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_MESSAGES))
+            ->set(["status='cancelled'", 'last_error=' . $db->quote($reason)])->where('id=' . $messageId)->where("status IN ('queued','sending')"))->execute();
+        $db->setQuery($db->getQuery(true)->delete($db->quoteName(self::T_SENT))->where('message_id=' . $messageId))->execute();
     }
 
     /* ================================================================ unsubscribe */
@@ -498,9 +531,34 @@ final class Notify
             'days_left'     => $days === null ? '' : (string) $days,
             'expiry_phrase' => $days === null ? '' : self::expiryPhrase($days),
             'price'         => $price,
+            'price_vat'     => $price !== '' ? self::money(self::withVat((float) $s->price)) : '',
+            'vat_rate'      => self::vatLabel(),
             'duration'      => $duration,
-            'price_line'    => $price !== '' ? 'Κόστος ανανέωσης: ' . $price . ' / ' . $duration . '.' : '',
+            'price_line'    => $price !== '' ? 'Κόστος ανανέωσης: ' . $price . ' + ΦΠΑ ' . self::vatLabel() . ' (σύνολο ' . self::money(self::withVat((float) $s->price)) . ') / ' . $duration . '.' : '',
+            'service_full'  => self::serviceFull($s),
         ];
+    }
+
+    public static function vatRate(): float
+    {
+        return max(0.0, min(100.0, (float) str_replace(',', '.', (string) self::setting('notify_vat_rate'))));
+    }
+
+    public static function vatLabel(): string
+    {
+        return rtrim(rtrim(number_format(self::vatRate(), 2, ',', ''), '0'), ',') . '%';
+    }
+
+    public static function withVat(float $net): float
+    {
+        return round($net * (1 + self::vatRate() / 100), 2);
+    }
+
+    public static function serviceFull(object $s): string
+    {
+        $name = trim((string) ($s->service_name ?? '')) ?: 'Υπηρεσία';
+        $label = trim((string) ($s->label ?? ''));
+        return $label !== '' ? $name . ' (' . $label . ')' : $name;
     }
 
     /**
@@ -572,8 +630,7 @@ final class Notify
 
     private static function accent(): string
     {
-        $c = (string) ComponentHelper::getParams('com_supportplans')->get('accent_color', '#1d4ed8');
-        return preg_match('/^#[0-9a-f]{3}([0-9a-f]{3})?$/i', $c) ? $c : '#1d4ed8';
+        return OfferHelper::brand()['accent'];
     }
 
     /** Branded e-mail layout around the message body. */
@@ -626,14 +683,144 @@ final class Notify
 
     /* ================================================================ building messages */
 
-    /** [subject, html] of the renewal reminder of a client service. */
-    public static function buildRenewal(object $service, object $client): array
+    /* ---------------------------------------------------------------- renewal reminders */
+
+    /** before | today | after, from the days until expiry. */
+    public static function state(?int $days): string
     {
-        $vars = self::clientVars($client) + self::serviceVars($service);
-        return [
-            self::subject((string) self::setting('notify_renewal_subject'), $vars),
-            self::wrap(self::renderText((string) self::setting('notify_renewal_body'), $vars)),
+        if ($days === null || $days > 0) return 'before';
+        return $days === 0 ? 'today' : 'after';
+    }
+
+    /** "λήγει στις 12/11/2026" / "λήγει σήμερα, 12/11/2026" / "έληξε στις 12/11/2026" (light markup). */
+    public static function phrase(object $s): string
+    {
+        $days = self::daysUntil($s->expiry_date ?? null);
+        $template = (string) self::setting('notify_phrase_' . self::state($days));
+        return OfferHelper::vars($template, ['date' => self::dateGr($s->expiry_date ?? null), 'days' => $days === null ? '' : (string) abs($days)]);
+    }
+
+    /**
+     * [subject, html] of ONE reminder for one or more services of the same client. Every
+     * service gets its own wording (before / today / after expiry); expired services add the
+     * "after expiry" text (from the catalogue service, or the general one); prices are net,
+     * with VAT and total underneath.
+     */
+    public static function buildRenewal($services, object $client): array
+    {
+        $services = array_values(is_array($services) ? $services : [$services]);
+        usort($services, static fn($a, $b) => strcmp((string) $a->expiry_date, (string) $b->expiry_date) ?: ((int) $a->id <=> (int) $b->id));
+        $first = $services[0];
+        $states = array_map(static fn($x) => self::state(self::daysUntil($x->expiry_date)), $services);
+
+        $plain = static fn(string $markup) => trim(preg_replace('/\*\*|__|(?<!\*)\*(?!\*)/', '', $markup));
+        $vars = self::clientVars($client) + self::serviceVars($first) + [
+            'services' => implode(', ', array_map([self::class, 'serviceFull'], $services)),
+            'date'     => self::dateGr($first->expiry_date),
+            'phrase'   => $plain(self::phrase($first)),
         ];
+        // Old (v1.12.0) single-service wording stays available for custom texts.
+        $vars['expiry_phrase'] = $vars['phrase'];
+
+        if (count($services) === 1) {
+            $status = OfferHelper::vars((string) self::setting('notify_intro_single'), ['service_full' => self::serviceFull($first), 'service' => (string) $first->service_name,
+                'label' => (string) $first->label, 'phrase' => self::phrase($first), 'date' => self::dateGr($first->expiry_date)]);
+        } else {
+            $status = (string) self::setting('notify_intro_multi');
+            foreach ($services as $x) {
+                $status .= "\n- **" . self::serviceFull($x) . '**: ' . self::phrase($x);
+            }
+        }
+        $blocks = [
+            'services_status' => OfferHelper::render($status, []),
+            'price_table'     => self::priceTable($services),
+            'banks'           => self::banksTable(),
+            'expired_notice'  => self::expiredNotice($services),
+        ];
+        $subjectKey = in_array('after', $states, true) ? 'notify_subject_after' : (in_array('today', $states, true) ? 'notify_subject_today' : 'notify_renewal_subject');
+        return [
+            self::subject((string) self::setting($subjectKey), $vars),
+            self::wrap(self::renderText((string) self::setting('notify_renewal_body'), $vars, $blocks)),
+        ];
+    }
+
+    /** Card tables in the style of the offer documents (accent title row, grey head, orange total). */
+    private static function cardStyles(): array
+    {
+        $b = OfferHelper::brand();
+        return [
+            'table' => 'style="width:100%;border-collapse:separate;border-spacing:0;margin:18px 0;font-size:13px;line-height:1.4;border:1px solid #e4e7ec;border-radius:9px;overflow:hidden;"',
+            'title' => 'style="background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:700;font-size:13px;text-align:left;padding:9px 12px;"',
+            'head'  => 'style="background:#f4f6f9;border-bottom:1px solid #d9dee7;color:#344054;font-weight:700;font-size:12px;text-align:left;padding:8px 12px;"',
+            'headr' => 'style="background:#f4f6f9;border-bottom:1px solid #d9dee7;color:#344054;font-weight:700;font-size:12px;text-align:right;padding:8px 12px;white-space:nowrap;"',
+            'td'    => 'style="padding:8px 12px;border-bottom:1px solid #eef0f4;text-align:left;vertical-align:top;"',
+            'tdr'   => 'style="padding:8px 12px;border-bottom:1px solid #eef0f4;text-align:right;vertical-align:top;white-space:nowrap;"',
+            'total' => 'style="background:#fff3df;font-weight:800;padding:9px 12px;text-align:left;"',
+            'totalr'=> 'style="background:#fff3df;font-weight:800;padding:9px 12px;text-align:right;white-space:nowrap;"',
+        ];
+    }
+
+    /**
+     * "Οικονομική σύνοψη" as in the offers: net value, VAT and total per service and in total,
+     * followed by the final-price sentence. Prices are net (προ ΦΠΑ). Only services with a price.
+     */
+    public static function priceTable(array $services): string
+    {
+        $priced = array_values(array_filter($services, static fn($x) => $x->price !== null && $x->price !== ''));
+        if (!$priced) {
+            return '';
+        }
+        $c = self::cardStyles();
+        $rate = self::vatRate();
+        $vatLabel = self::vatLabel();
+        $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
+            . '<tr><th colspan="4" ' . $c['title'] . '>Οικονομική σύνοψη</th></tr>'
+            . '<tr><th ' . $c['head'] . '>Περιγραφή υπηρεσίας</th><th ' . $c['headr'] . '>Αξία</th><th ' . $c['headr'] . '>Φ.Π.Α. ' . self::e($vatLabel) . '</th><th ' . $c['headr'] . '>Σύνολο</th></tr>';
+        $net = $vat = 0.0;
+        foreach ($priced as $x) {
+            $n = round((float) $x->price, 2);
+            $v = round($n * $rate / 100, 2);
+            $net += $n;
+            $vat += $v;
+            $html .= '<tr><td ' . $c['td'] . '><strong>' . self::e(self::serviceFull($x)) . '</strong><br><span style="color:#667085;font-size:12px;">Λήξη ' . self::e(self::dateGr($x->expiry_date))
+                . ' · ανανέωση για ' . self::e(self::durationLabel(max(1, (int) $x->duration_months))) . '</span></td><td ' . $c['tdr'] . '>' . self::e(self::money($n)) . '</td><td ' . $c['tdr'] . '>'
+                . self::e(self::money($v)) . '</td><td ' . $c['tdr'] . '>' . self::e(self::money($n + $v)) . '</td></tr>';
+        }
+        $html .= '<tr><td ' . $c['total'] . '>Σύνολο</td><td ' . $c['totalr'] . '>' . self::e(self::money($net)) . '</td><td ' . $c['totalr'] . '>' . self::e(self::money($vat))
+            . '</td><td ' . $c['totalr'] . '>' . self::e(self::money($net + $vat)) . '</td></tr></table>';
+        $money = static fn(float $v) => number_format($v, 2, ',', '.');
+        return $html . '<p>Το κόστος ανανέωσης ανέρχεται στα <strong>€ ' . $money($net) . '</strong> πλέον Φ.Π.Α. ' . self::e($vatLabel) . ' <strong>€ ' . $money($vat)
+            . '</strong>, σύνολο <strong>€ ' . $money($net + $vat) . '</strong>.</p>';
+    }
+
+    /** Bank accounts from the Settings, as in the offers (empty when none is set). */
+    public static function banksTable(): string
+    {
+        $banks = OfferHelper::banks();
+        if (!$banks) {
+            return '';
+        }
+        $c = self::cardStyles();
+        $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
+            . '<tr><th colspan="3" ' . $c['title'] . '>Τράπεζες / Λογαριασμοί</th></tr>'
+            . '<tr><th ' . $c['head'] . '>Τράπεζα</th><th ' . $c['head'] . '>IBAN</th><th ' . $c['head'] . '>Όνομα δικαιούχου</th></tr>';
+        foreach ($banks as $b) {
+            $html .= '<tr><td ' . $c['td'] . '>' . self::e(mb_strtoupper($b['name'])) . '</td><td ' . $c['td'] . '>' . self::e($b['iban']) . '</td><td ' . $c['td'] . '>' . self::e($b['beneficiary']) . '</td></tr>';
+        }
+        return $html . '</table>';
+    }
+
+    /** Highlighted text for the services that have already expired (empty otherwise). */
+    public static function expiredNotice(array $services): string
+    {
+        $html = '';
+        foreach ($services as $x) {
+            if (self::state(self::daysUntil($x->expiry_date)) !== 'after') continue;
+            $text = trim((string) ($x->catalog_expired_text ?? '')) ?: (string) self::setting('notify_expired_text');
+            $html .= OfferHelper::render($text, ['service_full' => self::serviceFull($x), 'service' => (string) $x->service_name, 'label' => (string) $x->label,
+                'date' => self::dateGr($x->expiry_date), 'company' => self::brandName()]);
+        }
+        return $html === '' ? '' : '<div style="border-left:4px solid #dc2626;background:#fef2f2;border-radius:6px;padding:14px 16px 2px;margin:16px 0;">' . $html . '</div>';
     }
 
     public static function buildReport(object $report, object $service, object $client): array
@@ -654,7 +841,7 @@ final class Notify
     {
         $vars = self::clientVars($client);
         $unsub = (int) $client->id > 0 ? self::unsubscribeUrl($client) : self::siteRoot() . '#';
-        $html = self::renderText((string) $campaign->body, $vars, ['services_list' => self::servicesListHtml((int) $client->id)]);
+        $html = self::renderText((string) $campaign->body, $vars, ['services_list' => self::servicesListHtml((int) $client->id), 'banks' => self::banksTable()]);
         return [self::subject((string) $campaign->subject, $vars), self::wrap($html, $unsub), (int) $client->id > 0 ? $unsub : ''];
     }
 
@@ -678,23 +865,139 @@ final class Notify
         $cols['ref'] = empty($m['ref']) ? 'NULL' : $db->quote($m['ref']);
         $cols['service_id'] = empty($m['service_id']) ? 'NULL' : (int) $m['service_id'];
         $cols['campaign_id'] = empty($m['campaign_id']) ? 'NULL' : (int) $m['campaign_id'];
+        $cols['service_ids'] = $db->quote((string) ($m['service_ids'] ?? ''));
         $sql = 'INSERT IGNORE INTO ' . $db->quoteName(self::T_MESSAGES) . ' (' . implode(',', array_map([$db, 'quoteName'], array_keys($cols))) . ') VALUES (' . implode(',', $cols) . ')';
         $db->setQuery($sql)->execute();
         return (int) $db->getAffectedRows() > 0 ? (int) $db->insertid() : 0;
     }
 
-    public static function queueRenewal(object $service, ?string $ref = null): int
+    /** "12:2027-02-25,15:2027-02-24": the services of a reminder with the expiry it was written for. */
+    private static function serviceIdsField(array $services): string
+    {
+        return implode(',', array_map(static fn($x) => (int) $x->id . ':' . $x->expiry_date, $services));
+    }
+
+    /** Manual reminder ("Υπενθύμιση τώρα"): the service together with its group. Returns the message id. */
+    public static function queueRenewal(object $service): int
     {
         $client = self::client((int) $service->client_id);
         if (!$client) {
             return 0;
         }
-        [$subject, $body] = self::buildRenewal($service, $client);
-        return self::queue(['client_id' => $client->id, 'service_id' => $service->id, 'kind' => 'renewal', 'ref' => $ref,
+        $group = [$service];
+        foreach (self::groups(self::candidates((int) $client->id, false)) as $g) {
+            if (in_array((int) $service->id, array_map(static fn($x) => (int) $x->id, $g), true)) {
+                $group = $g;
+                break;
+            }
+        }
+        [$subject, $body] = self::buildRenewal($group, $client);
+        return self::queue(['client_id' => $client->id, 'service_id' => $group[0]->id, 'service_ids' => self::serviceIdsField($group), 'kind' => 'renewal',
             'to_email' => $client->email, 'subject' => $subject, 'body' => $body]);
     }
 
-    /* ================================================================ sending */
+    /**
+     * Active client services with an expiry that can still get reminders: not past their own
+     * last reminder day. Grouped per client. $auto = only services with automatic reminders.
+     */
+    public static function candidates(?int $clientId = null, bool $auto = true): array
+    {
+        $db = self::db();
+        $today = self::today();
+        $q = self::servicesQuery()->where("s.status='active'")->where("c.status='active'")->where('s.expiry_date IS NOT NULL')
+            ->where('s.expiry_date BETWEEN ' . $db->quote(self::addDays($today, -90)) . ' AND ' . $db->quote(self::addDays($today, 400)))
+            ->order('s.client_id ASC, s.expiry_date ASC, s.id ASC');
+        if ($auto) $q->where('s.auto_remind=1');
+        if ($clientId) $q->where('s.client_id=' . $clientId);
+        $out = [];
+        foreach ($db->setQuery($q)->loadObjectList() as $x) {
+            $days = self::daysUntil($x->expiry_date);
+            $offsets = self::reminderDays($x);
+            if ($days === null || ($auto && (!$offsets || $days < min($offsets)))) continue;
+            $out[] = $x;
+        }
+        return $out;
+    }
+
+    /**
+     * Groups the services of each client whose expiry dates are close: sorted by date, a service
+     * joins the group while it expires at most notify_group_days after the previous one.
+     */
+    public static function groups(array $services): array
+    {
+        $window = max(0, (int) self::setting('notify_group_days'));
+        $groups = [];
+        $current = [];
+        $last = null;
+        foreach ($services as $x) {
+            if ($current && ((int) $current[0]->client_id !== (int) $x->client_id || $last === null
+                || (int) self::date($last)->diff(self::date($x->expiry_date))->days > $window)) {
+                $groups[] = $current;
+                $current = [];
+            }
+            $current[] = $x;
+            $last = $x->expiry_date;
+        }
+        if ($current) $groups[] = $current;
+        return $groups;
+    }
+
+    /**
+     * The reminder day of a group that has been reached today, counted from the earliest expiry
+     * of the group, with the reminder days of all its services. null = nothing due yet.
+     */
+    public static function groupOffset(array $group): ?int
+    {
+        $offsets = [];
+        foreach ($group as $x) $offsets = array_merge($offsets, self::reminderDays($x));
+        $days = self::daysUntil($group[0]->expiry_date);
+        $reached = array_filter(array_unique($offsets), static fn($o) => $o >= $days);
+        return $reached ? min($reached) : null;
+    }
+
+    /** Next date on which a reminder will go out for a group (for the overview); null = none. */
+    public static function nextReminderDate(array $group): ?string
+    {
+        $offsets = [];
+        foreach ($group as $x) $offsets = array_merge($offsets, self::reminderDays($x));
+        $offsets = array_unique($offsets);
+        rsort($offsets);
+        $current = self::groupOffset($group);
+        if ($current !== null && !self::groupCovered($group, $current)) {
+            return self::today();
+        }
+        foreach ($offsets as $o) {
+            $date = self::addDays($group[0]->expiry_date, -$o);
+            if ($date > self::today()) return $date;
+        }
+        return null;
+    }
+
+    /** Per client service with automatic reminders: next reminder date and size of its group. */
+    public static function schedule(?int $clientId = null): array
+    {
+        $out = [];
+        foreach (self::groups(self::candidates($clientId)) as $group) {
+            $next = self::nextReminderDate($group);
+            foreach ($group as $x) {
+                $out[(int) $x->id] = ['date' => $next, 'size' => count($group)];
+            }
+        }
+        return $out;
+    }
+
+    private static function groupCovered(array $group, int $offset): bool
+    {
+        $db = self::db();
+        foreach ($group as $x) {
+            $n = (int) $db->setQuery($db->getQuery(true)->select('COUNT(*)')->from($db->quoteName(self::T_SENT))
+                ->where('service_id=' . (int) $x->id)->where('expiry_date=' . $db->quote($x->expiry_date))->where('offset_days=' . $offset))->loadResult();
+            if (!$n) return false;
+        }
+        return true;
+    }
+
+    /* ================================================================ sending */    /* ================================================================ sending */
 
     /** Atomically claims and sends one queued message. */
     public static function sendNow(int $id): bool
@@ -723,7 +1026,11 @@ final class Notify
         $client = (int) $m->client_id > 0 ? self::client((int) $m->client_id) : null;
         $skip = self::skipReason($m, $client);
         if ($skip !== '') {
-            $set(['status' => 'cancelled', 'last_error' => $skip]);
+            if ($m->kind === 'renewal') {
+                self::cancelRenewal((int) $m->id, $skip);
+            } else {
+                $set(['status' => 'cancelled', 'last_error' => $skip]);
+            }
             return false;
         }
 
@@ -788,11 +1095,20 @@ final class Notify
         if ($client->status !== 'active') return 'Ο πελάτης είναι ανενεργός.';
         if ($m->kind === 'campaign' && $client->unsubscribed_at) return 'Ο πελάτης έχει διαγραφεί από τις ενημερώσεις.';
         if (strcasecmp((string) $client->email, (string) $m->to_email) !== 0) return 'Το email του πελάτη άλλαξε μετά τη δημιουργία του μηνύματος.';
-        if ($m->kind === 'renewal' && (int) $m->service_id > 0) {
-            $s = self::service((int) $m->service_id);
-            if (!$s || $s->status !== 'active') return 'Η υπηρεσία δεν είναι ενεργή.';
-            if ($m->ref && preg_match('/^renewal:\d+:(\d{4}-\d{2}-\d{2}):/', (string) $m->ref, $mm) && $mm[1] !== (string) $s->expiry_date) {
-                return 'Η ημερομηνία λήξης άλλαξε (η υπηρεσία ανανεώθηκε).';
+        if ($m->kind === 'renewal') {
+            // Every service of the reminder must still be active with the expiry it was written for.
+            $items = [];
+            foreach (array_filter(explode(',', (string) ($m->service_ids ?? ''))) as $pair) {
+                [$sid, $exp] = array_pad(explode(':', $pair, 2), 2, '');
+                $items[(int) $sid] = $exp;
+            }
+            if (!$items && $m->ref && preg_match('/^renewal:(\d+):(\d{4}-\d{2}-\d{2}):/', (string) $m->ref, $mm)) {
+                $items[(int) $mm[1]] = $mm[2]; // v1.12.0 reminders
+            }
+            foreach ($items as $sid => $exp) {
+                $s = self::service($sid);
+                if (!$s || $s->status !== 'active') return 'Μία από τις υπηρεσίες δεν είναι πλέον ενεργή.';
+                if ($exp !== '' && $exp !== (string) $s->expiry_date) return 'Η ημερομηνία λήξης άλλαξε (η υπηρεσία ανανεώθηκε).';
             }
         }
         return '';
@@ -818,28 +1134,35 @@ final class Notify
     }
 
     /**
-     * Queues the renewal reminder whose threshold was reached most recently, for every active
-     * client service with automatic reminders. Each (service, expiry date, threshold) is queued
-     * once thanks to the unique ref; a missed day catches up with one message, not several.
+     * Queues the renewal reminders that are due. Services of the same client with close expiry
+     * dates go out together in one message. For each group the reminder day reached today is
+     * counted from its earliest expiry; every service is marked for (expiry, day) in T_SENT, so
+     * a reminder is sent once, a missed day catches up with one message, and a service that
+     * leaves the group (e.g. renewed) is not reminded again for a day already covered.
      */
     public static function queueRenewals(): int
     {
         $db = self::db();
-        $today = self::today();
-        $q = self::servicesQuery()->where("s.status='active'")->where('s.auto_remind=1')->where("c.status='active'")
-            ->where('s.expiry_date IS NOT NULL')
-            ->where('s.expiry_date BETWEEN ' . $db->quote(self::addDays($today, -90)) . ' AND ' . $db->quote(self::addDays($today, 365)));
         $queued = 0;
-        foreach ($db->setQuery($q)->loadObjectList() as $s) {
-            $days = self::daysUntil($s->expiry_date);
-            $offsets = self::reminderDays($s);
-            if ($days === null || !$offsets) continue;
-            $reached = array_filter($offsets, static fn($o) => $o >= $days);
-            if (!$reached) continue;
-            $offset = min($reached);
-            if (self::queueRenewal($s, sprintf('renewal:%d:%s:%d', $s->id, $s->expiry_date, $offset))) {
-                $queued++;
+        foreach (self::groups(self::candidates()) as $group) {
+            $offset = self::groupOffset($group);
+            if ($offset === null) continue;
+            // Claim the markers first: a parallel run that loses the race inserts nothing and skips.
+            $claimed = 0;
+            foreach ($group as $x) {
+                $db->setQuery('INSERT IGNORE INTO ' . $db->quoteName(self::T_SENT) . ' (service_id, expiry_date, offset_days, message_id, created) VALUES ('
+                    . (int) $x->id . ',' . $db->quote($x->expiry_date) . ',' . $offset . ',0,' . $db->quote(self::now()) . ')')->execute();
+                $claimed += (int) $db->getAffectedRows();
             }
+            if (!$claimed) continue;
+            $client = self::client((int) $group[0]->client_id);
+            [$subject, $body] = self::buildRenewal($group, $client);
+            $id = self::queue(['client_id' => $client->id, 'service_id' => $group[0]->id, 'service_ids' => self::serviceIdsField($group), 'kind' => 'renewal',
+                'to_email' => $client->email, 'subject' => $subject, 'body' => $body]);
+            $where = [];
+            foreach ($group as $x) $where[] = '(service_id=' . (int) $x->id . ' AND expiry_date=' . $db->quote($x->expiry_date) . ' AND offset_days=' . $offset . ' AND message_id=0)';
+            $db->setQuery('UPDATE ' . $db->quoteName(self::T_SENT) . ' SET message_id=' . $id . ' WHERE ' . implode(' OR ', $where))->execute();
+            if ($id) $queued++;
         }
         return $queued;
     }

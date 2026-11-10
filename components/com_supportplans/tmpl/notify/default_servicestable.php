@@ -9,7 +9,7 @@ $showClient = $this->section !== 'clients';
 $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->selected->id : ($this->section === 'overview' ? 'section=overview' : 'section=services');
 ?>
 <div class="table-responsive"><table class="table sp-offer-table">
-  <thead><tr><?php if ($showClient): ?><th>Πελάτης</th><?php endif; ?><th>Υπηρεσία</th><th>Λήξη</th><th class="sp-num">Τιμή</th><th>Κατάσταση</th><th class="sp-center">Υπενθυμίσεις</th><th></th></tr></thead>
+  <thead><tr><?php if ($showClient): ?><th>Πελάτης</th><?php endif; ?><th>Υπηρεσία</th><th>Λήξη</th><th class="sp-num">Τιμή (προ ΦΠΑ)</th><th>Κατάσταση</th><th>Επόμενη υπενθύμιση</th><th></th></tr></thead>
   <tbody>
   <?php foreach ($rows as $s): ?>
     <tr>
@@ -18,7 +18,11 @@ $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->sele
       <td><?php echo NotifyUi::expiry($s->expiry_date, $s->status); ?></td>
       <td class="sp-num"><?php echo $e(Notify::money($s->price)); ?><?php if ($s->price !== null): ?><br><small class="text-muted"><?php echo $e(Notify::durationLabel((int) $s->duration_months)); ?></small><?php endif; ?></td>
       <td><?php echo NotifyUi::status($s->status, Notify::SERVICE_STATUSES); ?></td>
-      <td class="sp-center"><?php echo (int) $s->auto_remind && $s->expiry_date ? $e(implode(', ', Notify::reminderDays($s))) : '—'; ?></td>
+      <td><?php $sch = $this->schedule[(int) $s->id] ?? null; ?>
+        <?php if (!(int) $s->auto_remind || !$s->expiry_date): ?><span class="text-muted">—</span>
+        <?php elseif (!$sch || !$sch['date']): ?><span class="text-muted">καμία</span>
+        <?php else: ?><?php echo $e($sch['date'] === Notify::today() ? 'σήμερα' : Notify::dateGr($sch['date'])); ?><?php if ($sch['size'] > 1): ?><br><small class="text-muted">μαζί με <?php echo $sch['size'] - 1; ?> ακόμα</small><?php endif; ?><?php endif; ?>
+        <br><small class="text-muted" title="Ημέρες υπενθύμισης"><?php echo (int) $s->auto_remind && $s->expiry_date ? $e(implode(', ', Notify::reminderDays($s))) : ''; ?></small></td>
       <td class="sp-num sp-row-actions">
         <?php if ($s->expiry_date): ?>
           <?php echo NotifyUi::button('renew', ['id' => $s->id, 'back' => $back], 'Ανανεώθηκε', 'Μετάθεση της λήξης κατά ' . Notify::durationLabel((int) $s->duration_months) . ' (από ' . Notify::dateGr($s->expiry_date) . ');'); ?>

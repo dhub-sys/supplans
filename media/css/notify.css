@@ -19,3 +19,6 @@
 .sp-n-pages span{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
 @media(min-width:1051px){.sp-kpis.sp-n-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media (max-width:640px){.sp-n-meta{grid-template-columns:1fr}.sp-n-preview{height:520px}}
+.sp-n-group{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border:1px solid #e4e9f1;border-radius:10px;padding:12px 14px;margin:0 0 10px}
+.sp-n-group ul{margin:6px 0 0;padding-left:18px}.sp-n-group li{margin:3px 0}
+@media (max-width:640px){.sp-n-group{flex-direction:column}}

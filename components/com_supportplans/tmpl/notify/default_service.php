@@ -32,7 +32,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     <option value="<?php echo (int) $k->id; ?>" data-price="<?php echo $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" data-duration="<?php echo (int) $k->duration_months; ?>" data-remind="<?php echo (int) $k->auto_remind; ?>" data-days="<?php echo $e($k->reminder_days !== '' ? $k->reminder_days : Notify::setting('notify_reminder_days')); ?>"<?php echo (int) $k->id === $catalogId ? ' selected' : ''; ?>><?php echo $e($k->name); ?></option>
     <?php endforeach; ?></select></label>
    <label>Domain / περιγραφή<input name="label" value="<?php echo $e($s->label ?? ''); ?>" placeholder="π.χ. example.gr"></label>
-   <label>Τιμή για τον πελάτη (€)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
+   <label>Τιμή για τον πελάτη (€ προ ΦΠΑ)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
    <label>Διάρκεια (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
    <label>Έναρξη<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? Notify::today()); ?>"></label>
    <label>Λήξη<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
