@@ -817,3 +817,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.19.0 — Back Office, συμπτυσσόμενο sidebar
 - Όλα τα ορατά «Support Plans» έγιναν «Back Office» (manifest name και admin menu, plugins, task, login/OTP, email OTP, τίτλοι, οδηγίες). Το element παραμένει `com_supportplans`, ώστε η αναβάθμιση να κρατά δεδομένα και ρυθμίσεις· το `installPlugin()` ενημερώνει πλέον και το `name` των ήδη εγκατεστημένων plugins. Ένας τίτλος σελίδας που έχει οριστεί χειροκίνητα στις Ρυθμίσεις («page_title») δεν αλλάζει.
 - `Sidebar::head()`: label + burger (`.sp-sb-toggle`) σε όλα τα templates του Service Hub. Κλάση `sp-sb-collapsed` στο `<html>` (εφαρμόζεται inline πριν το paint από `localStorage.spSidebar`), `sp-sb-anim` μόνο μετά από κλικ, ώστε το animation (πλάτος 248→78px, grid columns, opacity των labels, γραμμές του burger) να μη γίνεται σε κάθε φόρτωση. Tooltips (title) στα links. Κάτω από 900px το sidebar είναι ήδη συμπτυγμένο και το κουμπί κρύβεται.
+
+## v1.20.0
+- `Sidebar::head()`: λογότυπο (`OfferHelper::brand()`, λευκό με `filter:brightness(0) invert(1)`) και burger στην κορυφή του sidebar· κλάση `sp-sb-layout` στο `<html>`. Πάνω από 900px κρύβεται το `.sp-appbar`, το sidebar ξεκινά από `top:0` και το `.sp-app` χάνει το padding-top. Στο συμπτυγμένο sidebar η κεφαλίδα κρατά το ίδιο ύψος (40px), ώστε τα εικονίδια να μη μετακινούνται.
+- Burger: γραμμές 1.5px, χωρίς background στο hover.
+- `notify.css`: κελιά πινάκων, έντονα, links και φίλτρα στα 14px (όσο το κείμενο της περιγραφής), δευτερεύον κείμενο 12.5px.

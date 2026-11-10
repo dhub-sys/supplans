@@ -38,11 +38,17 @@ final class Sidebar
      */
     public static function head(): string
     {
-        return '<script>(function(){try{if(localStorage.getItem("spSidebar")==="collapsed")document.documentElement.classList.add("sp-sb-collapsed");}catch(e){}})();</script>'
-            . '<div class="sp-sb-head"><div class="sp-sidebar-section-label">Διαχείριση</div>'
+        // The logo moves from the white top bar into the top of the sidebar (wide screens).
+        $brand = OfferHelper::brand();
+        $logo = $brand['logo'] !== ''
+            ? '<img src="' . htmlspecialchars($brand['logo'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($brand['name'], ENT_QUOTES, 'UTF-8') . '">'
+            : '<strong>' . htmlspecialchars($brand['name'], ENT_QUOTES, 'UTF-8') . '</strong>';
+        return '<script>(function(){var r=document.documentElement;r.classList.add("sp-sb-layout");try{if(localStorage.getItem("spSidebar")==="collapsed")r.classList.add("sp-sb-collapsed");}catch(e){}})();</script>'
+            . '<div class="sp-sb-head"><span class="sp-sb-brand">' . $logo . '</span>'
             . '<button type="button" class="sp-sb-toggle" aria-label="Σύμπτυξη μενού" title="Σύμπτυξη / ανάπτυξη μενού" aria-expanded="true"><span></span><span></span><span></span></button></div>'
+            . '<div class="sp-sidebar-section-label sp-sb-label">Διαχείριση</div>'
             . '<script>(function(){'
-            . 'var root=document.documentElement,btn=document.currentScript.previousElementSibling.querySelector(".sp-sb-toggle");'
+            . 'var root=document.documentElement,btn=document.currentScript.parentNode.querySelector(".sp-sb-toggle");'
             . 'function sync(){var c=root.classList.contains("sp-sb-collapsed");btn.setAttribute("aria-expanded",c?"false":"true");btn.setAttribute("aria-label",c?"Ανάπτυξη μενού":"Σύμπτυξη μενού");}'
             // Labels as tooltips of the icons when the sidebar is collapsed.
             . 'function titles(){document.querySelectorAll(".sp-sidebar .sp-side-link,.sp-sidebar .sp-side-joomla").forEach(function(a){if(!a.title){var t=a.classList.contains("sp-side-link")?a.querySelector("span:last-child"):a;if(t)a.title=t.textContent.replace(/[↪]/g,"").trim();}});}'

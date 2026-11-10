@@ -530,34 +530,44 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 .sp-share-manage .sp-foot,.sp-share-create .sp-foot{margin:0}
 @media(max-width:640px){.sp-share-mail{grid-template-columns:1fr}}
 
-/* v1.19.0 — collapsible sidebar (burger at the top right of the sidebar) */
-.sp-sb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 4px;padding-right:4px}
-.sp-sb-head .sp-sidebar-section-label{padding-bottom:0!important;white-space:nowrap;overflow:hidden}
-.sp-sb-toggle{position:relative;flex:0 0 auto;width:38px;height:34px;border:0;border-radius:9px;background:transparent;color:#cbd8f5;cursor:pointer;padding:0}
-.sp-sb-toggle:hover,.sp-sb-toggle:focus-visible{background:rgba(255,255,255,.09);color:#fff;outline:none}
-.sp-sb-toggle span{position:absolute;left:9px;height:2px;border-radius:2px;background:currentColor;transition:width .28s ease,transform .28s ease}
+/* v1.19.0/1.20.0 — collapsible sidebar, logo at the top of the sidebar, no white top bar */
+.sp-sb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;height:40px;margin:0 0 14px;padding:0 2px 0 6px}
+.sp-sb-brand{display:flex;align-items:center;min-width:0;overflow:hidden;transition:opacity .2s ease,width .28s ease}
+.sp-sb-brand img{display:block;height:34px;width:auto;max-width:160px;object-fit:contain;filter:brightness(0) invert(1)}
+.sp-sb-brand strong{color:#fff;font-size:15px;white-space:nowrap}
+.sp-sb-label{white-space:nowrap;overflow:hidden}
+.sp-sb-toggle{position:relative;flex:0 0 auto;width:38px;height:34px;border:0;border-radius:9px;background:transparent!important;color:#cbd8f5;cursor:pointer;padding:0}
+.sp-sb-toggle:hover,.sp-sb-toggle:focus-visible{color:#fff;outline:none}
+.sp-sb-toggle span{position:absolute;left:9px;height:1.5px;border-radius:2px;background:currentColor;transition:width .28s ease,transform .28s ease}
 /* Expanded: lines aligned to the right (middle one shorter). */
 .sp-sb-toggle span:nth-child(1){top:11px;width:20px}
-.sp-sb-toggle span:nth-child(2){top:16px;width:12px;transform:translateX(8px)}
-.sp-sb-toggle span:nth-child(3){top:21px;width:20px}
+.sp-sb-toggle span:nth-child(2){top:16.5px;width:12px;transform:translateX(8px)}
+.sp-sb-toggle span:nth-child(3){top:22px;width:20px}
 /* Collapsed: lines aligned to the left, staggered. */
 .sp-sb-collapsed .sp-sb-toggle span:nth-child(1){width:14px}
 .sp-sb-collapsed .sp-sb-toggle span:nth-child(2){width:20px;transform:translateX(0)}
 .sp-sb-collapsed .sp-sb-toggle span:nth-child(3){width:10px}
 @media(min-width:901px){
+  /* No white top bar: the sidebar starts at the top and the content moves up. */
+  .sp-sb-layout .sp-appbar{display:none!important}
+  .sp-sb-layout .sp-app{padding-top:0!important}
+  .sp-sb-layout .sp-app-layout{min-height:100vh!important}
+  .sp-sb-layout .sp-sidebar{top:0!important;padding-top:18px!important}
   .sp-sb-anim .sp-app-layout{transition:grid-template-columns .28s ease}
   .sp-sb-anim .sp-sidebar{transition:width .28s ease,padding .28s ease}
   .sp-sidebar .sp-side-link,.sp-sidebar .sp-side-joomla{white-space:nowrap;overflow:hidden}
-  .sp-sidebar .sp-side-link>span:last-child,.sp-sidebar .sp-sidebar-help,.sp-sb-head .sp-sidebar-section-label{transition:opacity .2s ease}
+  .sp-sidebar .sp-side-link>span:last-child,.sp-sidebar .sp-sidebar-help,.sp-sb-label{transition:opacity .2s ease}
   .sp-sb-collapsed .sp-app-layout{grid-template-columns:78px minmax(0,1fr)!important}
-  .sp-sb-collapsed .sp-sidebar{width:78px!important;padding:20px 10px!important;overflow-x:hidden!important}
-  .sp-sb-collapsed .sp-sb-head{justify-content:center;padding-right:0;margin-bottom:10px}
-  .sp-sb-collapsed .sp-sb-head .sp-sidebar-section-label{display:none}
+  .sp-sb-collapsed .sp-sidebar{width:78px!important;padding-left:10px!important;padding-right:10px!important;overflow-x:hidden!important}
+  /* Same height as when expanded, so the icons below do not move. */
+  .sp-sb-collapsed .sp-sb-head{justify-content:center;padding:0}
+  .sp-sb-collapsed .sp-sb-brand{width:0;opacity:0}
+  .sp-sb-collapsed .sp-sb-label{opacity:0}
   .sp-sb-collapsed .sp-side-link{padding:0 18px!important}
   .sp-sb-collapsed .sp-side-link>span:last-child{opacity:0}
   .sp-sb-collapsed .sp-sidebar-help{display:none!important}
   .sp-sb-collapsed .sp-side-joomla{justify-content:center;font-size:0!important;gap:0!important}
   .sp-sb-collapsed .sp-side-joomla>span{font-size:18px!important;display:inline!important}
 }
-/* Narrow screens already show only the icons (or a horizontal bar): no toggle there. */
-@media(max-width:900px){.sp-sb-toggle{display:none}}
+/* Narrow screens keep the top bar and their compact sidebar: no logo/toggle in the sidebar there. */
+@media(max-width:900px){.sp-sb-toggle,.sp-sb-brand{display:none!important}.sp-sb-head{height:auto;margin:0}}

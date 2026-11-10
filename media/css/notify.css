@@ -34,10 +34,13 @@
 .sp-n-info.is-warn{background:#fde68a;color:#92400e}
 .sp-n-info::after{max-width:260px!important}
 
-/* Links in the tables: same size as the other cell text, semibold, no underline. */
-.sp-offers-workspace .sp-offer-table a:not(.btn){font-size:inherit;font-weight:600;text-decoration:none;color:#1d4ed8}
+/* Tables and filters: the size of the description text (14px); links semibold in the same size. */
+.sp-offers-workspace .sp-offer-table td,.sp-offers-workspace .sp-offer-table td strong,.sp-offers-workspace .sp-n-filters input,.sp-offers-workspace .sp-n-filters select,.sp-offers-workspace .sp-n-filters .btn{font-size:14px!important}
+.sp-offers-workspace .sp-offer-table td small,.sp-offers-workspace .sp-offer-table td .text-muted{font-size:12.5px!important}
+.sp-offers-workspace .sp-offer-table td strong{font-weight:600}
+.sp-offers-workspace .sp-offer-table a:not(.btn){font-size:14px!important;font-weight:600;text-decoration:none;color:#1d4ed8}
 .sp-offers-workspace .sp-offer-table a:not(.btn) strong{font-weight:inherit}
 .sp-offers-workspace .sp-offer-table a:not(.btn):hover{text-decoration:underline}
 .sp-n-inline{display:inline-flex!important;align-items:center;gap:6px;font-weight:600;font-size:13px}
 .sp-n-nowrap{white-space:nowrap}
-.sp-n-activity td{font-size:13.5px}
+

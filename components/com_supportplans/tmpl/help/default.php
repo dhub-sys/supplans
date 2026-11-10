@@ -201,6 +201,12 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.20.0</div><div><ul>
+<li>Χωρίς τη λευκή μπάρα στην κορυφή: το sidebar ξεκινά από πάνω, με το λογότυπο (σε λευκό) και το burger στην κορυφή του, και το περιεχόμενο ανεβαίνει. Σε tablet και κινητό η εμφάνιση μένει ως είχε.</li>
+<li>Burger με λεπτότερες γραμμές, χωρίς φόντο στο hover· τα εικονίδια δεν μετακινούνται όταν μαζεύει το μενού.</li>
+<li>Πίνακες και φίλτρα στο μέγεθος του κειμένου (14px)· τα έντονα μένουν έντονα στο ίδιο μέγεθος.</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.19.0</div><div><ul>
 <li>Το extension λέγεται πλέον <b>Back Office</b> (μενού Joomla, οθόνες σύνδεσης/OTP, email OTP, τίτλοι, χρονοπρογραμματισμένη εργασία, plugins). Τα δεδομένα και η εγκατάσταση δεν αλλάζουν.</li>
 <li>Burger κουμπί πάνω δεξιά στο sidebar: μαζεύει το μενού ώστε να φαίνονται μόνο τα εικονίδια (με tooltip), με animation· η επιλογή θυμάται ανά browser.</li>
