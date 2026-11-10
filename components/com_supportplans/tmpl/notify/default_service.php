@@ -32,16 +32,16 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     <option value="<?php echo (int) $k->id; ?>" data-price="<?php echo $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" data-duration="<?php echo (int) $k->duration_months; ?>" data-remind="<?php echo (int) $k->auto_remind; ?>" data-days="<?php echo $e($k->reminder_days !== '' ? $k->reminder_days : Notify::setting('notify_reminder_days')); ?>"<?php echo (int) $k->id === $catalogId ? ' selected' : ''; ?>><?php echo $e($k->name); ?></option>
     <?php endforeach; ?></select></label>
    <label>Domain / περιγραφή<input name="label" value="<?php echo $e($s->label ?? ''); ?>" placeholder="π.χ. example.gr"></label>
-   <label>Τιμή για τον πελάτη (€ προ ΦΠΑ)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
-   <label>Διάρκεια (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
-   <label>Έναρξη<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? Notify::today()); ?>"></label>
-   <label>Λήξη<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
+   <label>Λήξη (τρέχουσα) *<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
+   <label>Τιμή ανανέωσης (€ προ ΦΠΑ)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
+   <label>Ανανέωση για (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
+   <label>Έναρξη (προαιρετικά)<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? ''); ?>"></label>
    <label>Κατάσταση<?php echo NotifyUi::select('status', Notify::SERVICE_STATUSES, $s->status ?? 'active'); ?></label>
    <label>Δικές του ημέρες υπενθύμισης<input name="reminder_days" id="sp-n-days" value="<?php echo $e($s->reminder_days ?? ''); ?>" placeholder="όπως η υπηρεσία"></label>
    <div class="sp-wide sp-check-row"><label class="sp-check"><input type="checkbox" name="auto_remind" id="sp-n-remind" value="1" <?php echo !$s || (int) $s->auto_remind ? 'checked' : ''; ?>> Αυτόματες υπενθυμίσεις ανανέωσης στον πελάτη</label></div>
    <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($s->notes ?? ''); ?></textarea></label>
   </div>
-  <p class="sp-n-help">Αν αφήσετε κενή τη λήξη, υπολογίζεται από την έναρξη + τη διάρκεια. Χωρίς λήξη δεν προγραμματίζονται υπενθυμίσεις. <span id="sp-n-days-hint"></span></p>
+  <p class="sp-n-help"><b>Λήξη</b> = η ημερομηνία που λήγει <b>τώρα</b> η υπηρεσία· από αυτήν προγραμματίζονται οι υπενθυμίσεις. «Ανανέωση για» είναι η περίοδος που θα προστεθεί όταν πατήσετε «Πληρώθηκε». Αν αφήσετε κενή τη λήξη και συμπληρώσετε έναρξη, η λήξη υπολογίζεται ως έναρξη + περίοδος. <span id="sp-n-days-hint"></span> <b id="sp-n-calc"></b></p>
  </div>
  <input type="hidden" name="id" value="<?php echo (int) ($s->id ?? 0); ?>"><input type="hidden" name="after" id="sp-after" value=""><input type="hidden" name="task" value="notify.saveService">
  <?php echo HTMLHelper::_('form.token'); ?>
@@ -58,14 +58,16 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     var last = new Date(y, m + 1, 0).getDate(), t = new Date(y, m, Math.min(d, last));
     return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
   }
-  function suggest() { if (isNew && start.value && dur.value && !expiry.dataset.touched) expiry.value = addMonths(start.value, +dur.value); }
+  // The expiry is never filled in automatically (it was easy to save a computed date by mistake);
+  // only a hint shows what start + period would give.
+  function suggest() { var h = document.getElementById('sp-n-calc'); if (h) h.textContent = isNew && start.value && dur.value && !expiry.value ? 'Κενή λήξη → θα αποθηκευτεί ' + addMonths(start.value, +dur.value).split('-').reverse().join('/') + ' (έναρξη + περίοδος).' : ''; }
   function showDays() { var o = opt(); hint.textContent = o && o.value ? 'Ημέρες υπενθύμισης της υπηρεσίας: ' + o.dataset.days + '.' : ''; }
   cat.addEventListener('change', function () {
     var o = opt(); showDays();
     if (!isNew || !o || !o.value) return;
     price.value = o.dataset.price; dur.value = o.dataset.duration; remind.checked = o.dataset.remind === '1'; suggest();
   });
-  expiry.addEventListener('input', function () { expiry.dataset.touched = '1'; });
+  expiry.addEventListener('input', suggest);
   start.addEventListener('change', suggest); dur.addEventListener('change', suggest);
   showDays();
   if (isNew && opt() && opt().value) cat.dispatchEvent(new Event('change'));

@@ -15,7 +15,8 @@ $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->sele
     <tr>
       <?php if ($showClient): ?><td><a href="<?php echo NotifyUi::url('section=clients&id=' . (int) $s->client_id); ?>"><?php echo $e(Notify::clientLabel($s, 'client_')); ?></a></td><?php endif; ?>
       <td><a href="<?php echo NotifyUi::url('section=services&id=' . (int) $s->id); ?>"><strong><?php echo $e($s->service_name ?: '(διαγραμμένη υπηρεσία)'); ?></strong></a><?php if ($s->label !== ''): ?><br><small class="text-muted"><?php echo $e($s->label); ?></small><?php endif; ?></td>
-      <td><?php echo NotifyUi::expiry($s->expiry_date, $s->status); ?></td>
+      <td><?php echo NotifyUi::expiry($s->expiry_date, $s->status); ?>
+        <?php if (!empty($s->last_paid_on) && (string) $s->last_new_expiry === (string) $s->expiry_date): ?><br><small class="text-muted">με «Πληρώθηκε» <?php echo $e(Notify::dateGr($s->last_paid_on)); ?>, από <?php echo $e(Notify::dateGr($s->last_old_expiry)); ?> · <a href="<?php echo NotifyUi::url('section=services&id=' . (int) $s->id); ?>#sp-n-pay">αναίρεση</a></small><?php endif; ?></td>
       <td class="sp-num"><?php echo $e(Notify::money($s->price)); ?><?php if ($s->price !== null): ?><br><small class="text-muted"><?php echo $e(Notify::durationLabel((int) $s->duration_months)); ?></small><?php endif; ?></td>
       <td><?php echo NotifyUi::status($s->status, Notify::SERVICE_STATUSES); ?></td>
       <td><?php $sch = $this->schedule[(int) $s->id] ?? null; ?>

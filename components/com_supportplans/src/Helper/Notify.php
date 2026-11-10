@@ -284,6 +284,10 @@ final class Notify
         $db = self::db();
         return $db->getQuery(true)
             ->select('s.*, k.name AS service_name, k.reminder_days AS catalog_reminder_days, k.expired_text AS catalog_expired_text, c.name AS client_name, c.company AS client_company, c.email AS client_email, c.status AS client_status')
+            // Last "Πληρώθηκε" of the service, so the lists can show that the expiry was moved by a payment.
+            ->select('(SELECT r.paid_on FROM ' . $db->quoteName(self::T_RENEWALS) . ' r WHERE r.service_id=s.id ORDER BY r.id DESC LIMIT 1) AS last_paid_on')
+            ->select('(SELECT r.old_expiry FROM ' . $db->quoteName(self::T_RENEWALS) . ' r WHERE r.service_id=s.id ORDER BY r.id DESC LIMIT 1) AS last_old_expiry')
+            ->select('(SELECT r.new_expiry FROM ' . $db->quoteName(self::T_RENEWALS) . ' r WHERE r.service_id=s.id ORDER BY r.id DESC LIMIT 1) AS last_new_expiry')
             ->from($db->quoteName(self::T_SERVICES, 's'))
             ->join('LEFT', $db->quoteName(self::T_CATALOG, 'k') . ' ON k.id=s.catalog_id')
             ->join('INNER', $db->quoteName(self::T_CLIENTS, 'c') . ' ON c.id=s.client_id');
