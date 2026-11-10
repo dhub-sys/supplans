@@ -582,3 +582,16 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 /* v1.21.1 — Geom everywhere in the Back Office, also for variables shown as <code>. */
 .sp-saas-root code,.sp-saas-root kbd,.sp-saas-root pre,.sp-saas-root samp{font-family:'Geom',Arial,Helvetica,sans-serif!important;font-size:.92em;background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:5px}
 .sp-saas-root input,.sp-saas-root select,.sp-saas-root textarea,.sp-saas-root button,.sp-saas-root option{font-family:'Geom',Arial,Helvetica,sans-serif!important}
+/* v1.21.2 — Geom on every element of the Back Office, even where the site template sets its own
+   font or sizes on h1–h6, p, a, td… (those rules beat inheritance). Higher specificity + !important. */
+html body .sp-saas-root,html body .sp-saas-root *{font-family:'Geom',Arial,Helvetica,sans-serif!important}
+html body .sp-saas-root h1,html body .sp-saas-root h2,html body .sp-saas-root h3,html body .sp-saas-root h4,html body .sp-saas-root h5,html body .sp-saas-root h6{text-transform:none!important;font-style:normal!important;letter-spacing:-.2px!important;color:#101828}
+html body .sp-saas-root h1,html body .sp-saas-root .sp-dashboard-head h1{font-size:29px!important;font-weight:700!important;line-height:1.15!important;letter-spacing:-.6px!important}
+/* Card titles are smaller than the page title. */
+html body .sp-saas-root h2{font-size:20px!important;font-weight:700!important;line-height:1.3!important}
+html body .sp-saas-root .sp-card>h2,html body .sp-saas-root .sp-help-card>h2{margin:0 0 14px!important}
+html body .sp-saas-root h3{font-size:16px!important;font-weight:700!important;line-height:1.35!important}
+html body .sp-saas-root h4,html body .sp-saas-root h5,html body .sp-saas-root h6{font-size:14px!important;font-weight:700!important;line-height:1.4!important}
+html body .sp-saas-root .sp-kpis strong{font-size:29px!important}
+/* Printed reports and offers: Geom too, whatever the template sets on headings. */
+html body .sp-report,html body .sp-report *{font-family:'Geom',Arial,Helvetica,sans-serif!important}

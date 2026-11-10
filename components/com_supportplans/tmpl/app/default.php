@@ -30,9 +30,9 @@ HTMLHelper::_('behavior.keepalive');
 <title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Back Office', ENT_QUOTES, 'UTF-8'); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geom:opsz,wght@9..72,300..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geom:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Geom',Arial,sans-serif;background:linear-gradient(145deg,#eef4ff 0%,#f8fafc 52%,#eef2ff 100%);color:#172033}
+*{box-sizing:border-box}html body,html body *{font-family:'Geom',Arial,sans-serif!important}html,body{margin:0;min-height:100%;font-family:'Geom',Arial,sans-serif;background:linear-gradient(145deg,#eef4ff 0%,#f8fafc 52%,#eef2ff 100%);color:#172033}
 body{min-height:100vh;display:block;padding:28px 24px 24px;overflow-x:hidden}
 .login-shell{width:min(100%,430px);position:relative;z-index:2;margin:0 auto}
 .brand{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 24px}

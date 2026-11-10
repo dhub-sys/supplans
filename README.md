@@ -828,3 +828,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.21.1
 - Geom σε `code/kbd/pre/samp` και σε όλα τα πεδία φορμών μέσα στο `.sp-saas-root`· αφαιρέθηκε το `font-monospace` από το πεδίο ενημερώσεων. Έλεγχος με Playwright σε 20 σελίδες + login/OTP: κάθε ορατό στοιχείο με κείμενο έχει πρώτη γραμματοσειρά Geom και το `document.fonts.check('16px Geom')` είναι true.
+
+## v1.21.2
+- `html body .sp-saas-root *` → Geom με !important (υψηλότερη εξειδίκευση από κανόνες template όπως `h2{font-family}` ακόμα και με !important)· σταθερά μεγέθη h1 29px, h2 20px, h3 16px, h4–h6 14px. Geom και στο `.sp-report`.
+- Login/OTP: το URL `family=Geom:opsz,wght@9..72,300..800` επέστρεφε 400 από το Google Fonts (το Geom δεν έχει άξονα opsz), οπότε το Geom δεν φόρτωνε ποτέ· τώρα `ital,wght@0,300..900;1,300..900`. Το OTP δεν είχε καθόλου link για τη γραμματοσειρά.
+- Έλεγχος με Playwright σε 13 σελίδες με «εχθρικό» CSS template (Times New Roman και 44px με !important σε h1–h6/κείμενα): όλα τα ορατά κείμενα Geom, το αρχείο Geom φορτωμένο (`FontFace.status === 'loaded'`, όχι `document.fonts.check`, που επιστρέφει true και για άγνωστη γραμματοσειρά).

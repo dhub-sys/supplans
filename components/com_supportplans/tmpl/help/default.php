@@ -201,6 +201,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.21.2</div><div><ul>
+<li>Οι τίτλοι (h1–h6) και όλα τα κείμενα του Back Office είναι Geom και σε μεγέθη του Back Office, ακόμα κι όταν το template του site ορίζει δική του γραμματοσειρά ή μέγεθος στους τίτλους. Οι τίτλοι καρτών (20px) είναι μικρότεροι από τον τίτλο της σελίδας (29px).</li>
+<li>Οθόνες σύνδεσης και OTP: το Geom δεν φόρτωνε (λάθος διεύθυνση Google Fonts, απάντηση 400)· διορθώθηκε.</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.21.1</div><div><ul>
 <li>Γραμματοσειρά Geom (Google Fonts) σε όλο το Back Office, και στις μεταβλητές (π.χ. <code>{client_name}</code>) και στο πεδίο ενημερώσεων της αναφοράς maintenance, που έβγαιναν σε monospace.</li>
 </ul></div></div>

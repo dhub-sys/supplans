@@ -26,8 +26,11 @@ $spResendLeft=max(0,60-(time()-(int)$spSession->get('supportplans.otp.last_sent'
 ?>
 <!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Back Office', ENT_QUOTES, 'UTF-8'); ?></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geom:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:linear-gradient(145deg,#eef4ff,#f8fafc 52%,#eef2ff);color:#172033}
+*{box-sizing:border-box}html body,html body *{font-family:'Geom',Arial,sans-serif!important}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:linear-gradient(145deg,#eef4ff,#f8fafc 52%,#eef2ff);color:#172033}
 body{min-height:100vh;display:block;padding:28px 24px 24px}
 .brand{text-align:center;margin-bottom:22px}.mark.has-image{background:transparent!important;box-shadow:none!important;width:auto!important;max-width:120px!important;height:58px!important}.mark.has-image img{display:block;max-width:120px;max-height:58px;width:auto;height:auto;object-fit:contain;margin:auto}.mark{width:54px;height:54px;border-radius:16px;background:#2563eb;color:#fff;display:grid;place-items:center;margin:0 auto 12px;font-size:22px;font-weight:800;box-shadow:0 12px 28px rgba(37,99,235,.2)}
 .card{background:#fff;border:1px solid #e5e9f0;border-radius:18px;padding:30px;box-shadow:0 24px 70px rgba(30,64,175,.12)}
