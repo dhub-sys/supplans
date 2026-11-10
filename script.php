@@ -44,7 +44,7 @@ class Com_SupportplansInstallerScript
   // Reminder days already covered per client service and expiry (v1.13.0, grouped reminders).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_sent` (`id` int unsigned NOT NULL AUTO_INCREMENT,`service_id` int unsigned NOT NULL,`expiry_date` date NOT NULL,`offset_days` smallint NOT NULL,`message_id` int unsigned NOT NULL DEFAULT 0,`created` datetime NOT NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_service_offset` (`service_id`,`expiry_date`,`offset_days`),KEY `idx_message_id` (`message_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Payments / renewals per client service (v1.15.0).
-  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_renewals` (`id` int unsigned NOT NULL AUTO_INCREMENT,`service_id` int unsigned NOT NULL,`client_id` int unsigned NOT NULL DEFAULT 0,`old_expiry` date NULL,`new_expiry` date NOT NULL,`paid_on` date NOT NULL,`amount` decimal(10,2) NULL,`note` varchar(1000) NOT NULL DEFAULT '',`created` datetime NOT NULL,`created_by` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),KEY `idx_service_id` (`service_id`),KEY `idx_client_id` (`client_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_renewals` (`id` int unsigned NOT NULL AUTO_INCREMENT,`service_id` int unsigned NOT NULL,`client_id` int unsigned NOT NULL DEFAULT 0,`old_expiry` date NULL,`old_status` varchar(20) NOT NULL DEFAULT 'active',`new_expiry` date NOT NULL,`paid_on` date NOT NULL,`amount` decimal(10,2) NULL,`note` varchar(1000) NOT NULL DEFAULT '',`created` datetime NOT NULL,`created_by` int unsigned NOT NULL DEFAULT 0,PRIMARY KEY (`id`),KEY `idx_service_id` (`service_id`),KEY `idx_client_id` (`client_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Failed Service Hub logins, per IP and username (v1.12.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_login_attempts` (`id` int unsigned NOT NULL AUTO_INCREMENT,`ip` varchar(45) NOT NULL DEFAULT '',`username` varchar(150) NOT NULL DEFAULT '',`attempted` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_ip` (`ip`,`attempted`),KEY `idx_username` (`username`,`attempted`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
 
@@ -78,6 +78,7 @@ class Com_SupportplansInstallerScript
    ],
    '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
    '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
+   '#__supportplans_renewals'=>['old_status'=>"varchar(20) NOT NULL DEFAULT 'active'"],
    '#__supportplans_offers'=>[
     'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
     'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5','intro_title'=>"varchar(255) NOT NULL DEFAULT ''",'intro_body'=>'mediumtext NULL','intro_lists'=>'mediumtext NULL',

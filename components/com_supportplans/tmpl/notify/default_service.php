@@ -92,8 +92,9 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
   <?php if ($this->renewals): ?>
   <h3>Ιστορικό πληρωμών / ανανεώσεων</h3>
   <div class="table-responsive"><table class="table sp-offer-table">
-   <thead><tr><th>Πληρωμή</th><th>Λήξη πριν</th><th>Νέα λήξη</th><th class="sp-num">Ποσό</th><th>Σημείωση</th></tr></thead>
-   <tbody><?php foreach ($this->renewals as $r): ?><tr><td><?php echo $e(Notify::dateGr($r->paid_on)); ?></td><td><?php echo $e(Notify::dateGr($r->old_expiry)); ?></td><td><?php echo $e(Notify::dateGr($r->new_expiry)); ?></td><td class="sp-num"><?php echo $e(Notify::money($r->amount) ?: '—'); ?></td><td><?php echo $e($r->note); ?></td></tr><?php endforeach; ?></tbody>
+   <thead><tr><th>Πληρωμή</th><th>Λήξη πριν</th><th>Νέα λήξη</th><th class="sp-num">Ποσό</th><th>Σημείωση</th><th></th></tr></thead>
+   <tbody><?php foreach ($this->renewals as $r): ?><tr><td><?php echo $e(Notify::dateGr($r->paid_on)); ?></td><td><?php echo $e(Notify::dateGr($r->old_expiry)); ?></td><td><?php echo $e(Notify::dateGr($r->new_expiry)); ?></td><td class="sp-num"><?php echo $e(Notify::money($r->amount) ?: '—'); ?></td><td><?php echo $e($r->note); ?></td>
+   <td class="sp-num sp-row-actions"><?php if (Notify::canUndo($r, $s->expiry_date)): ?><?php echo NotifyUi::button('undoRenewal', ['id' => $r->id, 'back' => 'section=services&id=' . (int) $s->id], 'Αναίρεση', 'Αναίρεση της πληρωμής; Η λήξη θα επανέλθει στις ' . Notify::dateGr($r->old_expiry) . ' και οι υπενθυμίσεις θα συνεχίσουν.', 'btn btn-sm btn-outline-danger'); ?><?php endif; ?></td></tr><?php endforeach; ?></tbody>
   </table></div>
   <?php endif; ?>
 </div>

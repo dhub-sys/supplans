@@ -90,6 +90,19 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
   <?php endif; ?>
   <?php endif; ?>
 </div>
+<?php $payments = Notify::clientRenewals((int) $c->id); ?>
+<?php if ($payments): ?>
+<div class="sp-card" id="sp-n-payments">
+  <h2>Πρόσφατες πληρωμές</h2>
+  <p class="sp-n-help">Αν καταχωρήσατε πληρωμή κατά λάθος, πατήστε «Αναίρεση»: η υπηρεσία επιστρέφει στην προηγούμενη λήξη και οι υπενθυμίσεις συνεχίζουν. Αναιρείται η τελευταία πληρωμή κάθε υπηρεσίας, εφόσον η λήξη δεν άλλαξε από τότε.</p>
+  <div class="table-responsive"><table class="table sp-offer-table">
+   <thead><tr><th>Πληρωμή</th><th>Υπηρεσία</th><th>Λήξη πριν</th><th>Νέα λήξη</th><th class="sp-num">Ποσό</th><th></th></tr></thead>
+   <tbody><?php foreach ($payments as $r): ?><tr><td><?php echo $e(Notify::dateGr($r->paid_on)); ?></td><td><?php echo $e(Notify::serviceFull($r)); ?><?php if ($r->note !== ''): ?><br><small class="text-muted"><?php echo $e($r->note); ?></small><?php endif; ?></td>
+    <td><?php echo $e(Notify::dateGr($r->old_expiry)); ?></td><td><?php echo $e(Notify::dateGr($r->new_expiry)); ?></td><td class="sp-num"><?php echo $e(Notify::money($r->amount) ?: '—'); ?></td>
+    <td class="sp-num sp-row-actions"><?php if (Notify::canUndo($r, $r->current_expiry)): ?><?php echo NotifyUi::button('undoRenewal', ['id' => $r->id, 'back' => 'section=clients&id=' . (int) $c->id], 'Αναίρεση', 'Αναίρεση της πληρωμής για ' . Notify::serviceFull($r) . '; Η λήξη θα επανέλθει στις ' . Notify::dateGr($r->old_expiry) . '.', 'btn btn-sm btn-outline-danger'); ?><?php endif; ?></td></tr><?php endforeach; ?></tbody>
+  </table></div>
+</div>
+<?php endif; ?>
 <div class="sp-card">
   <h2>Τελευταία μηνύματα</h2>
   <?php echo $this->loadTemplate('logtable'); ?>

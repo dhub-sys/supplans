@@ -443,7 +443,7 @@ final class Notify
         $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_SERVICES))
             ->set(['expiry_date=' . $db->quote($new), "status='active'", 'modified=' . $db->quote(self::now())])->where('id=' . $id))->execute();
         $row = (object) [
-            'service_id' => $id, 'client_id' => (int) $s->client_id, 'old_expiry' => $s->expiry_date ?: null, 'new_expiry' => $new,
+            'service_id' => $id, 'client_id' => (int) $s->client_id, 'old_expiry' => $s->expiry_date ?: null, 'old_status' => (string) $s->status, 'new_expiry' => $new,
             'paid_on' => $paidOn ?: self::today(), 'amount' => $amount, 'note' => mb_substr($note, 0, 1000), 'created' => self::now(),
             'created_by' => (int) Factory::getApplication()->getSession()->get('supportplans.auth.user_id', 0),
         ];
@@ -456,11 +456,73 @@ final class Notify
         return $new;
     }
 
+    /**
+     * Undoes a payment ("Πληρώθηκε" by mistake): the service gets back its previous expiry and
+     * status and the entry leaves the history. Only the latest payment of a service, and only while
+     * its expiry is still the one that payment set. Reminders already sent for the old expiry are
+     * not sent again; the next run queues the one that is due, if any.
+     * Returns '' on success, else the reason.
+     */
+    public static function undoRenewal(int $renewalId): string
+    {
+        $db = self::db();
+        $r = $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_RENEWALS))->where('id=' . $renewalId))->loadObject();
+        if (!$r) {
+            return 'Η πληρωμή δεν βρέθηκε.';
+        }
+        $latest = (int) $db->setQuery($db->getQuery(true)->select('MAX(id)')->from($db->quoteName(self::T_RENEWALS))->where('service_id=' . (int) $r->service_id))->loadResult();
+        if ($latest !== (int) $r->id) {
+            return 'Αναιρείται μόνο η τελευταία πληρωμή της υπηρεσίας.';
+        }
+        $s = self::service((int) $r->service_id);
+        if (!$s) {
+            return 'Η υπηρεσία δεν υπάρχει πλέον.';
+        }
+        if ((string) $s->expiry_date !== (string) $r->new_expiry) {
+            return 'Η λήξη της υπηρεσίας άλλαξε μετά την πληρωμή (' . self::dateGr($s->expiry_date) . '): διορθώστε την από τη φόρμα της υπηρεσίας.';
+        }
+        $status = isset(self::SERVICE_STATUSES[$r->old_status ?? '']) ? $r->old_status : 'active';
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_SERVICES))
+            ->set(['expiry_date=' . ($r->old_expiry ? $db->quote($r->old_expiry) : 'NULL'), 'status=' . $db->quote($status), 'modified=' . $db->quote(self::now())])
+            ->where('id=' . (int) $r->service_id))->execute();
+        $db->setQuery($db->getQuery(true)->delete($db->quoteName(self::T_RENEWALS))->where('id=' . (int) $r->id))->execute();
+        // Anything queued meanwhile for the new expiry is stale now.
+        self::cancelQueuedRenewals((int) $r->service_id, 'Η πληρωμή αναιρέθηκε.');
+        return '';
+    }
+
+    /** Recent payments of a client's services (newest first), with the service name. */
+    public static function clientRenewals(int $clientId, int $limit = 15): array
+    {
+        $db = self::db();
+        try {
+            $q = $db->getQuery(true)->select('r.*, s.label, k.name AS service_name, s.expiry_date AS current_expiry')
+                ->select('(SELECT MAX(r2.id) FROM ' . $db->quoteName(self::T_RENEWALS) . ' r2 WHERE r2.service_id=r.service_id) AS latest_id')
+                ->from($db->quoteName(self::T_RENEWALS, 'r'))
+                ->join('INNER', $db->quoteName(self::T_SERVICES, 's') . ' ON s.id=r.service_id')
+                ->join('LEFT', $db->quoteName(self::T_CATALOG, 'k') . ' ON k.id=s.catalog_id')
+                ->where('r.client_id=' . $clientId)->order('r.id DESC');
+            return $db->setQuery($q, 0, $limit)->loadObjectList();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /** True when a payment can still be undone (latest of its service, expiry unchanged). */
+    public static function canUndo(object $r, ?string $currentExpiry): bool
+    {
+        return isset($r->latest_id) ? (int) $r->latest_id === (int) $r->id && (string) $currentExpiry === (string) $r->new_expiry : false;
+    }
+
     public static function renewals(int $serviceId): array
     {
         $db = self::db();
         try {
-            return $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_RENEWALS))->where('service_id=' . $serviceId)->order('id DESC'))->loadObjectList();
+            $rows = $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_RENEWALS))->where('service_id=' . $serviceId)->order('id DESC'))->loadObjectList();
+            foreach ($rows as $row) {
+                $row->latest_id = (int) $rows[0]->id;
+            }
+            return $rows;
         } catch (\Throwable $e) {
             return [];
         }

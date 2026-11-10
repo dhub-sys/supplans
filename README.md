@@ -793,3 +793,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.16.4
 - `outlookCells()`: σε κάθε `table.sp-n-data` το περιεχόμενο κάθε κελιού τυλίγεται σε `<p class="sp-n-cell">` με `margin:0`, `mso-margin-top-alt:0`, `mso-margin-bottom-alt:0`, ακριβές `line-height` και τις ιδιότητες κειμένου του κελιού· προστίθεται `valign`. Στόχος το «auto» spacing πριν/μετά που προσθέτει το Word engine του Outlook για Windows στις αυτόματες παραγράφους των κελιών.
+
+## v1.17.0 — Αναίρεση πληρωμής
+- `Notify::undoRenewal($id)`: μόνο η τελευταία εγγραφή `#__supportplans_renewals` της υπηρεσίας και μόνο αν η τρέχουσα λήξη = `new_expiry`. Επαναφέρει `old_expiry` και `old_status` (νέα στήλη, αποθηκεύεται από το `renew()`), σβήνει την εγγραφή, ακυρώνει ό,τι είναι στην ουρά για την υπηρεσία. Οι markers των υπενθυμίσεων της παλιάς λήξης μένουν, οπότε δεν ξαναστέλνονται.
+- `notify.undoRenewal` (POST + token). Κουμπιά «Αναίρεση» στο ιστορικό της υπηρεσίας και στην κάρτα «Πρόσφατες πληρωμές» του πελάτη (`clientRenewals()`, `canUndo()`).

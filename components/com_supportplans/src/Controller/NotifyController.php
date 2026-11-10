@@ -486,7 +486,16 @@ class NotifyController extends BaseController
             return;
         }
         $new = Notify::renew($id, $newExpiry ?: null, $paidOn ?: null, $this->price('amount'), mb_substr(trim((string) $this->input->post->getString('note', '')), 0, 1000));
-        $this->msg($new ? 'Καταχωρήθηκε η πληρωμή. Νέα λήξη: ' . Notify::dateGr($new) . '· οι υπενθυμίσεις για την προηγούμενη λήξη σταμάτησαν.' : 'Η υπηρεσία δεν βρέθηκε.', $new ? 'message' : 'error');
+        $this->msg($new ? 'Καταχωρήθηκε η πληρωμή. Νέα λήξη: ' . Notify::dateGr($new) . '· οι υπενθυμίσεις για την προηγούμενη λήξη σταμάτησαν. Αν έγινε κατά λάθος, πατήστε «Αναίρεση» στο ιστορικό πληρωμών της υπηρεσίας.' : 'Η υπηρεσία δεν βρέθηκε.', $new ? 'message' : 'error');
+        $this->go($this->back());
+    }
+
+    /** Undo a payment registered by mistake (latest payment of the service only). */
+    public function undoRenewal(): void
+    {
+        $this->guard();
+        $error = Notify::undoRenewal($this->input->post->getInt('id', 0));
+        $this->msg($error === '' ? 'Η πληρωμή αναιρέθηκε: η υπηρεσία επανήλθε στην προηγούμενη λήξη και οι υπενθυμίσεις συνεχίζουν κανονικά.' : $error, $error === '' ? 'message' : 'error');
         $this->go($this->back());
     }
 
@@ -502,7 +511,7 @@ class NotifyController extends BaseController
             $new = Notify::renew($id);
             if ($new) $done[] = Notify::serviceFull($s) . ' → ' . Notify::dateGr($new);
         }
-        $this->msg($done ? 'Καταχωρήθηκε πληρωμή για: ' . implode(', ', $done) . '.' : 'Δεν επιλέχθηκαν υπηρεσίες.', $done ? 'message' : 'warning');
+        $this->msg($done ? 'Καταχωρήθηκε πληρωμή για: ' . implode(', ', $done) . '. Αν έγινε κατά λάθος, πατήστε «Αναίρεση» στις «Πρόσφατες πληρωμές» παρακάτω.' : 'Δεν επιλέχθηκαν υπηρεσίες.', $done ? 'message' : 'warning');
         $this->go('section=clients&id=' . $clientId);
     }
 
