@@ -778,3 +778,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Email: `priceTable()` 2 στήλες + γραμμές συνόλων, χωρίς επαναληπτική πρόταση· `banksTable()` μία γραμμή ανά τράπεζα, κοινός δικαιούχος στον τίτλο, `ibanHtml()` τετράδες εναλλάξ bold· `expiredNotice()` ενώνει υπηρεσίες με το ίδιο κείμενο.
 - `wrap()`: λογότυπο πάνω δεξιά από `Notify::emailLogoUrl()` (`notify_email_logo` ή PNG/JPG/GIF `brand_logo`). Ρυθμίσεις email: δημιουργία PNG από το SVG στον browser (canvas, 88px ύψος) ή ανέβασμα· ο server το επανακωδικοποιεί με GD σε `images/supportplans/email-logo.png` (≤1 MB, ≤1200×600).
 - Διόρθωση διπλής κωδικοποίησης (`&amp;amp;`) στα `action` των φορμών του view `notify` (`OfferHelper::url(…, false)` μέσα σε escape). Ελέγχθηκε με Playwright που πατά τα κουμπιά: Υπενθύμιση…/προεπισκόπηση/αποστολή, Πληρώθηκε, Πληρώθηκαν όλες, Έλεγχος λήξεων, Διαγραφή πελάτη, πρότυπο & εισαγωγή Excel, δοκιμαστικό, λογότυπο.
+
+## v1.16.1
+- `banksTable()`: 3 στήλες (τράπεζα | IBAN | δικαιούχος) σε μεγάλες οθόνες· με `@media (max-width:520px)` στο `<style>` του email τα κελιά γίνονται `display:block`, οπότε το IBAN (nowrap) είναι σε δική του γραμμή. Κάτω από 380px μικραίνουν τα περιθώρια (`.sp-n-outer`, `.sp-n-body`) και η γραμματοσειρά του IBAN, ώστε να χωρά και σε 320px. Προγράμματα χωρίς media queries (π.χ. Outlook desktop) κρατούν τις 3 στήλες.

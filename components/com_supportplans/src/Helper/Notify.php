@@ -715,12 +715,17 @@ final class Notify
             $footerHtml .= '<br><br><a href="' . self::e($unsubscribeUrl) . '" style="color:#6b7280;">Διαγραφή από τις ενημερώσεις</a>';
         }
         return '<!DOCTYPE html><html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<style>p{margin:0 0 14px}h3,h4{margin:18px 0 8px}ul,ol{margin:0 0 14px;padding-left:22px}a{color:' . $accent . '}</style></head>'
+            . '<style>p{margin:0 0 14px}h3,h4{margin:18px 0 8px}ul,ol{margin:0 0 14px;padding-left:22px}a{color:' . $accent . '}'
+            // Phones: bank, IBAN and beneficiary one under the other.
+            . '@media only screen and (max-width:520px){.sp-n-bank td{display:block!important;width:auto!important;border-top:0!important;padding:1px 12px!important}'
+            . '.sp-n-bank td.sp-n-bank-name{border-top:1px solid #eef0f4!important;padding-top:9px!important}.sp-n-bank td.sp-n-bank-ben{padding-bottom:9px!important}}'
+            // Very narrow phones: smaller margins so a whole IBAN still fits on one line.
+            . '@media only screen and (max-width:380px){.sp-n-outer{padding:12px 4px!important}.sp-n-body{padding:20px 14px!important}.sp-n-bank td.sp-n-bank-iban{font-size:11.5px!important}}</style></head>'
             . '<body style="margin:0;padding:0;background:#f3f4f6;">'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;"><tr><td align="center">'
+            . '<table class="sp-n-outer" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;"><tr><td align="center">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">'
             . '<tr><td style="padding:18px 22px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
-            . '<tr><td style="padding:24px 22px;font-size:15px;line-height:1.55;">' . $inner . '</td></tr>'
+            . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:1.55;">' . $inner . '</td></tr>'
             . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:1.5;">' . $footerHtml . '</td></tr>'
             . '</table></td></tr></table></body></html>';
     }
@@ -846,7 +851,11 @@ final class Notify
         return $html . '</table>';
     }
 
-    /** Bank accounts from the Settings: one line per bank; a common beneficiary is shown once. */
+    /**
+     * Bank accounts from the Settings. Wide screens: one line per bank (bank | IBAN | beneficiary);
+     * phones (≤ 520px, via the .sp-n-bank rules in wrap()): bank, IBAN and beneficiary on separate
+     * lines, so the IBAN fits on one line.
+     */
     public static function banksTable(): string
     {
         $banks = OfferHelper::banks();
@@ -854,13 +863,15 @@ final class Notify
             return '';
         }
         $c = self::cardStyles();
-        $beneficiaries = array_values(array_unique(array_filter(array_column($banks, 'beneficiary'))));
-        $common = count($beneficiaries) === 1 ? $beneficiaries[0] : '';
-        $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
-            . '<tr><th colspan="2" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί' . ($common !== '' ? ' · Δικαιούχος: ' . self::e($common) : '') . '</th></tr>';
+        $cell = 'padding:7px 10px;font-size:13px;line-height:1.35;border-top:1px solid #eef0f4;text-align:left;vertical-align:top;';
+        $html = '<table class="sp-n-data sp-n-bank" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
+            . '<tr><th colspan="3" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί</th></tr>';
         foreach ($banks as $b) {
-            $html .= '<tr><td ' . $c['td'] . '><strong>' . self::e(mb_strtoupper($b['name'])) . '</strong></td><td ' . str_replace('text-align:left;', 'text-align:left;font-family:Consolas,Menlo,monospace;', $c['td']) . '>'
-                . self::ibanHtml($b['iban']) . ($common === '' && $b['beneficiary'] !== '' ? '<br><span ' . $c['small'] . '>' . self::e($b['beneficiary']) . '</span>' : '') . '</td></tr>';
+            $html .= '<tr>'
+                . '<td class="sp-n-bank-name" style="' . $cell . 'font-weight:700;">' . self::e(mb_strtoupper($b['name'])) . '</td>'
+                . '<td class="sp-n-bank-iban" style="' . $cell . 'white-space:nowrap;font-family:Consolas,Menlo,monospace;">' . self::ibanHtml($b['iban']) . '</td>'
+                . '<td class="sp-n-bank-ben" style="' . $cell . 'color:#475467;">' . self::e($b['beneficiary']) . '</td>'
+                . '</tr>';
         }
         return $html . '</table>';
     }
