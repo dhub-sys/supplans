@@ -26,7 +26,12 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
  </div>
  <?php $mailLogo = Notify::emailLogoUrl(); $brandLogo = OfferHelper::assetUrl((string) $this->params->get('brand_logo', '')); ?>
  <div class="sp-card">
-  <h2>Λογότυπο στα email</h2>
+  <h2>Λογότυπο &amp; γραμματοσειρά στα email</h2>
+  <div class="sp-grid">
+   <label>Γραμματοσειρά (web font)<?php echo NotifyUi::select('notify_font', array_map(static fn($f) => $f['label'], Notify::FONTS), (string) Notify::setting('notify_font')); ?></label>
+   <label>Γραμματοσειρά για Outlook (Windows)<?php echo NotifyUi::select('notify_font_outlook', array_map(static fn($f) => $f['label'], Notify::OUTLOOK_FONTS), (string) Notify::setting('notify_font_outlook')); ?></label>
+  </div>
+  <p class="sp-n-help">Η web font εμφανίζεται σε Apple Mail, iPhone, Outlook για Mac και πολλά Android· το Gmail δείχνει Arial. Το Outlook για Windows δεν φορτώνει web fonts και χρησιμοποιεί τη δική του επιλογή: το <b>Aptos</b> υπάρχει στο Microsoft 365 / νέο Outlook· αν οι πελάτες σας έχουν παλιότερα Office (2016/2019), το <b>Calibri</b> είναι η ασφαλής επιλογή.</p>
   <p class="sp-n-help">Εμφανίζεται πάνω δεξιά σε κάθε email. Το Gmail και το Outlook <b>δεν δείχνουν λογότυπα SVG</b>, γι' αυτό τα email χρειάζονται PNG ή JPG.</p>
   <div class="sp-n-logo-row">
    <div class="sp-n-logo-box"><?php if ($mailLogo !== ''): ?><img id="sp-n-logo-current" src="<?php echo $e($mailLogo); ?>" alt=""><?php else: ?><span class="text-muted" id="sp-n-logo-current">Χωρίς λογότυπο — εμφανίζεται η επωνυμία</span><?php endif; ?></div>

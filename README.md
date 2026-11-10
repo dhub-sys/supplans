@@ -781,3 +781,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.16.1
 - `banksTable()`: 3 στήλες (τράπεζα | IBAN | δικαιούχος) σε μεγάλες οθόνες· με `@media (max-width:520px)` στο `<style>` του email τα κελιά γίνονται `display:block`, οπότε το IBAN (nowrap) είναι σε δική του γραμμή. Κάτω από 380px μικραίνουν τα περιθώρια (`.sp-n-outer`, `.sp-n-body`) και η γραμματοσειρά του IBAN, ώστε να χωρά και σε 320px. Προγράμματα χωρίς media queries (π.χ. Outlook desktop) κρατούν τις 3 στήλες.
+
+## v1.16.2 — Outlook & γραμματοσειρές
+- Το Outlook για Windows (μηχανή Word) κάνει το κείμενο κάθε κελιού παράγραφο, οπότε ο γενικός κανόνας `p{margin}` μεγάλωνε τις γραμμές των πινάκων. Τώρα τα περιθώρια μπαίνουν inline μόνο στα μπλοκ του κειμένου (`inlineBlocks()`), κάθε `td` παίρνει `font-family` (`cellFonts()`), οι κάρτες έχουν `line-height` σε px με `mso-line-height-rule:exactly`, και υπάρχει `<!--[if mso]>` με `border-collapse`, μηδενικά περιθώρια για `.MsoNormal` και πίνακα 640px.
+- `notify_font` (Google Fonts με ελληνικά: Geom, Inter, Roboto, Open Sans, Noto Sans ή Arial)· φορτώνεται μόνο εκτός Outlook (`<!--[if !mso]>`). `notify_font_outlook` (Aptos, Calibri, Arial) μόνο για Outlook για Windows.
+- Λογότυπο με `width`/`height` από τις διαστάσεις του αρχείου (`emailLogo()`).

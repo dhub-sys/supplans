@@ -706,6 +706,8 @@ class NotifyController extends BaseController
             'notify_batch_size' => max(1, min(200, $this->input->post->getInt('notify_batch_size', 20))),
             'notify_vat_rate' => max(0, min(100, round((float) str_replace(',', '.', (string) $this->input->post->getString('notify_vat_rate', '24')), 2))),
             'notify_group_days' => max(0, min(60, $this->input->post->getInt('notify_group_days', 7))),
+            'notify_font' => isset(Notify::FONTS[$this->input->post->getCmd('notify_font', '')]) ? $this->input->post->getCmd('notify_font') : 'geom',
+            'notify_font_outlook' => isset(Notify::OUTLOOK_FONTS[$this->input->post->getCmd('notify_font_outlook', '')]) ? $this->input->post->getCmd('notify_font_outlook') : 'aptos',
             'notify_subject_today' => $this->str('notify_subject_today', 255),
             'notify_subject_after' => $this->str('notify_subject_after', 255),
             'notify_intro_single' => mb_substr(trim($this->text('notify_intro_single')), 0, 2000),

@@ -51,6 +51,8 @@ final class Notify
             'notify_batch_size'      => 20,
             'notify_footer'          => '',
             'notify_vat_rate'        => 24,
+            'notify_font'            => 'geom',
+            'notify_font_outlook'    => 'aptos',
             'notify_group_days'      => 7,
             'notify_renewal_subject' => 'Υπενθύμιση ανανέωσης: {services}',
             'notify_subject_today'   => 'Λήγει σήμερα: {services}',
@@ -689,6 +691,108 @@ final class Notify
         return '';
     }
 
+    /**
+     * Fonts for the e-mails: Google Fonts with Greek. Web fonts show in Apple Mail, iOS, Outlook for
+     * Mac and many Android apps; Gmail and Outlook for Windows use the fallback (Arial).
+     */
+    public const FONTS = [
+        'geom'      => ['label' => 'Geom (όπως το Service Hub)', 'family' => 'Geom', 'css' => 'Geom:wght@400;600;700'],
+        'inter'     => ['label' => 'Inter', 'family' => 'Inter', 'css' => 'Inter:wght@400;600;700'],
+        'roboto'    => ['label' => 'Roboto', 'family' => 'Roboto', 'css' => 'Roboto:wght@400;500;700'],
+        'open_sans' => ['label' => 'Open Sans', 'family' => 'Open Sans', 'css' => 'Open+Sans:wght@400;600;700'],
+        'noto_sans' => ['label' => 'Noto Sans', 'family' => 'Noto Sans', 'css' => 'Noto+Sans:wght@400;600;700'],
+        'arial'     => ['label' => 'Arial (χωρίς web font)', 'family' => '', 'css' => ''],
+    ];
+
+    /** Fonts for Outlook for Windows (installed fonts only; it cannot load web fonts). */
+    public const OUTLOOK_FONTS = [
+        'aptos'   => ['label' => 'Aptos (Microsoft 365 / νέο Outlook)', 'stack' => 'Aptos,Calibri,Arial,Helvetica,sans-serif'],
+        'calibri' => ['label' => 'Calibri (όλα τα Office)', 'stack' => 'Calibri,Arial,Helvetica,sans-serif'],
+        'arial'   => ['label' => 'Arial', 'stack' => 'Arial,Helvetica,sans-serif'],
+    ];
+
+    public static function outlookFontStack(): string
+    {
+        return (self::OUTLOOK_FONTS[(string) self::setting('notify_font_outlook')] ?? self::OUTLOOK_FONTS['aptos'])['stack'];
+    }
+
+    public static function font(): array
+    {
+        $key = (string) self::setting('notify_font');
+        return self::FONTS[$key] ?? self::FONTS['geom'];
+    }
+
+    /** CSS font stack (no double quotes: it goes into style="…" attributes). */
+    public static function fontStack(): string
+    {
+        $f = self::font();
+        return ($f['family'] !== '' ? "'" . $f['family'] . "'," : '') . 'Arial,Helvetica,sans-serif';
+    }
+
+    /**
+     * Logo for the e-mails with its display size: ['url' => …, 'w' => …, 'h' => 44] or []. Fixed
+     * width/height keep the header in shape while a mail client still blocks the images.
+     */
+    public static function emailLogo(): array
+    {
+        $url = self::emailLogoUrl();
+        if ($url === '') {
+            return [];
+        }
+        $params = ComponentHelper::getParams('com_supportplans');
+        $h = 44;
+        $w = 0;
+        foreach ([(string) $params->get('notify_email_logo', ''), (string) $params->get('brand_logo', '')] as $path) {
+            $file = JPATH_ROOT . '/' . ltrim(preg_replace('/\?.*$/', '', trim($path)), '/');
+            if ($path !== '' && !preg_match('#^https?://#i', $path) && is_file($file) && ($size = @getimagesize($file)) && $size[1] > 0) {
+                $w = (int) round($size[0] * $h / $size[1]);
+                break;
+            }
+        }
+        if ($w > 220) {
+            $h = (int) round($h * 220 / $w);
+            $w = 220;
+        }
+        return ['url' => $url, 'w' => $w, 'h' => $h];
+    }
+
+    /**
+     * Inline margins on the text blocks of the message. Outlook for Windows (Word engine) turns the
+     * text of every table cell into a paragraph too, so a global p{margin} rule made table rows tall.
+     */
+    private static function inlineBlocks(string $html): string
+    {
+        $styles = [
+            'p'  => 'margin:0 0 14px;',
+            'h3' => 'margin:18px 0 8px;font-size:16px;',
+            'h4' => 'margin:16px 0 6px;font-size:15px;',
+            'ul' => 'margin:0 0 14px;padding-left:22px;',
+            'ol' => 'margin:0 0 14px;padding-left:22px;',
+            'li' => 'margin:0 0 4px;',
+        ];
+        return preg_replace_callback('#<(p|h3|h4|ul|ol|li)(\s[^>]*)?>#i', static function ($m) use ($styles) {
+            $attrs = $m[2] ?? '';
+            if (stripos($attrs, 'style=') !== false) {
+                return $m[0];
+            }
+            return '<' . $m[1] . $attrs . ' style="' . $styles[strtolower($m[1])] . '">';
+        }, $html);
+    }
+
+    /** Every table cell gets the font and an exact line height (Outlook does not inherit them). */
+    private static function cellFonts(string $html): string
+    {
+        $font = 'font-family:' . self::fontStack() . ';';
+        return preg_replace_callback('#<(td|th)(\s[^>]*)?>#i', static function ($m) use ($font) {
+            $attrs = $m[2] ?? '';
+            if (preg_match('/style="([^"]*)"/i', $attrs, $sm)) {
+                if (stripos($sm[1], 'font-family') !== false) return $m[0];
+                return '<' . $m[1] . str_replace($sm[0], 'style="' . $font . $sm[1] . '"', $attrs) . '>';
+            }
+            return '<' . $m[1] . $attrs . ' style="' . $font . '">';
+        }, $html);
+    }
+
     /** True when the Support Plans logo is an SVG (the e-mails need a PNG made from it). */
     public static function brandLogoIsSvg(): bool
     {
@@ -701,10 +805,13 @@ final class Notify
         $params = ComponentHelper::getParams('com_supportplans');
         $accent = self::accent();
         $name = self::brandName();
-        $logo = self::emailLogoUrl();
-        $head = $logo !== ''
-            ? '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td></td><td align="right" style="text-align:right;">'
-                . '<img src="' . self::e($logo) . '" alt="' . self::e($name) . '" height="44" style="height:44px;width:auto;max-width:200px;border:0;display:inline-block;"></td></tr></table>'
+        $logo = self::emailLogo();
+        $font = self::font();
+        $stack = self::fontStack();
+        $head = $logo
+            ? '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td>&nbsp;</td><td align="right" style="text-align:right;">'
+                . '<img src="' . self::e($logo['url']) . '" alt="' . self::e($name) . '"' . ($logo['w'] ? ' width="' . $logo['w'] . '"' : '') . ' height="' . $logo['h'] . '"'
+                . ' style="height:' . $logo['h'] . 'px;' . ($logo['w'] ? 'width:' . $logo['w'] . 'px;' : 'width:auto;') . 'max-width:220px;border:0;display:inline-block;font-size:16px;font-weight:bold;color:#111827;"></td></tr></table>'
             : '<span style="font-size:20px;font-weight:bold;color:#111827;">' . self::e($name) . '</span>';
         $footer = trim((string) self::setting('notify_footer'));
         if ($footer === '') {
@@ -714,20 +821,31 @@ final class Notify
         if ($unsubscribeUrl !== '') {
             $footerHtml .= '<br><br><a href="' . self::e($unsubscribeUrl) . '" style="color:#6b7280;">Διαγραφή από τις ενημερώσεις</a>';
         }
-        return '<!DOCTYPE html><html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<style>p{margin:0 0 14px}h3,h4{margin:18px 0 8px}ul,ol{margin:0 0 14px;padding-left:22px}a{color:' . $accent . '}'
+        $webFont = $font['css'] !== ''
+            // Not for Outlook for Windows: it cannot load web fonts and would fall back to Times.
+            ? '<!--[if !mso]><!--><link href="https://fonts.googleapis.com/css2?family=' . $font['css'] . '&amp;display=swap" rel="stylesheet">'
+                . '<style>@import url(https://fonts.googleapis.com/css2?family=' . $font['css'] . '&display=swap);</style><!--<![endif]-->'
+            : '';
+        $html = '<!DOCTYPE html><html lang="el" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="UTF-8">'
+            . '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting">' . $webFont
+            . '<style>body,td,th,p,li,a,span,strong{font-family:' . $stack . '}a{color:' . $accent . '}'
             // Phones: bank, IBAN and beneficiary one under the other.
             . '@media only screen and (max-width:520px){.sp-n-bank td{display:block!important;width:auto!important;border-top:0!important;padding:1px 12px!important}'
             . '.sp-n-bank td.sp-n-bank-name{border-top:1px solid #eef0f4!important;padding-top:9px!important}.sp-n-bank td.sp-n-bank-ben{padding-bottom:9px!important}}'
             // Very narrow phones: smaller margins so a whole IBAN still fits on one line.
-            . '@media only screen and (max-width:380px){.sp-n-outer{padding:12px 4px!important}.sp-n-body{padding:20px 14px!important}.sp-n-bank td.sp-n-bank-iban{font-size:11.5px!important}}</style></head>'
-            . '<body style="margin:0;padding:0;background:#f3f4f6;">'
+            . '@media only screen and (max-width:380px){.sp-n-outer{padding:12px 4px!important}.sp-n-body{padding:20px 14px!important}.sp-n-bank td.sp-n-bank-iban{font-size:11.5px!important}}</style>'
+            // Outlook for Windows: Arial, no extra spacing around tables and cell paragraphs.
+            . '<!--[if mso]><style>body,table,td,th,p,li,a,span,strong{font-family:' . self::outlookFontStack() . '!important}table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}td p,.MsoNormal{margin:0}</style>'
+            . '<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->'
+            . '</head><body style="margin:0;padding:0;background:#f3f4f6;font-family:' . $stack . ';">'
             . '<table class="sp-n-outer" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;"><tr><td align="center">'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">'
+            . '<!--[if mso]><table role="presentation" width="640" cellpadding="0" cellspacing="0"><tr><td><![endif]-->'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;color:#1f2937;">'
             . '<tr><td style="padding:18px 22px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
-            . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:1.55;">' . $inner . '</td></tr>'
-            . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:1.5;">' . $footerHtml . '</td></tr>'
-            . '</table></td></tr></table></body></html>';
+            . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:22px;mso-line-height-rule:exactly;">' . self::inlineBlocks($inner) . '</td></tr>'
+            . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:18px;mso-line-height-rule:exactly;">' . $footerHtml . '</td></tr>'
+            . '</table><!--[if mso]></td></tr></table><![endif]--></td></tr></table></body></html>';
+        return self::cellFonts($html);
     }
 
     public static function toText(string $html): string
@@ -810,7 +928,7 @@ final class Notify
     private static function cardStyles(): array
     {
         $b = OfferHelper::brand();
-        $cell = 'padding:6px 10px;font-size:13px;line-height:1.35;';
+        $cell = 'padding:6px 10px;font-size:13px;line-height:18px;mso-line-height-rule:exactly;';
         return [
             'table' => 'style="width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;"',
             'title' => 'style="background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:700;text-align:left;' . $cell . 'padding-top:7px;padding-bottom:7px;"',
@@ -836,7 +954,7 @@ final class Notify
         }
         $c = self::cardStyles();
         $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
-            . '<tr><th ' . $c['title'] . '>Οικονομική σύνοψη</th><th ' . str_replace('text-align:left;', 'text-align:right;white-space:nowrap;', $c['title']) . '>Αξία προ ΦΠΑ</th></tr>';
+            . '<tr><td ' . $c['title'] . '>Οικονομική σύνοψη</td><td ' . str_replace('text-align:left;', 'text-align:right;white-space:nowrap;', $c['title']) . '>Αξία προ ΦΠΑ</td></tr>';
         $net = 0.0;
         foreach ($priced as $x) {
             $n = round((float) $x->price, 2);
@@ -863,9 +981,9 @@ final class Notify
             return '';
         }
         $c = self::cardStyles();
-        $cell = 'padding:7px 10px;font-size:13px;line-height:1.35;border-top:1px solid #eef0f4;text-align:left;vertical-align:top;';
+        $cell = 'padding:7px 10px;font-size:13px;line-height:18px;mso-line-height-rule:exactly;border-top:1px solid #eef0f4;text-align:left;vertical-align:top;';
         $html = '<table class="sp-n-data sp-n-bank" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
-            . '<tr><th colspan="3" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί</th></tr>';
+            . '<tr><td colspan="3" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί</td></tr>';
         foreach ($banks as $b) {
             $html .= '<tr>'
                 . '<td class="sp-n-bank-name" style="' . $cell . 'font-weight:700;">' . self::e(mb_strtoupper($b['name'])) . '</td>'
