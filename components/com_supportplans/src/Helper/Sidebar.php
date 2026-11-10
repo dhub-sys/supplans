@@ -32,6 +32,20 @@ final class Sidebar
     }
 
     /**
+     * Logo of the sidebar: the "Λογότυπο sidebar" setting (as is, or white when chosen), else the
+     * business logo in white, because the sidebar is dark. ['url' => …, 'white' => bool]
+     */
+    public static function logo(): array
+    {
+        $params = \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans');
+        $own = trim((string) $params->get('sidebar_logo', ''));
+        if ($own !== '') {
+            return ['url' => OfferHelper::assetUrl($own), 'white' => (bool) (int) $params->get('sidebar_logo_white', 0)];
+        }
+        return ['url' => OfferHelper::brand()['logo'], 'white' => true];
+    }
+
+    /**
      * Top of the sidebar: section label and the burger button that collapses the sidebar to its
      * icons. The state is kept per browser (localStorage) and applied before the page is painted,
      * so the sidebar does not jump on every page load.
@@ -40,8 +54,9 @@ final class Sidebar
     {
         // The logo moves from the white top bar into the top of the sidebar (wide screens).
         $brand = OfferHelper::brand();
-        $logo = $brand['logo'] !== ''
-            ? '<img src="' . htmlspecialchars($brand['logo'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($brand['name'], ENT_QUOTES, 'UTF-8') . '">'
+        $l = self::logo();
+        $logo = $l['url'] !== ''
+            ? '<img src="' . htmlspecialchars($l['url'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($brand['name'], ENT_QUOTES, 'UTF-8') . '"' . ($l['white'] ? ' class="is-white"' : '') . '>'
             : '<strong>' . htmlspecialchars($brand['name'], ENT_QUOTES, 'UTF-8') . '</strong>';
         return '<script>(function(){var r=document.documentElement;r.classList.add("sp-sb-layout");try{if(localStorage.getItem("spSidebar")==="collapsed")r.classList.add("sp-sb-collapsed");}catch(e){}})();</script>'
             . '<div class="sp-sb-head"><span class="sp-sb-brand">' . $logo . '</span>'

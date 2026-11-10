@@ -533,7 +533,13 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 /* v1.19.0/1.20.0 — collapsible sidebar, logo at the top of the sidebar, no white top bar */
 .sp-sb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;height:40px;margin:0 0 14px;padding:0 2px 0 6px}
 .sp-sb-brand{display:flex;align-items:center;min-width:0;overflow:hidden;transition:opacity .2s ease,width .28s ease}
-.sp-sb-brand img{display:block;height:34px;width:auto;max-width:160px;object-fit:contain;filter:brightness(0) invert(1)}
+.sp-sb-brand img{display:block;height:34px;width:auto;max-width:160px;object-fit:contain}
+.sp-sb-brand img.is-white,.sp-sb-logo-preview img.is-white{filter:brightness(0) invert(1)}
+/* Settings: preview of the sidebar logo on the sidebar colour. */
+.sp-sb-logo-setting{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
+.sp-sb-logo-preview{display:inline-flex;align-items:center;min-width:190px;height:56px;padding:0 16px;border-radius:10px;background:linear-gradient(180deg,#172554 0%,#162a62 100%)}
+.sp-sb-logo-preview img{height:34px;width:auto;max-width:170px;object-fit:contain}
+.sp-sb-logo-preview em{color:#93a9db;font-size:12px;font-style:normal}
 .sp-sb-brand strong{color:#fff;font-size:15px;white-space:nowrap}
 .sp-sb-label{white-space:nowrap;overflow:hidden}
 .sp-sb-toggle{position:relative;flex:0 0 auto;width:38px;height:34px;border:0;border-radius:9px;background:transparent!important;color:#cbd8f5;cursor:pointer;padding:0}
@@ -571,3 +577,5 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 }
 /* Narrow screens keep the top bar and their compact sidebar: no logo/toggle in the sidebar there. */
 @media(max-width:900px){.sp-sb-toggle,.sp-sb-brand{display:none!important}.sp-sb-head{height:auto;margin:0}}
+.sp-sb-logo-setting .sp-check{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;font-weight:600;cursor:pointer}
+.sp-sb-logo-setting .sp-check input{width:auto!important;margin:0!important;padding:0!important}

@@ -53,6 +53,19 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
      </div>
      <span class="sp-upload-name" id="brand_logo_filename" aria-live="polite"></span>
     </label>
+    <?php $spSbLogo = trim((string) $p->get('sidebar_logo', '')); $spSbPreview = \Support\Component\Supportplans\Site\Helper\Sidebar::logo(); ?>
+    <label class="sp-wide sp-upload-setting"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Λογότυπο στην κορυφή του σκούρου sidebar. Αν μείνει κενό, εμφανίζεται το παραπάνω λογότυπο σε λευκό. Προτιμήστε ανοιχτόχρωμη ή λευκή έκδοση.">Λογότυπο sidebar</span>
+     <div class="sp-media-row">
+      <input class="form-control" id="sidebar_logo" name="sidebar_logo" value="<?php echo htmlspecialchars($spSbLogo); ?>" placeholder="κενό = το λογότυπο παραπάνω σε λευκό">
+      <input type="file" id="sidebar_logo_upload" name="sidebar_logo_upload" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+      <button type="button" class="btn btn-outline-secondary sp-media-button" id="sidebar_logo_pick">Upload logo</button>
+     </div>
+     <span class="sp-upload-name" id="sidebar_logo_filename" aria-live="polite"></span>
+     <span class="sp-sb-logo-setting">
+      <span class="sp-sb-logo-preview" id="sidebar_logo_preview"><?php if ($spSbPreview['url'] !== ''): ?><img src="<?php echo htmlspecialchars($spSbPreview['url']); ?>" alt="" class="<?php echo $spSbPreview['white'] ? 'is-white' : ''; ?>"><?php else: ?><em>Χωρίς λογότυπο</em><?php endif; ?></span>
+      <span class="sp-check"><input type="checkbox" name="sidebar_logo_white" id="sidebar_logo_white" value="1" <?php echo (int) $p->get('sidebar_logo_white', 0) ? 'checked' : ''; ?>> Εμφάνιση σε λευκό (μονόχρωμο)</span>
+     </span>
+    </label>
     <label class="sp-wide">Διεύθυνση<textarea class="form-control" name="brand_address" rows="3"><?php echo htmlspecialchars((string)$p->get('brand_address','')); ?></textarea></label>
     <label>Τηλέφωνο<input class="form-control" name="brand_phone" value="<?php echo htmlspecialchars((string)$p->get('brand_phone','')); ?>"></label>
     <label>Email<input class="form-control" type="email" name="brand_email" value="<?php echo htmlspecialchars((string)$p->get('brand_email','')); ?>"></label>
@@ -188,6 +201,13 @@ document.addEventListener('DOMContentLoaded',function(){
  const loginIconFile=document.getElementById('login_icon_upload');
  const loginIconName=document.getElementById('login_icon_filename');
  if(pick&&file){pick.addEventListener('click',()=>file.click());file.addEventListener('change',()=>{name.textContent=file.files&&file.files[0]?'Επιλέχθηκε: '+file.files[0].name:'';});}
+ // Sidebar logo: pick, file name and live preview on the dark background.
+ const sbPick=document.getElementById('sidebar_logo_pick'),sbFile=document.getElementById('sidebar_logo_upload'),sbName=document.getElementById('sidebar_logo_filename');
+ const sbPrev=document.getElementById('sidebar_logo_preview'),sbWhite=document.getElementById('sidebar_logo_white'),sbPath=document.getElementById('sidebar_logo');
+ function sbShow(src){if(!sbPrev)return;sbPrev.innerHTML='';if(!src){sbPrev.innerHTML='<em>Το λογότυπο παραπάνω σε λευκό</em>';return;}const i=document.createElement('img');i.src=src;i.alt='';if(sbWhite&&sbWhite.checked)i.className='is-white';sbPrev.appendChild(i);}
+ if(sbPick&&sbFile){sbPick.addEventListener('click',()=>sbFile.click());sbFile.addEventListener('change',()=>{const f=sbFile.files&&sbFile.files[0];sbName.textContent=f?'Επιλέχθηκε: '+f.name:'';if(f)sbShow(URL.createObjectURL(f));});}
+ if(sbWhite){sbWhite.addEventListener('change',()=>{const i=sbPrev&&sbPrev.querySelector('img');if(i)i.classList.toggle('is-white',sbWhite.checked);});}
+ if(sbPath){sbPath.addEventListener('change',()=>{const v=sbPath.value.trim();sbShow(v===''?'':(/^https?:\/\//i.test(v)?v:'<?php echo rtrim(\Joomla\CMS\Uri\Uri::root(), '/'); ?>/'+v.replace(/^\//,'')));});}
  if(watermarkPick&&watermarkFile){watermarkPick.addEventListener('click',()=>watermarkFile.click());watermarkFile.addEventListener('change',()=>{watermarkName.textContent=watermarkFile.files&&watermarkFile.files[0]?'Επιλέχθηκε: '+watermarkFile.files[0].name:'';});}
  if(loginIconPick&&loginIconFile){loginIconPick.addEventListener('click',()=>loginIconFile.click());loginIconFile.addEventListener('change',()=>{loginIconName.textContent=loginIconFile.files&&loginIconFile.files[0]?'Επιλέχθηκε: '+loginIconFile.files[0].name:'';});}
  const sigPick=document.getElementById('offer_signature_pick');

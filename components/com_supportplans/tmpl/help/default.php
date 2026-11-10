@@ -201,6 +201,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.21.0</div><div><ul>
+<li>Νέα ρύθμιση <b>Λογότυπο sidebar</b> (Ρυθμίσεις → Στοιχεία επιχείρησης): διαδρομή ή ανέβασμα (PNG, JPG, WEBP, GIF, SVG έως 2 MB), προεπισκόπηση στο χρώμα του sidebar και επιλογή «Εμφάνιση σε λευκό». Αν μείνει κενό, εμφανίζεται το λογότυπο της επιχείρησης σε λευκό.</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.20.0</div><div><ul>
 <li>Χωρίς τη λευκή μπάρα στην κορυφή: το sidebar ξεκινά από πάνω, με το λογότυπο (σε λευκό) και το burger στην κορυφή του, και το περιεχόμενο ανεβαίνει. Σε tablet και κινητό η εμφάνιση μένει ως είχε.</li>
 <li>Burger με λεπτότερες γραμμές, χωρίς φόντο στο hover· τα εικονίδια δεν μετακινούνται όταν μαζεύει το μενού.</li>

@@ -64,6 +64,31 @@ class SettingsController extends BaseController
     }
    }
   }
+  // Sidebar logo (v1.21.0): path/URL or upload; optional white (monochrome) display.
+  $params['sidebar_logo']=trim((string)$in->get('sidebar_logo','','string'));
+  $params['sidebar_logo_white']=(int)$in->get('sidebar_logo_white',0,'int')?1:0;
+  $sbUpload=$in->files->get('sidebar_logo_upload',null,'array');
+  if(is_array($sbUpload) && !empty($sbUpload['name']) && (int)($sbUpload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE){
+   $allowed=['image/png'=>'png','image/jpeg'=>'jpg','image/webp'=>'webp','image/gif'=>'gif','image/svg+xml'=>'svg'];
+   $tmp=(string)$sbUpload['tmp_name'];
+   $mime='';
+   if(function_exists('finfo_open')){$fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}}
+   if((int)$sbUpload['error'] !== UPLOAD_ERR_OK){
+    $app->enqueueMessage('Η μεταφόρτωση του λογοτύπου sidebar απέτυχε.','error');
+   }elseif(!isset($allowed[$mime]) || (int)$sbUpload['size'] > 2*1024*1024){
+    $app->enqueueMessage('Λογότυπο sidebar: επιτρέπονται PNG, JPG, WEBP, GIF ή SVG έως 2 MB.','error');
+   }else{
+    $dir=JPATH_ROOT.'/images/supportplans';
+    if(!Folder::exists($dir))Folder::create($dir);
+    $filename='sidebar-logo.'.$allowed[$mime];
+    foreach(array_unique(array_values($allowed)) as $ext){$old=$dir.'/sidebar-logo.'.$ext;if($old!==$dir.'/'.$filename && File::exists($old))File::delete($old);}
+    if(File::upload($tmp,$dir.'/'.$filename,true)){
+     $params['sidebar_logo']='images/supportplans/'.$filename;
+    }else{
+     $app->enqueueMessage('Δεν ήταν δυνατή η αποθήκευση του λογοτύπου sidebar στον φάκελο images/supportplans.','error');
+    }
+   }
+  }
   $params['pdf_watermark']=trim((string)$in->get('pdf_watermark','','string'));
   $params['watermark_opacity']=max(0,min(100,(int)$in->get('watermark_opacity',7,'int')));
   $params['supported_websites_label']=trim((string)$in->get('supported_websites_label','Υποστηριζόμενα websites','string'));

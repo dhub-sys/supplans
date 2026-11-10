@@ -822,3 +822,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Sidebar::head()`: λογότυπο (`OfferHelper::brand()`, λευκό με `filter:brightness(0) invert(1)`) και burger στην κορυφή του sidebar· κλάση `sp-sb-layout` στο `<html>`. Πάνω από 900px κρύβεται το `.sp-appbar`, το sidebar ξεκινά από `top:0` και το `.sp-app` χάνει το padding-top. Στο συμπτυγμένο sidebar η κεφαλίδα κρατά το ίδιο ύψος (40px), ώστε τα εικονίδια να μη μετακινούνται.
 - Burger: γραμμές 1.5px, χωρίς background στο hover.
 - `notify.css`: κελιά πινάκων, έντονα, links και φίλτρα στα 14px (όσο το κείμενο της περιγραφής), δευτερεύον κείμενο 12.5px.
+
+## v1.21.0 — Λογότυπο sidebar
+- Params `sidebar_logo` (διαδρομή/URL ή upload σε `images/supportplans/sidebar-logo.<ext>`, έλεγχος MIME με finfo, ≤ 2 MB) και `sidebar_logo_white`. `Sidebar::logo()`: το δικό του λογότυπο όπως είναι (ή λευκό αν επιλεγεί), αλλιώς το `brand_logo` σε λευκό. Προεπισκόπηση στο χρώμα του sidebar στις Ρυθμίσεις (και ζωντανά πριν την αποθήκευση).
