@@ -603,10 +603,32 @@ final class Notify
     {
         $html = OfferHelper::render($text, $vars);
         foreach ($blocks as $key => $block) {
-            $html = str_replace(['<p>{' . $key . '}</p>', '{' . $key . '}'], [$block, $block], $html);
+            $ph = '{' . $key . '}';
+            // A block (table, list, notice) must never end up inside a paragraph: when the text
+            // continues on the next line ("{price_table}\nΓια την εξόφληση…"), the paragraph is split
+            // around it. Browsers repair <p><table>, but Outlook for Windows gives every table
+            // cell the paragraph's spacing, which made the rows tall.
+            $html = preg_replace_callback('#<p([^>]*)>(.*?)</p>#s', static function ($m) use ($ph, $block) {
+                if (strpos($m[2], $ph) === false) {
+                    return $m[0];
+                }
+                $parts = explode($ph, $m[2]);
+                $out = '';
+                foreach ($parts as $i => $part) {
+                    $part = preg_replace(['#^(\s*<br\s*/?>)+#i', '#(<br\s*/?>\s*)+$#i'], '', trim($part));
+                    if (trim(strip_tags($part)) !== '') {
+                        $out .= '<p' . $m[1] . '>' . $part . '</p>';
+                    }
+                    if ($i < count($parts) - 1) {
+                        $out .= $block;
+                    }
+                }
+                return $out;
+            }, $html);
+            $html = str_replace($ph, $block, $html);
         }
         // Empty paragraphs left by empty variables (e.g. no price).
-        return preg_replace('#<p>\s*</p>#', '', $html);
+        return preg_replace('#<p[^>]*>\s*</p>#', '', $html);
     }
 
     public static function subject(string $template, array $vars): string
@@ -934,9 +956,9 @@ final class Notify
             'title' => 'style="background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:700;text-align:left;' . $cell . 'padding-top:7px;padding-bottom:7px;"',
             'td'    => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:left;vertical-align:top;"',
             'tdr'   => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;vertical-align:top;white-space:nowrap;"',
-            'sum'   => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;color:#475467;"',
+            'sum'   => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:left;color:#475467;"',
             'sumr'  => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;white-space:nowrap;color:#475467;"',
-            'total' => 'style="' . $cell . 'background:#fff3df;font-weight:800;text-align:right;"',
+            'total' => 'style="' . $cell . 'background:#fff3df;font-weight:800;text-align:left;"',
             'totalr'=> 'style="' . $cell . 'background:#fff3df;font-weight:800;text-align:right;white-space:nowrap;"',
             'small' => 'style="color:#667085;font-size:12px;"',
         ];

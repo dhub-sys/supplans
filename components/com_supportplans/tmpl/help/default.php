@@ -195,6 +195,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.16.3</div><div><ul>
+<li>Outlook: οι πίνακες (οικονομική σύνοψη, τράπεζες) και τα πλαίσια δεν μπαίνουν ποτέ μέσα σε παράγραφο, ακόμα κι αν στο πρότυπο το κείμενο συνεχίζει στην αμέσως επόμενη γραμμή. Αυτό έκανε τα κελιά ψηλά στο Outlook για Windows.</li>
+<li>Οι γραμμές «Σύνολο προ ΦΠΑ», «Φ.Π.Α.» και «Σύνολο» στοιχίζονται αριστερά.</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.16.2</div><div><ul>
 <li>Outlook για Windows: οι πίνακες των email δεν «φουσκώνουν» πια (τα περιθώρια παραγράφων μπαίνουν μόνο στο κείμενο), κάθε κελί έχει τη γραμματοσειρά του και σταθερό ύψος γραμμής, το λογότυπο έχει σταθερές διαστάσεις όσο οι εικόνες είναι μπλοκαρισμένες.</li>
 <li>Νέες ρυθμίσεις στις Ρυθμίσεις email: <b>γραμματοσειρά</b> (web font, προεπιλογή Geom όπως το Service Hub· Gmail δείχνει Arial) και <b>γραμματοσειρά για Outlook (Windows)</b> (προεπιλογή Aptos, εναλλακτικά Calibri ή Arial).</li>

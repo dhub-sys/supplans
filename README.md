@@ -786,3 +786,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Το Outlook για Windows (μηχανή Word) κάνει το κείμενο κάθε κελιού παράγραφο, οπότε ο γενικός κανόνας `p{margin}` μεγάλωνε τις γραμμές των πινάκων. Τώρα τα περιθώρια μπαίνουν inline μόνο στα μπλοκ του κειμένου (`inlineBlocks()`), κάθε `td` παίρνει `font-family` (`cellFonts()`), οι κάρτες έχουν `line-height` σε px με `mso-line-height-rule:exactly`, και υπάρχει `<!--[if mso]>` με `border-collapse`, μηδενικά περιθώρια για `.MsoNormal` και πίνακα 640px.
 - `notify_font` (Google Fonts με ελληνικά: Geom, Inter, Roboto, Open Sans, Noto Sans ή Arial)· φορτώνεται μόνο εκτός Outlook (`<!--[if !mso]>`). `notify_font_outlook` (Aptos, Calibri, Arial) μόνο για Outlook για Windows.
 - Λογότυπο με `width`/`height` από τις διαστάσεις του αρχείου (`emailLogo()`).
+
+## v1.16.3
+- `renderText()`: όταν ένα block (`{price_table}`, `{banks}`, `{expired_notice}`, `{services_status}` …) βρίσκεται σε παράγραφο μαζί με άλλο κείμενο (μονή αλλαγή γραμμής στο πρότυπο → `<br>`), η παράγραφος σπάει γύρω του. Το Outlook για Windows έδινε στα κελιά των πινάκων μέσα σε `<p>` τα περιθώρια της παραγράφου.
+- Ετικέτες συνόλων στοιχισμένες αριστερά.
