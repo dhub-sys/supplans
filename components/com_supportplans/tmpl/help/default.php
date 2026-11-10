@@ -201,6 +201,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.21.1</div><div><ul>
+<li>Γραμματοσειρά Geom (Google Fonts) σε όλο το Back Office, και στις μεταβλητές (π.χ. <code>{client_name}</code>) και στο πεδίο ενημερώσεων της αναφοράς maintenance, που έβγαιναν σε monospace.</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.21.0</div><div><ul>
 <li>Νέα ρύθμιση <b>Λογότυπο sidebar</b> (Ρυθμίσεις → Στοιχεία επιχείρησης): διαδρομή ή ανέβασμα (PNG, JPG, WEBP, GIF, SVG έως 2 MB), προεπισκόπηση στο χρώμα του sidebar και επιλογή «Εμφάνιση σε λευκό». Αν μείνει κενό, εμφανίζεται το λογότυπο της επιχείρησης σε λευκό.</li>
 </ul></div></div>

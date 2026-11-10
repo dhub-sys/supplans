@@ -825,3 +825,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.21.0 — Λογότυπο sidebar
 - Params `sidebar_logo` (διαδρομή/URL ή upload σε `images/supportplans/sidebar-logo.<ext>`, έλεγχος MIME με finfo, ≤ 2 MB) και `sidebar_logo_white`. `Sidebar::logo()`: το δικό του λογότυπο όπως είναι (ή λευκό αν επιλεγεί), αλλιώς το `brand_logo` σε λευκό. Προεπισκόπηση στο χρώμα του sidebar στις Ρυθμίσεις (και ζωντανά πριν την αποθήκευση).
+
+## v1.21.1
+- Geom σε `code/kbd/pre/samp` και σε όλα τα πεδία φορμών μέσα στο `.sp-saas-root`· αφαιρέθηκε το `font-monospace` από το πεδίο ενημερώσεων. Έλεγχος με Playwright σε 20 σελίδες + login/OTP: κάθε ορατό στοιχείο με κείμενο έχει πρώτη γραμματοσειρά Geom και το `document.fonts.check('16px Geom')` είναι true.

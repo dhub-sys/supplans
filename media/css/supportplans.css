@@ -579,3 +579,6 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 @media(max-width:900px){.sp-sb-toggle,.sp-sb-brand{display:none!important}.sp-sb-head{height:auto;margin:0}}
 .sp-sb-logo-setting .sp-check{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;font-weight:600;cursor:pointer}
 .sp-sb-logo-setting .sp-check input{width:auto!important;margin:0!important;padding:0!important}
+/* v1.21.1 — Geom everywhere in the Back Office, also for variables shown as <code>. */
+.sp-saas-root code,.sp-saas-root kbd,.sp-saas-root pre,.sp-saas-root samp{font-family:'Geom',Arial,Helvetica,sans-serif!important;font-size:.92em;background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:5px}
+.sp-saas-root input,.sp-saas-root select,.sp-saas-root textarea,.sp-saas-root button,.sp-saas-root option{font-family:'Geom',Arial,Helvetica,sans-serif!important}

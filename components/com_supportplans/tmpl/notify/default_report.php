@@ -38,7 +38,7 @@ $dis = $sent ? ' disabled' : '';
    <label class="sp-wide">Υπηρεσία πελάτη *<?php echo NotifyUi::select('client_service_id', $options, $serviceId ?: '', '— Επιλογή —', 'required' . $dis); ?></label>
    <label>Περίοδος<input name="period" value="<?php echo $e($period); ?>"<?php echo $dis; ?>></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Σύνοψη εργασιών</span><textarea name="summary" rows="8"<?php echo $sent ? ' disabled' : ' data-sp-editor'; ?>><?php echo $e($r->summary ?? ''); ?></textarea></div>
-   <label class="sp-wide">Ενημερώσεις (updates)<textarea name="items" rows="8" class="font-monospace" placeholder="Joomla | Core | 6.2.0 | 6.2.1&#10;Extension | Akeeba Backup | 10.1.0 | 10.1.2&#10;Template | YOOtheme Pro | 4.5.3 | 4.5.6"<?php echo $dis; ?>><?php echo $e($r->items ?? ''); ?></textarea></label>
+   <label class="sp-wide">Ενημερώσεις (updates)<textarea name="items" rows="8" placeholder="Joomla | Core | 6.2.0 | 6.2.1&#10;Extension | Akeeba Backup | 10.1.0 | 10.1.2&#10;Template | YOOtheme Pro | 4.5.3 | 4.5.6"<?php echo $dis; ?>><?php echo $e($r->items ?? ''); ?></textarea></label>
   </div>
   <p class="sp-n-help">Μία ενημέρωση ανά γραμμή: <code>Τύπος | Όνομα | Προηγούμενη έκδοση | Νέα έκδοση</code>. Εμφανίζεται ως πίνακας στο email. Το κείμενο του email ορίζεται στις <a href="<?php echo NotifyUi::url('section=settings'); ?>">Ρυθμίσεις email</a>.</p>
  </div>
