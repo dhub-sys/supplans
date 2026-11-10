@@ -26,7 +26,7 @@ $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->sele
       <td class="sp-num sp-row-actions">
         <?php if ($s->expiry_date): ?>
           <a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=services&id=' . (int) $s->id); ?>#sp-n-pay" title="Καταχώρηση πληρωμής: η λήξη μετακινείται και οι υπενθυμίσεις σταματούν">Πληρώθηκε…</a>
-          <?php if ($s->status === 'active'): ?><?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => $back], 'Υπενθύμιση τώρα', 'Αποστολή υπενθύμισης ανανέωσης στο ' . $s->client_email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?><?php endif; ?>
+          <?php if ($s->status === 'active'): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $s->client_id . '&remind=' . (int) $s->id); ?>#sp-n-remind">Υπενθύμιση…</a><?php endif; ?>
         <?php endif; ?>
         <a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Αναφορά</a>
       </td>

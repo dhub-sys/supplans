@@ -665,21 +665,46 @@ final class Notify
         return OfferHelper::brand()['accent'];
     }
 
-    /** Branded e-mail layout around the message body. */
+    /**
+     * Logo for the e-mails (absolute URL, PNG/JPG/GIF; '' = none). Mail clients do not show SVG:
+     * the PNG made in "Ρυθμίσεις email" (notify_email_logo) wins, then the Support Plans logo if
+     * it is already PNG/JPG/GIF.
+     */
+    public static function emailLogoUrl(): string
+    {
+        $params = ComponentHelper::getParams('com_supportplans');
+        foreach ([(string) $params->get('notify_email_logo', ''), (string) $params->get('brand_logo', '')] as $path) {
+            $path = trim($path);
+            if ($path === '' || !preg_match('/\.(png|jpe?g|gif)(\?.*)?$/i', $path)) {
+                continue;
+            }
+            if (preg_match('#^https?://#i', $path)) {
+                return $path;
+            }
+            $file = JPATH_ROOT . '/' . ltrim(preg_replace('/\?.*$/', '', $path), '/');
+            if (is_file($file)) {
+                return self::siteRoot() . ltrim($path, '/') . (strpos($path, '?') === false ? '?v=' . filemtime($file) : '');
+            }
+        }
+        return '';
+    }
+
+    /** True when the Support Plans logo is an SVG (the e-mails need a PNG made from it). */
+    public static function brandLogoIsSvg(): bool
+    {
+        return (bool) preg_match('/\.svg(\?.*)?$/i', trim((string) ComponentHelper::getParams('com_supportplans')->get('brand_logo', '')));
+    }
+
+    /** Branded e-mail layout: logo top right (or the business name when there is no usable logo). */
     public static function wrap(string $inner, string $unsubscribeUrl = ''): string
     {
         $params = ComponentHelper::getParams('com_supportplans');
         $accent = self::accent();
         $name = self::brandName();
-        $logo = trim((string) $params->get('brand_logo', ''));
-        if ($logo !== '' && !preg_match('#^https?://#i', $logo)) {
-            $logo = self::siteRoot() . ltrim($logo, '/');
-        }
-        if ($logo !== '' && strtolower(substr($logo, -4)) === '.svg') {
-            $logo = ''; // most mail clients do not show SVG images
-        }
+        $logo = self::emailLogoUrl();
         $head = $logo !== ''
-            ? '<img src="' . self::e($logo) . '" alt="' . self::e($name) . '" style="max-height:56px;max-width:220px;border:0;display:block;">'
+            ? '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td></td><td align="right" style="text-align:right;">'
+                . '<img src="' . self::e($logo) . '" alt="' . self::e($name) . '" height="44" style="height:44px;width:auto;max-width:200px;border:0;display:inline-block;"></td></tr></table>'
             : '<span style="font-size:20px;font-weight:bold;color:#111827;">' . self::e($name) . '</span>';
         $footer = trim((string) self::setting('notify_footer'));
         if ($footer === '') {
@@ -694,9 +719,9 @@ final class Notify
             . '<body style="margin:0;padding:0;background:#f3f4f6;">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;"><tr><td align="center">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">'
-            . '<tr><td style="padding:22px 28px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
-            . '<tr><td style="padding:28px;font-size:15px;line-height:1.6;">' . $inner . '</td></tr>'
-            . '<tr><td style="padding:16px 28px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:1.5;">' . $footerHtml . '</td></tr>'
+            . '<tr><td style="padding:18px 22px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
+            . '<tr><td style="padding:24px 22px;font-size:15px;line-height:1.55;">' . $inner . '</td></tr>'
+            . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:1.5;">' . $footerHtml . '</td></tr>'
             . '</table></td></tr></table></body></html>';
     }
 
@@ -776,25 +801,27 @@ final class Notify
         ];
     }
 
-    /** Card tables in the style of the offer documents (accent title row, grey head, orange total). */
+    /** Compact card tables in the colours of the offer documents (readable on phones too). */
     private static function cardStyles(): array
     {
         $b = OfferHelper::brand();
+        $cell = 'padding:6px 10px;font-size:13px;line-height:1.35;';
         return [
-            'table' => 'style="width:100%;border-collapse:separate;border-spacing:0;margin:18px 0;font-size:13px;line-height:1.4;border:1px solid #e4e7ec;border-radius:9px;overflow:hidden;"',
-            'title' => 'style="background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:700;font-size:13px;text-align:left;padding:9px 12px;"',
-            'head'  => 'style="background:#f4f6f9;border-bottom:1px solid #d9dee7;color:#344054;font-weight:700;font-size:12px;text-align:left;padding:8px 12px;"',
-            'headr' => 'style="background:#f4f6f9;border-bottom:1px solid #d9dee7;color:#344054;font-weight:700;font-size:12px;text-align:right;padding:8px 12px;white-space:nowrap;"',
-            'td'    => 'style="padding:8px 12px;border-bottom:1px solid #eef0f4;text-align:left;vertical-align:top;"',
-            'tdr'   => 'style="padding:8px 12px;border-bottom:1px solid #eef0f4;text-align:right;vertical-align:top;white-space:nowrap;"',
-            'total' => 'style="background:#fff3df;font-weight:800;padding:9px 12px;text-align:left;"',
-            'totalr'=> 'style="background:#fff3df;font-weight:800;padding:9px 12px;text-align:right;white-space:nowrap;"',
+            'table' => 'style="width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;"',
+            'title' => 'style="background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:700;text-align:left;' . $cell . 'padding-top:7px;padding-bottom:7px;"',
+            'td'    => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:left;vertical-align:top;"',
+            'tdr'   => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;vertical-align:top;white-space:nowrap;"',
+            'sum'   => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;color:#475467;"',
+            'sumr'  => 'style="' . $cell . 'border-top:1px solid #eef0f4;text-align:right;white-space:nowrap;color:#475467;"',
+            'total' => 'style="' . $cell . 'background:#fff3df;font-weight:800;text-align:right;"',
+            'totalr'=> 'style="' . $cell . 'background:#fff3df;font-weight:800;text-align:right;white-space:nowrap;"',
+            'small' => 'style="color:#667085;font-size:12px;"',
         ];
     }
 
     /**
-     * "Οικονομική σύνοψη" as in the offers: net value, VAT and total per service and in total,
-     * followed by the final-price sentence. Prices are net (προ ΦΠΑ). Only services with a price.
+     * "Οικονομική σύνοψη": one line per service with its net price (expiry and period in small
+     * text underneath), then net total, VAT and total. Only services with a price.
      */
     public static function priceTable(array $services): string
     {
@@ -803,29 +830,23 @@ final class Notify
             return '';
         }
         $c = self::cardStyles();
-        $rate = self::vatRate();
-        $vatLabel = self::vatLabel();
         $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
-            . '<tr><th colspan="4" ' . $c['title'] . '>Οικονομική σύνοψη</th></tr>'
-            . '<tr><th ' . $c['head'] . '>Περιγραφή υπηρεσίας</th><th ' . $c['headr'] . '>Αξία</th><th ' . $c['headr'] . '>Φ.Π.Α. ' . self::e($vatLabel) . '</th><th ' . $c['headr'] . '>Σύνολο</th></tr>';
-        $net = $vat = 0.0;
+            . '<tr><th ' . $c['title'] . '>Οικονομική σύνοψη</th><th ' . str_replace('text-align:left;', 'text-align:right;white-space:nowrap;', $c['title']) . '>Αξία προ ΦΠΑ</th></tr>';
+        $net = 0.0;
         foreach ($priced as $x) {
             $n = round((float) $x->price, 2);
-            $v = round($n * $rate / 100, 2);
             $net += $n;
-            $vat += $v;
-            $html .= '<tr><td ' . $c['td'] . '><strong>' . self::e(self::serviceFull($x)) . '</strong><br><span style="color:#667085;font-size:12px;">Λήξη ' . self::e(self::dateGr($x->expiry_date))
-                . ' · ανανέωση για ' . self::e(self::durationLabel(max(1, (int) $x->duration_months))) . '</span></td><td ' . $c['tdr'] . '>' . self::e(self::money($n)) . '</td><td ' . $c['tdr'] . '>'
-                . self::e(self::money($v)) . '</td><td ' . $c['tdr'] . '>' . self::e(self::money($n + $v)) . '</td></tr>';
+            $html .= '<tr><td ' . $c['td'] . '><strong>' . self::e(self::serviceFull($x)) . '</strong><br><span ' . $c['small'] . '>λήξη ' . self::e(self::dateGr($x->expiry_date))
+                . ' · ανανέωση ' . self::e(self::durationLabel(max(1, (int) $x->duration_months))) . '</span></td><td ' . $c['tdr'] . '>' . self::e(self::money($n)) . '</td></tr>';
         }
-        $html .= '<tr><td ' . $c['total'] . '>Σύνολο</td><td ' . $c['totalr'] . '>' . self::e(self::money($net)) . '</td><td ' . $c['totalr'] . '>' . self::e(self::money($vat))
-            . '</td><td ' . $c['totalr'] . '>' . self::e(self::money($net + $vat)) . '</td></tr></table>';
-        $money = static fn(float $v) => number_format($v, 2, ',', '.');
-        return $html . '<p>Το κόστος ανανέωσης ανέρχεται στα <strong>€ ' . $money($net) . '</strong> πλέον Φ.Π.Α. ' . self::e($vatLabel) . ' <strong>€ ' . $money($vat)
-            . '</strong>, σύνολο <strong>€ ' . $money($net + $vat) . '</strong>.</p>';
+        $vat = round($net * self::vatRate() / 100, 2);
+        $html .= '<tr><td ' . $c['sum'] . '>Σύνολο προ ΦΠΑ</td><td ' . $c['sumr'] . '>' . self::e(self::money($net)) . '</td></tr>'
+            . '<tr><td ' . $c['sum'] . '>Φ.Π.Α. ' . self::e(self::vatLabel()) . '</td><td ' . $c['sumr'] . '>' . self::e(self::money($vat)) . '</td></tr>'
+            . '<tr><td ' . $c['total'] . '>Σύνολο</td><td ' . $c['totalr'] . '>' . self::e(self::money($net + $vat)) . '</td></tr>';
+        return $html . '</table>';
     }
 
-    /** Bank accounts from the Settings, as in the offers (empty when none is set). */
+    /** Bank accounts from the Settings: one line per bank; a common beneficiary is shown once. */
     public static function banksTable(): string
     {
         $banks = OfferHelper::banks();
@@ -833,26 +854,52 @@ final class Notify
             return '';
         }
         $c = self::cardStyles();
+        $beneficiaries = array_values(array_unique(array_filter(array_column($banks, 'beneficiary'))));
+        $common = count($beneficiaries) === 1 ? $beneficiaries[0] : '';
         $html = '<table class="sp-n-data" cellpadding="0" cellspacing="0" ' . $c['table'] . '>'
-            . '<tr><th colspan="3" ' . $c['title'] . '>Τράπεζες / Λογαριασμοί</th></tr>'
-            . '<tr><th ' . $c['head'] . '>Τράπεζα</th><th ' . $c['head'] . '>IBAN</th><th ' . $c['head'] . '>Όνομα δικαιούχου</th></tr>';
+            . '<tr><th colspan="2" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί' . ($common !== '' ? ' · Δικαιούχος: ' . self::e($common) : '') . '</th></tr>';
         foreach ($banks as $b) {
-            $html .= '<tr><td ' . $c['td'] . '>' . self::e(mb_strtoupper($b['name'])) . '</td><td ' . $c['td'] . '>' . self::e($b['iban']) . '</td><td ' . $c['td'] . '>' . self::e($b['beneficiary']) . '</td></tr>';
+            $html .= '<tr><td ' . $c['td'] . '><strong>' . self::e(mb_strtoupper($b['name'])) . '</strong></td><td ' . str_replace('text-align:left;', 'text-align:left;font-family:Consolas,Menlo,monospace;', $c['td']) . '>'
+                . self::ibanHtml($b['iban']) . ($common === '' && $b['beneficiary'] !== '' ? '<br><span ' . $c['small'] . '>' . self::e($b['beneficiary']) . '</span>' : '') . '</td></tr>';
         }
         return $html . '</table>';
     }
 
-    /** Highlighted text for the services that have already expired (empty otherwise). */
+    /** IBAN in groups of four characters, alternately bold, so that it is easy to read and copy. */
+    public static function ibanHtml(string $iban): string
+    {
+        $compact = strtoupper(preg_replace('/\s+/', '', $iban));
+        if ($compact === '') {
+            return '';
+        }
+        $out = [];
+        foreach (str_split($compact, 4) as $i => $group) {
+            $out[] = $i % 2 === 0 ? '<strong>' . self::e($group) . '</strong>' : '<span style="color:#475467;">' . self::e($group) . '</span>';
+        }
+        return implode(' ', $out);
+    }
+
+    /**
+     * Highlighted text for the services that have already expired (empty otherwise). Services
+     * that share the same text get it once, naming them together ("A και B").
+     */
     public static function expiredNotice(array $services): string
     {
-        $html = '';
+        $byText = [];
         foreach ($services as $x) {
             if (self::state(self::daysUntil($x->expiry_date)) !== 'after') continue;
             $text = trim((string) ($x->catalog_expired_text ?? '')) ?: (string) self::setting('notify_expired_text');
-            $html .= OfferHelper::render($text, ['service_full' => self::serviceFull($x), 'service' => (string) $x->service_name, 'label' => (string) $x->label,
-                'date' => self::dateGr($x->expiry_date), 'company' => self::brandName()]);
+            $byText[$text][] = $x;
         }
-        return $html === '' ? '' : '<div style="border-left:4px solid #dc2626;background:#fef2f2;border-radius:6px;padding:14px 16px 2px;margin:16px 0;">' . $html . '</div>';
+        $html = '';
+        foreach ($byText as $text => $list) {
+            $names = array_map([self::class, 'serviceFull'], $list);
+            $joined = count($names) > 1 ? implode(', ', array_slice($names, 0, -1)) . ' και ' . end($names) : $names[0];
+            $labels = array_values(array_unique(array_filter(array_map(static fn($x) => (string) $x->label, $list))));
+            $html .= OfferHelper::render($text, ['service_full' => $joined, 'service' => implode(', ', array_map(static fn($x) => (string) $x->service_name, $list)),
+                'label' => implode(', ', $labels), 'date' => self::dateGr($list[0]->expiry_date), 'company' => self::brandName()]);
+        }
+        return $html === '' ? '' : '<div style="border-left:4px solid #dc2626;background:#fef2f2;border-radius:6px;padding:10px 14px 0;margin:14px 0;font-size:14px;line-height:1.5;">' . $html . '</div>';
     }
 
     public static function buildReport(object $report, object $service, object $client): array
@@ -923,9 +970,26 @@ final class Notify
                 break;
             }
         }
-        [$subject, $body] = self::buildRenewal($group, $client);
-        return self::queue(['client_id' => $client->id, 'service_id' => $group[0]->id, 'service_ids' => self::serviceIdsField($group), 'kind' => 'renewal',
+        return self::queueRenewalFor($group, $client);
+    }
+
+    /** Manual reminder for the services chosen by the user (any services of the same client). */
+    public static function queueRenewalFor(array $services, object $client): int
+    {
+        $services = array_values(array_filter($services, static fn($x) => (int) $x->client_id === (int) $client->id && $x->expiry_date));
+        if (!$services) {
+            return 0;
+        }
+        usort($services, static fn($a, $b) => strcmp((string) $a->expiry_date, (string) $b->expiry_date));
+        [$subject, $body] = self::buildRenewal($services, $client);
+        return self::queue(['client_id' => $client->id, 'service_id' => $services[0]->id, 'service_ids' => self::serviceIdsField($services), 'kind' => 'renewal',
             'to_email' => $client->email, 'subject' => $subject, 'body' => $body]);
+    }
+
+    /** Active services of a client that have an expiry date (the ones a reminder can be about). */
+    public static function remindable(int $clientId): array
+    {
+        return array_values(array_filter(self::services(['client_id' => $clientId, 'status' => 'active']), static fn($x) => (bool) $x->expiry_date));
     }
 
     /**

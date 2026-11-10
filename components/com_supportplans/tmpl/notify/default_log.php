@@ -13,7 +13,7 @@ $base = 'section=log' . ($this->filters['kind'] ? '&kind=' . $this->filters['kin
   <?php echo NotifyUi::button('runNow', ['back' => 'section=log'], 'Αποστολή ουράς τώρα', '', 'sp-primary-action'); ?>
 </section>
 <div class="sp-card">
-  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url()); ?>">
+  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url('', false)); ?>">
     <input type="hidden" name="option" value="com_supportplans"><input type="hidden" name="view" value="notify"><input type="hidden" name="section" value="log">
     <input type="hidden" name="tmpl" value="component"><input type="hidden" name="spapp" value="1"><input type="hidden" name="Itemid" value="<?php echo OfferHelper::itemid(); ?>">
     <?php if ($this->filters['campaign_id']): ?><input type="hidden" name="campaign_id" value="<?php echo (int) $this->filters['campaign_id']; ?>"><?php endif; ?>

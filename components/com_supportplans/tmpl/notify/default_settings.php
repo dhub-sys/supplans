@@ -13,7 +13,7 @@ $me = (string) Factory::getApplication()->getSession()->get('supportplans.auth.e
 $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company}</code> <code>{service}</code> <code>{label}</code> <code>{expiry_date}</code> <code>{days_left}</code> <code>{expiry_phrase}</code> <code>{price}</code> <code>{duration}</code> <code>{price_line}</code>';
 ?>
 <div class="sp-standalone-actions sp-offer-actions"><button type="button" class="btn btn-primary" onclick="spSubmit('notify.saveSettings')">Αποθήκευση ρυθμίσεων</button></div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveSettings')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveSettings', false)); ?>" method="post" id="adminForm" enctype="multipart/form-data">
  <div class="sp-card">
   <h2>Αποστολέας</h2>
   <div class="sp-grid">
@@ -24,6 +24,45 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
   </div>
   <p class="sp-n-help">Κενά πεδία = οι ρυθμίσεις email του Joomla (Καθολική ρύθμιση → Διακομιστής → Ταχυδρομείο). Χρησιμοποιήστε SMTP και διεύθυνση στο domain σας, με σωστά SPF, DKIM και DMARC, ώστε τα μηνύματα να μην πηγαίνουν στα spam.</p>
  </div>
+ <?php $mailLogo = Notify::emailLogoUrl(); $brandLogo = OfferHelper::assetUrl((string) $this->params->get('brand_logo', '')); ?>
+ <div class="sp-card">
+  <h2>Λογότυπο στα email</h2>
+  <p class="sp-n-help">Εμφανίζεται πάνω δεξιά σε κάθε email. Το Gmail και το Outlook <b>δεν δείχνουν λογότυπα SVG</b>, γι' αυτό τα email χρειάζονται PNG ή JPG.</p>
+  <div class="sp-n-logo-row">
+   <div class="sp-n-logo-box"><?php if ($mailLogo !== ''): ?><img id="sp-n-logo-current" src="<?php echo $e($mailLogo); ?>" alt=""><?php else: ?><span class="text-muted" id="sp-n-logo-current">Χωρίς λογότυπο — εμφανίζεται η επωνυμία</span><?php endif; ?></div>
+   <div>
+    <?php if (Notify::brandLogoIsSvg() && $brandLogo !== ''): ?>
+    <p><button type="button" class="btn btn-outline-primary" id="sp-n-logo-make" data-src="<?php echo $e($brandLogo); ?>">Δημιουργία PNG από το λογότυπο του Support Plans</button></p>
+    <?php endif; ?>
+    <label class="sp-field-label">ή ανεβάστε PNG / JPG<br><input type="file" name="notify_email_logo_upload" accept="image/png,image/jpeg,image/gif"></label>
+    <?php if ((string) $this->params->get('notify_email_logo', '') !== ''): ?><p><label class="sp-check"><input type="checkbox" name="notify_email_logo_remove" value="1"> Αφαίρεση του λογοτύπου email</label></p><?php endif; ?>
+    <input type="hidden" name="notify_email_logo_data" id="sp-n-logo-data" value="">
+    <p class="sp-n-help" id="sp-n-logo-msg"></p>
+   </div>
+  </div>
+ </div>
+ <script>
+ (function () {
+   var btn = document.getElementById('sp-n-logo-make'); if (!btn) return;
+   btn.addEventListener('click', function () {
+     var img = new Image(), msg = document.getElementById('sp-n-logo-msg');
+     img.onload = function () {
+       // 2× the 44px header height, so the logo stays sharp on retina screens.
+       var h = 88, w = Math.round((img.naturalWidth || img.width || 200) * h / (img.naturalHeight || img.height || 44));
+       if (w > 1200) { w = 1200; h = Math.round(w * (img.naturalHeight || 44) / (img.naturalWidth || 200)); }
+       var c = document.createElement('canvas'); c.width = w; c.height = h;
+       c.getContext('2d').drawImage(img, 0, 0, w, h);
+       var url = c.toDataURL('image/png');
+       document.getElementById('sp-n-logo-data').value = url;
+       var cur = document.getElementById('sp-n-logo-current'), box = cur.parentNode, n = document.createElement('img');
+       n.id = 'sp-n-logo-current'; n.src = url; box.replaceChild(n, cur);
+       msg.textContent = 'Το PNG δημιουργήθηκε. Πατήστε «Αποθήκευση ρυθμίσεων» για να μπει στα email.';
+     };
+     img.onerror = function () { msg.textContent = 'Το λογότυπο δεν φορτώθηκε. Ανεβάστε ένα PNG.'; };
+     img.src = btn.dataset.src;
+   });
+ })();
+ </script>
  <div class="sp-card">
   <h2>Υπενθυμίσεις &amp; ουρά</h2>
   <div class="sp-grid">
@@ -69,7 +108,7 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
 </form>
 <div class="sp-card">
   <h2>Δοκιμαστική αποστολή</h2>
-  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.sendTest')); ?>" class="sp-n-filters">
+  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.sendTest', false)); ?>" class="sp-n-filters">
     <input type="email" name="to" required value="<?php echo $e($me); ?>">
     <?php echo NotifyUi::select('template', ['renewal' => 'Υπενθύμιση (μία υπηρεσία)', 'group' => 'Συνδυαστική υπενθύμιση (3 υπηρεσίες)', 'report' => 'Αναφορά maintenance'], 'renewal'); ?>
     <?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-primary">Αποστολή δοκιμαστικού</button>

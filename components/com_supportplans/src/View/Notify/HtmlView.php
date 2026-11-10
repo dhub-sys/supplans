@@ -42,6 +42,10 @@ class HtmlView extends BaseHtmlView
     public array $groups = [];
     /** Payments / renewals of the selected client service. */
     public array $renewals = [];
+    /** Client page, manual reminder: services that can be chosen, and the ones selected. */
+    public array $remindable = [];
+    public array $remindSelected = [];
+    public array $remindPreview = [];
 
     public function display($tpl = null): void
     {
@@ -73,6 +77,27 @@ class HtmlView extends BaseHtmlView
                         $this->services = Notify::services(['client_id' => $id]);
                         $this->schedule = Notify::schedule($id);
                         $this->groups = Notify::groups(Notify::candidates($id));
+                        // Manual reminder: chosen services (posted from the preview button), else the
+                        // group of the service the user came from (?remind=ID), else the first group.
+                        $this->remindable = Notify::remindable($id);
+                        $chosen = array_map('intval', (array) $in->get('rp_ids', [], 'array'));
+                        if (!$chosen && ($rid = $in->getInt('remind', 0))) {
+                            $chosen = [$rid];
+                            foreach (Notify::groups(Notify::candidates($id, false)) as $grp) {
+                                $gids = array_map(static fn($x) => (int) $x->id, $grp);
+                                if (in_array($rid, $gids, true)) { $chosen = $gids; break; }
+                            }
+                        }
+                        if (!$chosen && $this->groups) {
+                            $chosen = array_map(static fn($x) => (int) $x->id, $this->groups[0]);
+                        }
+                        $valid = array_map(static fn($x) => (int) $x->id, $this->remindable);
+                        $this->remindSelected = array_values(array_intersect($chosen, $valid));
+                        if ($in->get('rp_ids', null, 'array') !== null && $this->remindSelected) {
+                            $list = array_values(array_filter($this->remindable, fn($x) => in_array((int) $x->id, $this->remindSelected, true)));
+                            [$subject, $body] = Notify::buildRenewal($list, $this->selected);
+                            $this->remindPreview = ['subject' => $subject, 'body' => $body];
+                        }
                         $g = $in->getInt('preview', 0);
                         if ($g > 0 && isset($this->groups[$g - 1])) {
                             [$subject, $body] = Notify::buildRenewal($this->groups[$g - 1], $this->selected);

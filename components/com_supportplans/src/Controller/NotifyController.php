@@ -506,13 +506,31 @@ class NotifyController extends BaseController
         $this->go('section=clients&id=' . $clientId);
     }
 
+    /**
+     * Manual reminder. With ids[] (+ client_id): one message for exactly the chosen services of the
+     * client. With id only: the service together with its group of close expiry dates.
+     */
     public function remindNow(): void
     {
         $this->guard();
-        $s = Notify::service($this->input->post->getInt('id', 0));
-        $id = $s ? Notify::queueRenewal($s) : 0;
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->input->post->get('ids', [], 'array')))));
+        if ($ids) {
+            $client = Notify::client($this->input->post->getInt('client_id', 0));
+            $services = $client ? array_filter(array_map([Notify::class, 'service'], $ids), static fn($x) => $x && (int) $x->client_id === (int) $client->id) : [];
+            $id = $client && $services ? Notify::queueRenewalFor($services, $client) : 0;
+            $to = $client->email ?? '';
+            if (!$services) {
+                $this->msg('Επιλέξτε τουλάχιστον μία υπηρεσία.', 'error');
+                $this->go($this->back());
+                return;
+            }
+        } else {
+            $s = Notify::service($this->input->post->getInt('id', 0));
+            $id = $s ? Notify::queueRenewal($s) : 0;
+            $to = $s->client_email ?? '';
+        }
         $ok = $id && Notify::sendNow($id);
-        $this->msg($ok ? 'Η υπενθύμιση εστάλη στο ' . $s->client_email . '.' : 'Η αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
+        $this->msg($ok ? 'Η υπενθύμιση εστάλη στο ' . $to . '.' : 'Η αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
         $this->go($this->back());
     }
 
@@ -705,8 +723,58 @@ class NotifyController extends BaseController
         foreach ($values as $k => $v) {
             OfferHelper::saveParam($k, $v);
         }
+        $this->saveEmailLogo();
         $this->msg('Οι ρυθμίσεις ειδοποιήσεων αποθηκεύτηκαν.');
         $this->go('section=settings');
+    }
+
+    /**
+     * E-mail logo: an uploaded PNG/JPG/GIF, or the PNG the settings page makes in the browser
+     * from the SVG logo (data URL). Always re-encoded with GD to a clean PNG, so nothing but
+     * pixels is stored; max 1 MB, max 1200×600.
+     */
+    private function saveEmailLogo(): void
+    {
+        $dir = JPATH_ROOT . '/images/supportplans';
+        $target = $dir . '/email-logo.png';
+        if ($this->input->post->getInt('notify_email_logo_remove', 0)) {
+            if (is_file($target)) @unlink($target);
+            OfferHelper::saveParam('notify_email_logo', '');
+            return;
+        }
+        $bytes = '';
+        $upload = $this->input->files->get('notify_email_logo_upload', null, 'raw');
+        if (is_array($upload) && (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK && is_uploaded_file((string) $upload['tmp_name'])) {
+            $bytes = (int) $upload['size'] <= 1024 * 1024 ? (string) file_get_contents((string) $upload['tmp_name']) : '';
+        } else {
+            $data = (string) $this->input->post->get('notify_email_logo_data', '', 'raw');
+            if (preg_match('#^data:image/png;base64,([A-Za-z0-9+/=]+)$#', $data, $m)) {
+                $bytes = (string) base64_decode($m[1], true);
+            }
+        }
+        if ($bytes === '') {
+            return;
+        }
+        $info = @getimagesizefromstring($bytes);
+        if (!$info || !in_array($info[2], [IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF], true) || strlen($bytes) > 1024 * 1024 || $info[0] > 1200 || $info[1] > 600 || !function_exists('imagecreatefromstring')) {
+            $this->msg('Το λογότυπο email πρέπει να είναι PNG, JPG ή GIF έως 1 MB και 1200×600 pixels.', 'error');
+            return;
+        }
+        $img = @imagecreatefromstring($bytes);
+        if (!$img) {
+            $this->msg('Το αρχείο του λογοτύπου δεν διαβάζεται.', 'error');
+            return;
+        }
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
+        if (!is_dir($dir)) @mkdir($dir, 0755, true);
+        if (!@imagepng($img, $target, 9)) {
+            $this->msg('Δεν ήταν δυνατή η αποθήκευση του λογοτύπου στο ' . $dir . '.', 'error');
+            return;
+        }
+        imagedestroy($img);
+        @chmod($target, 0644);
+        OfferHelper::saveParam('notify_email_logo', 'images/supportplans/email-logo.png');
     }
 
     public function sendTest(): void

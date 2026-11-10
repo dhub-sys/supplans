@@ -21,7 +21,7 @@ final class NotifyUi
     /** POST form with one button (every change goes through POST + form token). */
     public static function button(string $task, array $fields, string $label, string $confirm = '', string $class = 'btn btn-sm btn-outline-primary'): string
     {
-        $html = '<form class="sp-inline-form" method="post" action="' . self::e(OfferHelper::url('task=notify.' . $task)) . '"'
+        $html = '<form class="sp-inline-form" method="post" action="' . self::e(OfferHelper::url('task=notify.' . $task, false)) . '"'
             . ($confirm !== '' ? ' onsubmit="return confirm(' . self::e(json_encode($confirm, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) . ');"' : '') . '>';
         foreach ($fields as $k => $v) {
             $html .= '<input type="hidden" name="' . self::e($k) . '" value="' . self::e($v) . '">';

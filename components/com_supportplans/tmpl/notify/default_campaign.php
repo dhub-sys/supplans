@@ -22,7 +22,7 @@ $dis = $locked ? ' disabled' : '';
 <?php endif; ?>
  <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=campaigns'); ?>">Κλείσιμο</a>
 </div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveCampaign')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveCampaign', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
   <h2><?php echo $k ? 'Αποστολή' : 'Νέα αποστολή'; ?><?php if ($locked): ?> <span class="sp-offer-status is-sent">Σε ουρά από <?php echo $e(Notify::datetimeGr($k->queued)); ?></span><?php endif; ?></h2>
   <div class="sp-grid">

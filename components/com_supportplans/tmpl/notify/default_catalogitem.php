@@ -15,7 +15,7 @@ $next = ($this->catalog ? max(array_map(static fn($x) => (int) $x->ordering, $th
  <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-after').value='close';spSubmit('notify.saveCatalog')">Αποθήκευση &amp; κλείσιμο</button>
  <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=catalog'); ?>">Κλείσιμο</a>
 </div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveCatalog')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveCatalog', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
   <h2><?php echo $k ? $e($k->name) : 'Νέα υπηρεσία καταλόγου'; ?></h2>
   <div class="sp-grid">

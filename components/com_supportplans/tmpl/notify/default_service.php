@@ -22,7 +22,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
  <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-after').value='client';spSubmit('notify.saveService')">Αποθήκευση &amp; μετάβαση στον πελάτη</button>
  <a class="btn btn-outline-secondary" href="<?php echo $clientId ? NotifyUi::url('section=clients&id=' . $clientId) : NotifyUi::url('section=services'); ?>">Κλείσιμο</a>
 </div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveService')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveService', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
   <h2><?php echo $s ? $e(($s->service_name ?: 'Υπηρεσία') . ($s->label !== '' ? ' – ' . $s->label : '')) : 'Ανάθεση υπηρεσίας σε πελάτη'; ?></h2>
   <div class="sp-grid">
@@ -76,7 +76,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
 <div class="sp-card" id="sp-n-pay">
   <h2>Πληρώθηκε / Ανανέωση</h2>
   <p class="sp-n-help">Όταν ο πελάτης πληρώσει, καταχωρήστε το εδώ: η λήξη μετακινείται και <b>οι υπενθυμίσεις για την τρέχουσα λήξη σταματούν αμέσως</b> (και όσες περιμένουν στην ουρά ακυρώνονται). Οι επόμενες υπενθυμίσεις θα έρθουν όταν πλησιάσει η νέα λήξη.</p>
-  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.renew')); ?>" onsubmit="return confirm('Καταχώρηση πληρωμής και νέα λήξη ' + this.new_expiry.value.split('-').reverse().join('/') + ';');">
+  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.renew', false)); ?>" onsubmit="return confirm('Καταχώρηση πληρωμής και νέα λήξη ' + this.new_expiry.value.split('-').reverse().join('/') + ';');">
    <div class="sp-grid">
     <label>Τρέχουσα λήξη<input value="<?php echo $e(Notify::dateGr($s->expiry_date)); ?>" disabled></label>
     <label>Ημερομηνία πληρωμής<input type="date" name="paid_on" value="<?php echo $e(Notify::today()); ?>" required></label>
@@ -100,7 +100,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
 <div class="sp-card">
   <h2>Ενέργειες</h2>
   <div class="sp-n-actions">
-    <?php if ($s->expiry_date && $s->status === 'active'): ?><?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Αποστολή υπενθύμισης τώρα', 'Αποστολή υπενθύμισης στο ' . $s->client_email . ';', 'btn btn-outline-secondary'); ?><?php endif; ?>
+    <?php if ($s->expiry_date && $s->status === 'active'): ?><a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $s->client_id . '&remind=' . (int) $s->id); ?>#sp-n-remind">Αποστολή υπενθύμισης…</a><?php endif; ?>
     <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Νέα αναφορά maintenance</a>
     <?php echo NotifyUi::button('deleteService', ['id' => $s->id], 'Διαγραφή', 'Διαγραφή της υπηρεσίας του πελάτη, των αναφορών και του ιστορικού πληρωμών της;', 'btn btn-outline-danger'); ?>
   </div>

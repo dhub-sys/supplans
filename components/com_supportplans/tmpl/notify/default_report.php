@@ -31,7 +31,7 @@ $dis = $sent ? ' disabled' : '';
 <?php endif; ?>
  <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports'); ?>">Κλείσιμο</a>
 </div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveReport')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveReport', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
   <h2><?php echo $r ? 'Αναφορά maintenance' : 'Νέα αναφορά maintenance'; ?><?php if ($sent): ?> <span class="sp-offer-status is-accepted">Εστάλη <?php echo $e(Notify::datetimeGr($r->sent)); ?></span><?php endif; ?></h2>
   <div class="sp-grid">

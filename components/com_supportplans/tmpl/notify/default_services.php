@@ -13,7 +13,7 @@ foreach ($this->catalog as $k) $catalogOptions[$k->id] = $k->name;
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=services&mode=new'); ?>">＋ Ανάθεση υπηρεσίας</a>
 </section>
 <div class="sp-card">
-  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url()); ?>">
+  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url('', false)); ?>">
     <input type="hidden" name="option" value="com_supportplans"><input type="hidden" name="view" value="notify"><input type="hidden" name="section" value="services">
     <input type="hidden" name="tmpl" value="component"><input type="hidden" name="spapp" value="1"><input type="hidden" name="Itemid" value="<?php echo OfferHelper::itemid(); ?>">
     <input type="search" name="q" value="<?php echo $e($this->filters['search']); ?>" placeholder="Domain, πελάτης, υπηρεσία">

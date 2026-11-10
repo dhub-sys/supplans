@@ -14,7 +14,7 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
  <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients'); ?>">Κλείσιμο</a>
  <?php if ($c): ?><a class="btn btn-outline-primary" href="<?php echo NotifyUi::url('section=services&mode=new&client_id=' . (int) $c->id); ?>">＋ Ανάθεση υπηρεσίας</a><?php endif; ?>
 </div>
-<form action="<?php echo $e(OfferHelper::url('task=notify.saveClient')); ?>" method="post" id="adminForm">
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveClient', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
   <h2><?php echo $c ? $e(Notify::clientLabel($c)) : 'Νέος πελάτης'; ?></h2>
   <div class="sp-grid">
@@ -55,7 +55,7 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
       <ul><?php foreach ($g as $x): ?><li><?php echo $e(Notify::serviceFull($x)); ?> — <?php echo NotifyUi::expiry($x->expiry_date, $x->status); ?></li><?php endforeach; ?></ul></div>
     <div class="sp-row-actions"><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id . '&preview=' . ($i + 1)); ?>#sp-n-preview">Προεπισκόπηση</a>
       <?php echo NotifyUi::button('remindNow', ['id' => $g[0]->id, 'back' => 'section=clients&id=' . (int) $c->id], 'Αποστολή τώρα', 'Αποστολή της υπενθύμισης στο ' . $c->email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?>
-      <form class="sp-inline-form" method="post" action="<?php echo $e(OfferHelper::url('task=notify.renewGroup')); ?>" onsubmit="return confirm(<?php echo $e(json_encode('Καταχώρηση πληρωμής για ' . (count($g) > 1 ? 'όλες τις ' . count($g) . ' υπηρεσίες' : 'την υπηρεσία') . '; Κάθε μία ανανεώνεται κατά τη δική της διάρκεια και οι υπενθυμίσεις σταματούν.', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)); ?>);">
+      <form class="sp-inline-form" method="post" action="<?php echo $e(OfferHelper::url('task=notify.renewGroup', false)); ?>" onsubmit="return confirm(<?php echo $e(json_encode('Καταχώρηση πληρωμής για ' . (count($g) > 1 ? 'όλες τις ' . count($g) . ' υπηρεσίες' : 'την υπηρεσία') . '; Κάθε μία ανανεώνεται κατά τη δική της διάρκεια και οι υπενθυμίσεις σταματούν.', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)); ?>);">
         <?php foreach ($g as $x): ?><input type="hidden" name="ids[]" value="<?php echo (int) $x->id; ?>"><?php endforeach; ?>
         <input type="hidden" name="client_id" value="<?php echo (int) $c->id; ?>"><?php echo HTMLHelper::_('form.token'); ?>
         <button class="btn btn-sm btn-primary"><?php echo count($g) > 1 ? 'Πληρώθηκαν όλες' : 'Πληρώθηκε'; ?></button></form></div>
@@ -64,6 +64,30 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
   <?php if ($this->preview): ?>
   <div id="sp-n-preview"><dl class="sp-n-meta"><dt>Προς</dt><dd><?php echo $e($this->preview['to']); ?></dd><dt>Θέμα</dt><dd><?php echo $e($this->preview['subject']); ?></dd></dl>
   <?php echo NotifyUi::preview($this->preview['body']); ?></div>
+  <?php endif; ?>
+</div>
+<div class="sp-card" id="sp-n-remind">
+  <h2>Χειροκίνητη υπενθύμιση ανανέωσης</h2>
+  <?php if (!$this->remindable): ?><p class="text-muted">Ο πελάτης δεν έχει ενεργές υπηρεσίες με ημερομηνία λήξης.</p><?php else: ?>
+  <p class="sp-n-help">Επιλέξτε ποιες υπηρεσίες θα μπουν <b>σε ένα μήνυμα</b>: όσες τσεκάρετε, ανεξάρτητα από το πόσο απέχουν οι λήξεις τους. Κάθε υπηρεσία γράφεται με τη σωστή διατύπωση (λήγει / λήγει σήμερα / έληξε) και μπαίνει στην οικονομική σύνοψη.</p>
+  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.remindNow', false)); ?>">
+   <div class="sp-n-checklist">
+    <?php foreach ($this->remindable as $x): ?>
+    <label class="sp-check"><input type="checkbox" name="ids[]" value="<?php echo (int) $x->id; ?>" <?php echo in_array((int) $x->id, $this->remindSelected, true) ? 'checked' : ''; ?>>
+      <span><strong><?php echo $e(Notify::serviceFull($x)); ?></strong> <?php echo NotifyUi::expiry($x->expiry_date, $x->status); ?><?php if ($x->price !== null): ?> <small class="text-muted"><?php echo $e(Notify::money($x->price)); ?> + ΦΠΑ</small><?php endif; ?></span></label>
+    <?php endforeach; ?>
+   </div>
+   <input type="hidden" name="client_id" value="<?php echo (int) $c->id; ?>"><input type="hidden" name="back" value="section=clients&id=<?php echo (int) $c->id; ?>">
+   <?php echo HTMLHelper::_('form.token'); ?>
+   <div class="sp-n-actions">
+    <button class="btn btn-outline-primary" formaction="<?php echo $e(NotifyUi::url('section=clients&id=' . (int) $c->id, false) . '#sp-n-remind'); ?>" onclick="this.form.querySelectorAll('input[name=&quot;ids[]&quot;]').forEach(function(i){i.name='rp_ids[]';});">Προεπισκόπηση</button>
+    <button class="btn btn-primary" onclick="return this.form.querySelector('input[name=&quot;ids[]&quot;]:checked') ? confirm('Αποστολή της υπενθύμισης στο <?php echo $e(addslashes($c->email)); ?>;') : (alert('Επιλέξτε τουλάχιστον μία υπηρεσία.'), false);">Αποστολή τώρα</button>
+   </div>
+  </form>
+  <?php if ($this->remindPreview): ?>
+  <dl class="sp-n-meta"><dt>Προς</dt><dd><?php echo $e($c->email); ?></dd><dt>Θέμα</dt><dd><?php echo $e($this->remindPreview['subject']); ?></dd></dl>
+  <?php echo NotifyUi::preview($this->remindPreview['body']); ?>
+  <?php endif; ?>
   <?php endif; ?>
 </div>
 <div class="sp-card">

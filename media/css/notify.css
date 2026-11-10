@@ -22,3 +22,9 @@
 .sp-n-group{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border:1px solid #e4e9f1;border-radius:10px;padding:12px 14px;margin:0 0 10px}
 .sp-n-group ul{margin:6px 0 0;padding-left:18px}.sp-n-group li{margin:3px 0}
 @media (max-width:640px){.sp-n-group{flex-direction:column}}
+.sp-n-checklist{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px}
+.sp-n-checklist .sp-check{align-items:flex-start!important;font-weight:400}
+.sp-n-checklist .sp-check input{margin-top:3px}
+.sp-n-logo-row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.sp-n-logo-box{min-width:220px;min-height:70px;padding:12px 16px;border:1px dashed #cfd6e1;border-radius:10px;display:flex;align-items:center;justify-content:flex-end;background:#fff}
+.sp-n-logo-box img{height:44px;width:auto;max-width:220px}

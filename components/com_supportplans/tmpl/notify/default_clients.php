@@ -12,7 +12,7 @@ $e = [NotifyUi::class, 'e'];
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=clients&mode=new'); ?>">＋ Νέος πελάτης</a>
 </section>
 <div class="sp-card">
-  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url()); ?>">
+  <form class="sp-n-filters" method="get" action="<?php echo $e(NotifyUi::url('', false)); ?>">
     <input type="hidden" name="option" value="com_supportplans"><input type="hidden" name="view" value="notify"><input type="hidden" name="section" value="clients">
     <input type="hidden" name="tmpl" value="component"><input type="hidden" name="spapp" value="1"><input type="hidden" name="Itemid" value="<?php echo OfferHelper::itemid(); ?>">
     <input type="search" name="q" value="<?php echo $e($this->filters['search']); ?>" placeholder="Όνομα, εταιρεία ή email">
@@ -43,10 +43,10 @@ $e = [NotifyUi::class, 'e'];
   <h2>Εισαγωγή από Excel</h2>
   <p class="sp-n-help">Κατεβάστε το πρότυπο, συμπληρώστε <b>μία γραμμή για κάθε υπηρεσία κάθε πελάτη</b> (πελάτης με 3 υπηρεσίες = 3 γραμμές με το ίδιο email, η καθεμία με τη δική της ημερομηνία λήξης) και ανεβάστε το. Η στήλη «Υπηρεσία» έχει λίστα με τις υπηρεσίες του καταλόγου σας. Υπάρχοντες πελάτες (ίδιο email) και υπηρεσίες (ίδιος πελάτης, υπηρεσία και domain) ενημερώνονται, δεν διπλασιάζονται. Κενή τιμή ή διάρκεια = του καταλόγου.</p>
   <div class="sp-n-actions">
-    <a class="btn btn-outline-primary" href="<?php echo $e(OfferHelper::url('task=notify.template')); ?>">⭳ Λήψη προτύπου Excel</a>
-    <a class="btn btn-outline-secondary" href="<?php echo $e(OfferHelper::url('task=notify.export')); ?>">⭳ Εξαγωγή πελατών &amp; υπηρεσιών σε Excel</a>
+    <a class="btn btn-outline-primary" href="<?php echo $e(OfferHelper::url('task=notify.template', false)); ?>">⭳ Λήψη προτύπου Excel</a>
+    <a class="btn btn-outline-secondary" href="<?php echo $e(OfferHelper::url('task=notify.export', false)); ?>">⭳ Εξαγωγή πελατών &amp; υπηρεσιών σε Excel</a>
   </div>
-  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=notify.importSheet')); ?>" class="sp-n-filters">
+  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=notify.importSheet', false)); ?>" class="sp-n-filters">
     <input type="file" name="sheet" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" required>
     <?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-primary">Εισαγωγή</button>
   </form>
