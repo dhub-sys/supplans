@@ -801,6 +801,39 @@ final class Notify
         }, $html);
     }
 
+    /**
+     * Outlook for Windows (Word engine) puts the text of every table cell in a paragraph of its own
+     * with "auto" spacing before and after, which made the rows of the e-mail tables tall and the
+     * text vertically centred. In the data tables (.sp-n-data) every cell's content is therefore
+     * wrapped in an explicit paragraph with zero spacing (also the Word-only mso-margin-*-alt), and
+     * the vertical alignment is repeated as an HTML attribute.
+     */
+    private static function outlookCells(string $html): string
+    {
+        return preg_replace_callback('#<table class="sp-n-data[^"]*".*?</table>#s', static function ($t) {
+            return preg_replace_callback('#<(td|th)(\s[^>]*)?>(.*?)</\1>#s', static function ($m) {
+                $attrs = $m[2] ?? '';
+                $content = $m[3];
+                $style = preg_match('/style="([^"]*)"/i', $attrs, $sm) ? $sm[1] : '';
+                $keep = '';
+                foreach (['font-size', 'font-weight', 'color', 'text-align', 'white-space', 'font-family'] as $prop) {
+                    if (preg_match('/(?:^|;)\s*' . preg_quote($prop, '/') . '\s*:\s*([^;]+)/i', $style, $pm)) {
+                        $keep .= $prop . ':' . trim($pm[1]) . ';';
+                    }
+                }
+                $valign = preg_match('/vertical-align\s*:\s*(top|middle|bottom)/i', $style, $vm) ? strtolower($vm[1]) : 'top';
+                if (stripos($attrs, 'valign=') === false) {
+                    $attrs .= ' valign="' . $valign . '"';
+                }
+                if (trim($content) === '' || stripos($content, '<p') !== false) {
+                    return '<' . $m[1] . $attrs . '>' . $content . '</' . $m[1] . '>';
+                }
+                return '<' . $m[1] . $attrs . '><p class="sp-n-cell" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;line-height:18px;mso-line-height-rule:exactly;' . $keep . '">'
+                    . $content . '</p></' . $m[1] . '>';
+            }, $t[0]);
+        }, $html);
+    }
+
     /** Every table cell gets the font and an exact line height (Outlook does not inherit them). */
     private static function cellFonts(string $html): string
     {
@@ -855,16 +888,17 @@ final class Notify
             . '@media only screen and (max-width:520px){.sp-n-bank td{display:block!important;width:auto!important;border-top:0!important;padding:1px 12px!important}'
             . '.sp-n-bank td.sp-n-bank-name{border-top:1px solid #eef0f4!important;padding-top:9px!important}.sp-n-bank td.sp-n-bank-ben{padding-bottom:9px!important}}'
             // Very narrow phones: smaller margins so a whole IBAN still fits on one line.
-            . '@media only screen and (max-width:380px){.sp-n-outer{padding:12px 4px!important}.sp-n-body{padding:20px 14px!important}.sp-n-bank td.sp-n-bank-iban{font-size:11.5px!important}}</style>'
+            . '@media only screen and (max-width:380px){.sp-n-outer{padding:12px 4px!important}.sp-n-body{padding:20px 14px!important}.sp-n-bank td.sp-n-bank-iban,.sp-n-bank td.sp-n-bank-iban p{font-size:11.5px!important}}</style>'
             // Outlook for Windows: Arial, no extra spacing around tables and cell paragraphs.
-            . '<!--[if mso]><style>body,table,td,th,p,li,a,span,strong{font-family:' . self::outlookFontStack() . '!important}table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}td p,.MsoNormal{margin:0}</style>'
+            . '<!--[if mso]><style>body,table,td,th,p,li,a,span,strong{font-family:' . self::outlookFontStack() . '!important}table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}.MsoNormal{margin:0}'
+            . '.sp-n-cell{margin:0!important;mso-margin-top-alt:0!important;mso-margin-bottom-alt:0!important}</style>'
             . '<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->'
             . '</head><body style="margin:0;padding:0;background:#f3f4f6;font-family:' . $stack . ';">'
             . '<table class="sp-n-outer" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;"><tr><td align="center">'
             . '<!--[if mso]><table role="presentation" width="640" cellpadding="0" cellspacing="0"><tr><td><![endif]-->'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;color:#1f2937;">'
             . '<tr><td style="padding:18px 22px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
-            . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:22px;mso-line-height-rule:exactly;">' . self::inlineBlocks($inner) . '</td></tr>'
+            . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:22px;mso-line-height-rule:exactly;">' . self::outlookCells(self::inlineBlocks($inner)) . '</td></tr>'
             . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:18px;mso-line-height-rule:exactly;">' . $footerHtml . '</td></tr>'
             . '</table><!--[if mso]></td></tr></table><![endif]--></td></tr></table></body></html>';
         return self::cellFonts($html);
@@ -875,7 +909,7 @@ final class Notify
         $html = preg_replace('#<(head|style)[^>]*>.*?</\1>#is', '', $html);
         $html = preg_replace('#<(br|/p|/tr|/li|/h[1-6])\s*/?>#i', "$0\n", $html);
         // Data tables (maintenance updates): cells separated by " | "; layout tables: line breaks.
-        $html = preg_replace_callback('#<table class="sp-n-data".*?</table>#is', static fn($m) => preg_replace(['#</t[dh]>\s*(?=</tr>)#i', '#</t[dh]>#i'], ['', ' | '], $m[0]), $html);
+        $html = preg_replace_callback('#<table class="sp-n-data[^"]*".*?</table>#is', static fn($m) => preg_replace(['#</?p\b[^>]*>\s*#i', '#</t[dh]>\s*(?=</tr>)#i', '#</t[dh]>#i'], ['', '', ' | '], $m[0]), $html);
         $html = preg_replace('#</t[dh]>#i', "\n", $html);
         $html = preg_replace('#<a [^>]*href="([^"]+)"[^>]*>(.*?)</a>#is', '$2 ($1)', $html);
         $text = html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8');

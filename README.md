@@ -790,3 +790,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.16.3
 - `renderText()`: όταν ένα block (`{price_table}`, `{banks}`, `{expired_notice}`, `{services_status}` …) βρίσκεται σε παράγραφο μαζί με άλλο κείμενο (μονή αλλαγή γραμμής στο πρότυπο → `<br>`), η παράγραφος σπάει γύρω του. Το Outlook για Windows έδινε στα κελιά των πινάκων μέσα σε `<p>` τα περιθώρια της παραγράφου.
 - Ετικέτες συνόλων στοιχισμένες αριστερά.
+
+## v1.16.4
+- `outlookCells()`: σε κάθε `table.sp-n-data` το περιεχόμενο κάθε κελιού τυλίγεται σε `<p class="sp-n-cell">` με `margin:0`, `mso-margin-top-alt:0`, `mso-margin-bottom-alt:0`, ακριβές `line-height` και τις ιδιότητες κειμένου του κελιού· προστίθεται `valign`. Στόχος το «auto» spacing πριν/μετά που προσθέτει το Word engine του Outlook για Windows στις αυτόματες παραγράφους των κελιών.
