@@ -20,13 +20,12 @@ $e = [NotifyUi::class, 'e'];
     <button class="btn btn-outline-secondary">Φιλτράρισμα</button>
   </form>
   <div class="table-responsive"><table class="table sp-offer-table">
-    <thead><tr><th>Πελάτης</th><th>Email</th><th>Τηλέφωνο</th><th class="sp-center">Ενεργές υπηρεσίες</th><th>Κατάσταση</th><th>Ενημερώσεις</th><th></th></tr></thead>
+    <thead><tr><th>Πελάτης</th><th>Email</th><th class="sp-center">Ενεργές υπηρεσίες</th><th>Κατάσταση</th><th>Ενημερώσεις</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($this->rows as $c): ?>
       <tr>
         <td><a href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id); ?>"><strong><?php echo $e($c->name ?: '—'); ?></strong></a><?php if ($c->company !== ''): ?><br><small class="text-muted"><?php echo $e($c->company); ?></small><?php endif; ?></td>
         <td><?php echo $e($c->email); ?></td>
-        <td><?php echo $e($c->phone); ?></td>
         <td class="sp-center"><?php echo (int) $c->active_services; ?></td>
         <td><?php echo NotifyUi::status($c->status, Notify::CLIENT_STATUSES); ?></td>
         <td><?php echo $c->unsubscribed_at ? '<span class="sp-offer-status">Διαγράφηκε</span>' : '<span class="sp-offer-status is-accepted">Ναι</span>'; ?></td>
@@ -36,15 +35,20 @@ $e = [NotifyUi::class, 'e'];
         </td>
       </tr>
     <?php endforeach; ?>
-    <?php if (!$this->rows): ?><tr><td colspan="7" class="text-muted">Δεν υπάρχουν πελάτες.</td></tr><?php endif; ?>
+    <?php if (!$this->rows): ?><tr><td colspan="6" class="text-muted">Δεν υπάρχουν πελάτες.</td></tr><?php endif; ?>
     </tbody>
   </table></div>
 </div>
 <div class="sp-card">
-  <h2>Εισαγωγή από CSV</h2>
-  <p class="sp-n-help">Πρώτη γραμμή επικεφαλίδες, διαχωριστικό <code>;</code> ή <code>,</code>, UTF-8. Υποχρεωτική στήλη <code>email</code>. Προαιρετικά <code>name</code>, <code>company</code>, <code>phone</code> και για ανάθεση υπηρεσίας: <code>service</code> (όνομα υπηρεσίας από τον κατάλογο), <code>label</code> (π.χ. domain), <code>expiry_date</code> (ΗΗ/ΜΜ/ΕΕΕΕ), <code>price</code>, <code>duration_months</code>. Ίδιο email = ίδιος πελάτης· ίδιος πελάτης + υπηρεσία + label = ενημέρωση.</p>
-  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=notify.importCsv')); ?>" class="sp-n-filters">
-    <input type="file" name="csv" accept=".csv,text/csv" required>
-    <?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-primary">Εισαγωγή</button>
+  <h2>Εισαγωγή από Excel</h2>
+  <p class="sp-n-help">Κατεβάστε το πρότυπο, συμπληρώστε <b>μία γραμμή για κάθε υπηρεσία κάθε πελάτη</b> (πελάτης με 3 υπηρεσίες = 3 γραμμές με το ίδιο email, η καθεμία με τη δική της ημερομηνία λήξης) και ανεβάστε το. Η στήλη «Υπηρεσία» έχει λίστα με τις υπηρεσίες του καταλόγου σας. Υπάρχοντες πελάτες (ίδιο email) και υπηρεσίες (ίδιος πελάτης, υπηρεσία και domain) ενημερώνονται, δεν διπλασιάζονται. Κενή τιμή ή διάρκεια = του καταλόγου.</p>
+  <div class="sp-n-actions">
+    <a class="btn btn-outline-primary" href="<?php echo $e(OfferHelper::url('task=notify.template')); ?>">⭳ Λήψη προτύπου Excel</a>
+    <a class="btn btn-outline-secondary" href="<?php echo $e(OfferHelper::url('task=notify.export')); ?>">⭳ Εξαγωγή πελατών &amp; υπηρεσιών σε Excel</a>
+  </div>
+  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=notify.importSheet')); ?>" class="sp-n-filters">
+    <input type="file" name="sheet" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" required>
+    <?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-primary">Εισαγωγή</button>
   </form>
+  <p class="sp-n-help">Η εξαγωγή έχει την ίδια μορφή με το πρότυπο: μπορείτε να διορθώσετε ημερομηνίες ή τιμές στο Excel και να το ανεβάσετε ξανά. Γίνεται δεκτό και αρχείο .csv με τις ίδιες στήλες.</p>
 </div>

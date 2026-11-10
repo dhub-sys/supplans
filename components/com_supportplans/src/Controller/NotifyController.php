@@ -128,7 +128,7 @@ class NotifyController extends BaseController
         }
         $status = $this->input->post->getCmd('status', 'active');
         $id = $this->store(Notify::T_CLIENTS, [
-            'name' => $this->str('name'), 'company' => $this->str('company'), 'email' => $email, 'phone' => $this->str('phone', 50),
+            'name' => $this->str('name'), 'company' => $this->str('company'), 'email' => $email,
             'notes' => mb_substr(trim((string) $this->input->post->getString('notes', '')), 0, 5000),
             'status' => isset(Notify::CLIENT_STATUSES[$status]) ? $status : 'active',
         ], $id);
@@ -155,86 +155,231 @@ class NotifyController extends BaseController
         $this->go('section=clients&id=' . $id);
     }
 
+    /** Columns of the Excel/CSV file: key => accepted headers (normalised, without accents). */
+    private const SHEET_COLUMNS = [
+        'email'           => ['email', 'e-mail', 'ηλεκτρονικο ταχυδρομειο'],
+        'name'            => ['name', 'ονοματεπωνυμο', 'ονομα'],
+        'company'         => ['company', 'εταιρεια', 'επωνυμια'],
+        'service'         => ['service', 'υπηρεσια'],
+        'label'           => ['label', 'domain', 'domain / περιγραφη', 'περιγραφη'],
+        'expiry_date'     => ['expiry_date', 'ληξη', 'ημερομηνια ληξης', 'ημ/νια ληξης'],
+        'price'           => ['price', 'τιμη', 'τιμη (προ φπα)', 'τιμη προ φπα', 'τιμη (€ προ φπα)'],
+        'duration_months' => ['duration_months', 'διαρκεια', 'διαρκεια (μηνες)', 'μηνες'],
+    ];
+    /** Headers of the template and of the export, in this order. */
+    private const SHEET_HEADERS = ['Email *', 'Ονοματεπώνυμο', 'Εταιρεία', 'Υπηρεσία', 'Domain / περιγραφή', 'Ημερομηνία λήξης', 'Τιμή (προ ΦΠΑ)', 'Διάρκεια (μήνες)'];
+
+    private static function normaliseHeader(string $h): string
+    {
+        $h = mb_strtolower(trim(str_replace(['*', "\xC2\xA0"], ['', ' '], $h)));
+        $h = strtr($h, ['ά' => 'α', 'έ' => 'ε', 'ή' => 'η', 'ί' => 'ι', 'ϊ' => 'ι', 'ΐ' => 'ι', 'ό' => 'ο', 'ύ' => 'υ', 'ϋ' => 'υ', 'ΰ' => 'υ', 'ώ' => 'ω']);
+        return trim(preg_replace('/\s+/u', ' ', $h));
+    }
+
+    /** Value of a number cell or text such as "120,50" / "1.200,50" / "120.5". */
+    private static function number(string $v): ?float
+    {
+        $v = trim(str_replace(['€', ' ', "\xC2\xA0"], '', $v));
+        if ($v === '') return null;
+        if (strpos($v, ',') !== false) $v = str_replace(['.', ','], ['', '.'], $v);
+        return is_numeric($v) ? (float) $v : null;
+    }
+
     /**
-     * CSV: email;name;company;phone;service;label;expiry_date;price;duration_months
-     * "service" is the name of a catalogue service. Existing clients/services are updated.
+     * Import from Excel (.xlsx, sheet "Πελάτες" or the first one) or CSV. One row per client
+     * service: several rows with the same e-mail give the client several services, each with its
+     * own expiry date. A row without "Υπηρεσία" only creates/updates the client. Existing clients
+     * (same e-mail) and services (same client + service + domain) are updated, never duplicated.
      */
-    public function importCsv(): void
+    public function importSheet(): void
     {
         $this->guard();
-        $file = $this->input->files->get('csv', null, 'raw');
+        $file = $this->input->files->get('sheet', null, 'raw');
         if (!is_array($file) || (int) ($file['error'] ?? 1) !== UPLOAD_ERR_OK || !is_uploaded_file((string) $file['tmp_name'])) {
             $this->msg('Δεν ανέβηκε αρχείο.', 'error');
             $this->go('section=clients');
             return;
         }
         $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['csv', 'txt'], true) || (int) $file['size'] > 2 * 1024 * 1024) {
-            $this->msg('Επιτρέπεται μόνο αρχείο .csv έως 2 MB.', 'error');
+        if (!in_array($ext, ['xlsx', 'csv'], true) || (int) $file['size'] > 5 * 1024 * 1024) {
+            $this->msg('Επιτρέπεται αρχείο Excel (.xlsx) ή .csv έως 5 MB.', 'error');
             $this->go('section=clients');
             return;
+        }
+        try {
+            $rows = $ext === 'xlsx' ? \Support\Component\Supportplans\Site\Helper\Xlsx::read((string) $file['tmp_name'], 'Πελάτες') : $this->readCsv((string) $file['tmp_name']);
+        } catch (\Throwable $e) {
+            $this->msg($e->getMessage(), 'error');
+            $this->go('section=clients');
+            return;
+        }
+        $r = $this->importRows($rows);
+        $this->msg(sprintf('Εισαγωγή: %d νέοι πελάτες, %d ενημερώθηκαν · %d νέες υπηρεσίες σε πελάτες, %d ενημερώθηκαν.', $r['cn'], $r['cu'], $r['sn'], $r['su']));
+        if ($r['errors']) {
+            $this->msg('Γραμμές που δεν περάστηκαν:<br>' . implode('<br>', array_map(static fn($x) => htmlspecialchars($x, ENT_QUOTES, 'UTF-8'), array_slice($r['errors'], 0, 40)))
+                . (count($r['errors']) > 40 ? '<br>… και ' . (count($r['errors']) - 40) . ' ακόμα.' : ''), 'warning');
+        }
+        $this->go('section=clients');
+    }
+
+    private function readCsv(string $path): array
+    {
+        $fh = fopen($path, 'r');
+        $first = preg_replace('/^\xEF\xBB\xBF/', '', (string) fgets($fh));
+        $delim = substr_count($first, ';') > substr_count($first, ',') ? ';' : ',';
+        $rows = [1 => str_getcsv(rtrim($first, "\r\n"), $delim, '"', '\\')];
+        $n = 1;
+        while (($cells = fgetcsv($fh, 0, $delim, '"', '\\')) !== false) {
+            $rows[++$n] = array_map(static fn($c) => trim((string) $c), $cells);
+        }
+        fclose($fh);
+        return $rows;
+    }
+
+    /** $rows: line number => cells; the first row is the header. */
+    private function importRows(array $rows): array
+    {
+        $r = ['cn' => 0, 'cu' => 0, 'sn' => 0, 'su' => 0, 'errors' => []];
+        if (!$rows) {
+            $r['errors'][] = 'Το αρχείο είναι κενό.';
+            return $r;
+        }
+        // Keep the keys: they are the line numbers of the file, shown in the error messages.
+        $headerLine = array_key_first($rows);
+        $header = $rows[$headerLine];
+        unset($rows[$headerLine]);
+        $map = [];
+        foreach ($header as $i => $h) {
+            $h = self::normaliseHeader((string) $h);
+            foreach (self::SHEET_COLUMNS as $key => $names) {
+                if (in_array($h, $names, true) && !isset($map[$key])) $map[$key] = $i;
+            }
+        }
+        if (!isset($map['email'])) {
+            $r['errors'][] = 'Γραμμή ' . $headerLine . ': δεν βρέθηκε η στήλη «Email». Χρησιμοποιήστε το πρότυπο Excel.';
+            return $r;
         }
         $catalog = [];
         foreach (Notify::catalog() as $k) {
             $catalog[mb_strtolower(trim($k->name))] = $k;
         }
-        $r = ['cn' => 0, 'cu' => 0, 'sn' => 0, 'su' => 0, 'errors' => []];
-        $fh = fopen((string) $file['tmp_name'], 'r');
-        $first = preg_replace('/^\xEF\xBB\xBF/', '', (string) fgets($fh));
-        $delim = substr_count($first, ';') > substr_count($first, ',') ? ';' : ',';
-        $headers = array_map(static fn($h) => strtolower(trim($h)), str_getcsv($first, $delim, '"', '\\'));
-        if (!in_array('email', $headers, true)) {
-            $this->msg('Λείπει η στήλη email.', 'error');
-            $this->go('section=clients');
-            return;
-        }
-        $line = 1;
-        while (($cells = fgetcsv($fh, 0, $delim, '"', '\\')) !== false) {
-            $line++;
-            if (!array_filter($cells, static fn($c) => trim((string) $c) !== '')) continue;
-            $row = [];
-            foreach ($headers as $i => $h) $row[$h] = trim((string) ($cells[$i] ?? ''));
-            $email = filter_var($row['email'] ?? '', FILTER_VALIDATE_EMAIL) ? $row['email'] : '';
-            if ($email === '') { $r['errors'][] = "Γραμμή $line: μη έγκυρο email."; continue; }
+        $seenClients = [];
+        foreach ($rows as $line => $cells) {
+            $get = static fn($key) => isset($map[$key]) ? trim((string) ($cells[$map[$key]] ?? '')) : '';
+            if (!array_filter(array_map(static fn($c) => trim((string) $c) !== '', $cells))) continue;
+            $email = $get('email');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $r['errors'][] = "Γραμμή $line: μη έγκυρο email «" . $email . '».'; continue; }
+            $email = mb_strtolower($email);
+
             $client = Notify::clientByEmail($email);
             $fields = ['email' => $email];
-            foreach (['name' => 190, 'company' => 190, 'phone' => 50] as $k => $max) {
-                if (($row[$k] ?? '') !== '') $fields[$k] = mb_substr($row[$k], 0, $max);
+            foreach (['name', 'company'] as $k) {
+                if ($get($k) !== '') $fields[$k] = mb_substr($get($k), 0, 190);
             }
             if ($client) {
                 $clientId = $this->store(Notify::T_CLIENTS, $fields, (int) $client->id);
-                $r['cu']++;
+                if (!isset($seenClients[$clientId])) $r['cu']++;
             } else {
                 $clientId = $this->store(Notify::T_CLIENTS, $fields + ['status' => 'active'], 0);
                 $r['cn']++;
             }
-            $serviceName = mb_strtolower($row['service'] ?? '');
+            $seenClients[$clientId] = true;
+
+            $serviceName = $get('service');
             if ($serviceName === '') continue;
-            if (!isset($catalog[$serviceName])) { $r['errors'][] = "Γραμμή $line: η υπηρεσία «" . $row['service'] . '» δεν υπάρχει στον κατάλογο.'; continue; }
-            $k = $catalog[$serviceName];
-            $expiry = ($row['expiry_date'] ?? '') !== '' ? Notify::parseDate($row['expiry_date']) : '';
-            if (($row['expiry_date'] ?? '') !== '' && $expiry === '') { $r['errors'][] = "Γραμμή $line: μη έγκυρη ημερομηνία λήξης."; continue; }
-            $label = mb_substr($row['label'] ?? '', 0, 190);
+            $k = $catalog[mb_strtolower($serviceName)] ?? null;
+            if (!$k) { $r['errors'][] = "Γραμμή $line: η υπηρεσία «" . $serviceName . '» δεν υπάρχει στον κατάλογο.'; continue; }
+            $expiry = $get('expiry_date') !== '' ? \Support\Component\Supportplans\Site\Helper\Xlsx::toDate($get('expiry_date')) : '';
+            if ($get('expiry_date') !== '' && $expiry === '') { $r['errors'][] = "Γραμμή $line: μη έγκυρη ημερομηνία λήξης «" . $get('expiry_date') . '» (π.χ. 25/02/2027).'; continue; }
+            $price = self::number($get('price'));
+            if ($get('price') !== '' && $price === null) { $r['errors'][] = "Γραμμή $line: μη έγκυρη τιμή «" . $get('price') . '».'; continue; }
+            $duration = $get('duration_months') !== '' ? (int) self::number($get('duration_months')) : 0;
+            $label = mb_substr($get('label'), 0, 190);
+
             $existing = null;
             foreach (Notify::services(['client_id' => $clientId, 'catalog_id' => (int) $k->id]) as $s) {
                 if (strcasecmp($s->label, $label) === 0) { $existing = $s; break; }
             }
             $fields = ['client_id' => $clientId, 'catalog_id' => (int) $k->id, 'label' => $label];
             if ($expiry !== '') $fields['expiry_date'] = $expiry;
-            if (($row['price'] ?? '') !== '') $fields['price'] = round((float) str_replace(',', '.', $row['price']), 2);
-            if (($row['duration_months'] ?? '') !== '') $fields['duration_months'] = max(1, min(120, (int) $row['duration_months']));
+            if ($price !== null) $fields['price'] = round(max(0, $price), 2);
+            if ($duration > 0) $fields['duration_months'] = min(120, $duration);
             if (!$existing) {
                 $fields += ['price' => $k->price, 'duration_months' => (int) $k->duration_months, 'auto_remind' => (int) $k->auto_remind, 'status' => 'active'];
+            } elseif ($expiry !== '' && $expiry !== (string) $existing->expiry_date) {
+                // New expiry from the file: reminders queued for the old date are stale.
+                Notify::cancelQueuedRenewals((int) $existing->id, 'Η ημερομηνία λήξης άλλαξε από εισαγωγή Excel.');
             }
             $this->store(Notify::T_SERVICES, $fields, $existing ? (int) $existing->id : 0);
             $existing ? $r['su']++ : $r['sn']++;
         }
-        fclose($fh);
-        $this->msg(sprintf('Εισαγωγή: %d νέοι πελάτες, %d ενημερώθηκαν, %d νέες αναθέσεις υπηρεσιών, %d ενημερώθηκαν.', $r['cn'], $r['cu'], $r['sn'], $r['su']));
-        if ($r['errors']) {
-            $this->msg(implode('<br>', array_map(static fn($x) => htmlspecialchars($x, ENT_QUOTES, 'UTF-8'), array_slice($r['errors'], 0, 30))), 'warning');
+        return $r;
+    }
+
+    /** Excel template to fill in: "Πελάτες" (with a drop-down of the catalogue), "Κατάλογος", "Οδηγίες". */
+    public function template(): void
+    {
+        $this->sendWorkbook('protypo-pelates.xlsx', [[...self::SHEET_HEADERS]]);
+    }
+
+    /** All clients and their services in the template format (to edit and import again). */
+    public function export(): void
+    {
+        $rows = [[...self::SHEET_HEADERS]];
+        $withService = [];
+        foreach (Notify::services() as $s) {
+            $withService[(int) $s->client_id] = true;
+            $rows[] = [$s->client_email, $s->client_name, $s->client_company, (string) $s->service_name, $s->label, (string) $s->expiry_date,
+                $s->price === null ? '' : (float) $s->price, (int) $s->duration_months];
         }
-        $this->go('section=clients');
+        foreach (Notify::clients() as $c) {
+            if (!isset($withService[(int) $c->id])) $rows[] = [$c->email, $c->name, $c->company, '', '', '', '', ''];
+        }
+        $this->sendWorkbook('pelates-' . Notify::today() . '.xlsx', $rows);
+    }
+
+    private function sendWorkbook(string $filename, array $clientRows): void
+    {
+        $app = Factory::getApplication();
+        if (!\Support\Component\Supportplans\Site\Helper\Xlsx::available()) {
+            $this->msg('Ο server δεν υποστηρίζει αρχεία Excel (λείπει η επέκταση PHP zip).', 'error');
+            $this->go('section=clients');
+            return;
+        }
+        $catalog = Notify::catalog();
+        $catalogRows = [['Υπηρεσία', 'Τιμή (προ ΦΠΑ)', 'Διάρκεια (μήνες)', 'Ενεργή']];
+        foreach ($catalog as $k) {
+            $catalogRows[] = [(string) $k->name, $k->price === null ? '' : (float) $k->price, (int) $k->duration_months, (int) $k->published ? 'Ναι' : 'Όχι'];
+        }
+        $help = [['Οδηγίες συμπλήρωσης'],
+            ['Συμπληρώστε το φύλλο «Πελάτες»: μία γραμμή για κάθε υπηρεσία κάθε πελάτη.'],
+            ['Πελάτης με 3 υπηρεσίες = 3 γραμμές με το ίδιο email· κάθε γραμμή έχει τη δική της ημερομηνία λήξης.'],
+            ['Email: υποχρεωτικό. Με αυτό αναγνωρίζεται ο πελάτης (αν υπάρχει ήδη, ενημερώνεται).'],
+            ['Ονοματεπώνυμο / Εταιρεία: αρκεί στην πρώτη γραμμή του πελάτη.'],
+            ['Υπηρεσία: επιλέξτε από τη λίστα (φύλλο «Κατάλογος»). Κενό = μόνο ο πελάτης, χωρίς υπηρεσία.'],
+            ['Domain / περιγραφή: π.χ. example.gr. Ίδιος πελάτης + υπηρεσία + domain = ενημέρωση της υπάρχουσας, όχι νέα.'],
+            ['Ημερομηνία λήξης: π.χ. 25/02/2027. Από αυτήν προγραμματίζονται οι υπενθυμίσεις.'],
+            ['Τιμή (προ ΦΠΑ) και Διάρκεια (μήνες): αν μείνουν κενά, χρησιμοποιούνται του καταλόγου.'],
+            [''],
+            ['Παράδειγμα (ένας πελάτης με δύο υπηρεσίες):'],
+            ['info@example.gr | Γιώργος Παπαδόπουλος | Example ΑΕ | ' . ($catalog[0]->name ?? 'Web Hosting') . ' | example.gr | 25/02/2027 | 120 | 12'],
+            ['info@example.gr |  |  | ' . ($catalog[1]->name ?? ($catalog[0]->name ?? 'Ανανέωση Domain .gr')) . ' | example.gr | 24/02/2027 |  | '],
+        ];
+        $last = max(2, count($catalogRows));
+        $sheets = [
+            ['name' => 'Πελάτες', 'rows' => $clientRows, 'widths' => [30, 26, 24, 30, 24, 17, 15, 15], 'dateCols' => [5],
+                'list' => $catalog ? ['col' => 3, 'source' => "'Κατάλογος'!\$A\$2:\$A\$" . $last] : null],
+            ['name' => 'Κατάλογος', 'rows' => $catalogRows, 'widths' => [36, 16, 17, 10]],
+            ['name' => 'Οδηγίες', 'rows' => $help, 'widths' => [120]],
+        ];
+        $data = \Support\Component\Supportplans\Site\Helper\Xlsx::build($sheets);
+        $app->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true);
+        $app->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"', true);
+        $app->setHeader('Content-Length', (string) strlen($data), true);
+        $app->setHeader('Cache-Control', 'no-store', true);
+        $app->sendHeaders();
+        echo $data;
+        $app->close();
     }
 
     /* ------------------------------------------------------------ catalogue */

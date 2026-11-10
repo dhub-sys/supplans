@@ -21,7 +21,6 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
    <label>Ονοματεπώνυμο<input name="name" value="<?php echo $e($v('name')); ?>"></label>
    <label>Εταιρεία<input name="company" value="<?php echo $e($v('company')); ?>"></label>
    <label>Email *<input type="email" name="email" required value="<?php echo $e($v('email')); ?>"></label>
-   <label>Τηλέφωνο<input name="phone" value="<?php echo $e($v('phone')); ?>"></label>
    <label>Κατάσταση<?php echo NotifyUi::select('status', Notify::CLIENT_STATUSES, $v('status', 'active')); ?></label>
    <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($v('notes')); ?></textarea></label>
   </div>
