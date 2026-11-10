@@ -740,3 +740,15 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.11.2
 - Φόρμα νέου πακέτου: αφαιρέθηκε η κλάση `sp-purchase-field` (φόντο και padding 10px) από την ημερομηνία αγοράς, ώστε να στοιχίζεται με τα υπόλοιπα πεδία.
+
+
+## v1.12.0 — Πελάτες & Ειδοποιήσεις
+- Νέο view `notify` (Service Hub → Πελάτες) με καρτέλες: Επισκόπηση, Πελάτες, Υπηρεσίες πελατών, Κατάλογος υπηρεσιών, Αναφορές maintenance, Αποστολές, Ιστορικό, Ρυθμίσεις email.
+- Νέοι πίνακες: `#__supportplans_clients`, `#__supportplans_catalog`, `#__supportplans_client_services`, `#__supportplans_notify_reports`, `#__supportplans_notify_campaigns`, `#__supportplans_notify_messages`, `#__supportplans_login_attempts` (δημιουργούνται από το `script.php`).
+- Κατάλογος: ελεύθερες υπηρεσίες χωρίς προκαθορισμένους τύπους, με `price`, `duration_months`, `reminder_days`, `auto_remind`. Ανάθεση σε πελάτη: αντίγραφο τιμής/διάρκειας, λήξη = έναρξη + διάρκεια αν μείνει κενή. Ημέρες υπενθύμισης: ανάθεση → κατάλογος → `notify_reminder_days`.
+- `Helper\Notify`: ουρά/ιστορικό (`notify_messages`), μοναδικό `ref` ανά υπενθύμιση (`renewal:{service}:{expiry}:{offset}`) ώστε κάθε υπενθύμιση να στέλνεται μία φορά, catch-up με ένα μόνο μήνυμα, ακύρωση παλιών υπενθυμίσεων στην ανανέωση, atomic claim (`queued` → `sending`) ανά μήνυμα, έως 3 προσπάθειες, έλεγχοι πριν την αποστολή (ενεργός πελάτης, ίδιο email, ενεργή υπηρεσία, ίδια λήξη, απεγγραφή).
+- Κείμενα email με την ίδια ελαφριά μορφοποίηση και τον ίδιο editor με τις Προσφορές (`OfferHelper::render`, escaped). HTML email με branding (logo, accent, στοιχεία επιχείρησης) και plain-text εναλλακτικό.
+- Αποστολές: όλοι / πελάτες με υπηρεσία του καταλόγου / επιλεγμένοι, `List-Unsubscribe` + `List-Unsubscribe-Post` (RFC 8058). Δημόσιο `task=unsubscribe.run` με HMAC token (site secret)· απεγγραφή μόνο με POST.
+- Task plugin `plg_task_supportplansnotify` (routine `supportplans.notify`), εγκαθίσταται από το `script.php` (το `installSystemPlugin` γενικεύτηκε σε `installPlugin($group, …)` με αντιγραφή υποφακέλων). Από CLI cron χρησιμοποιείται το τελευταίο URL του site (`notify_site_root`).
+- Ασφάλεια σύνδεσης: `AuthCookie::allowed()` = `core.admin` στο `com_supportplans` (Super Users) σε login, cookie restore και σε κάθε αίτημα. Throttling στη βάση: 5 αποτυχίες ανά username ή 10 ανά IP σε 15 λεπτά. `login_lifetime` έως 24 ώρες.
+- Ελέγχθηκε σε Joomla 6.2.0 (MariaDB, PHP 8.3): αναβάθμιση από 1.11.2, σύνδεση/OTP, όλες οι οθόνες, κατάλογος, πελάτες, CSV, αναθέσεις, υπενθυμίσεις (cron/CLI scheduler), αναφορές, αποστολές, απεγγραφή, throttling, CSRF.

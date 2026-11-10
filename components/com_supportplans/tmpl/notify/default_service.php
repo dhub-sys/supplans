@@ -1,0 +1,84 @@
+<?php
+\defined('_JEXEC') or die;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Support\Component\Supportplans\Site\Helper\Notify;
+use Support\Component\Supportplans\Site\Helper\NotifyUi;
+use Support\Component\Supportplans\Site\Helper\OfferHelper;
+
+$e = [NotifyUi::class, 'e'];
+$s = $this->selected;
+$in = Factory::getApplication()->input;
+$clientId = $s ? (int) $s->client_id : $in->getInt('client_id', 0);
+$catalogId = $s ? (int) $s->catalog_id : $in->getInt('catalog_id', 0);
+$clients = [];
+foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' — ' . $c->email;
+?>
+<?php if (!$this->catalog || !$this->clients): ?>
+<div class="sp-card"><h2>Λείπουν στοιχεία</h2><p>Για να αναθέσετε υπηρεσία χρειάζεστε τουλάχιστον έναν <a href="<?php echo NotifyUi::url('section=clients&mode=new'); ?>">πελάτη</a> και μία υπηρεσία στον <a href="<?php echo NotifyUi::url('section=catalog&mode=new'); ?>">κατάλογο</a>.</p></div>
+<?php return; endif; ?>
+<div class="sp-standalone-actions sp-offer-actions">
+ <button type="button" class="btn btn-primary" onclick="spSubmit('notify.saveService')">Αποθήκευση</button>
+ <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-after').value='client';spSubmit('notify.saveService')">Αποθήκευση &amp; μετάβαση στον πελάτη</button>
+ <a class="btn btn-outline-secondary" href="<?php echo $clientId ? NotifyUi::url('section=clients&id=' . $clientId) : NotifyUi::url('section=services'); ?>">Κλείσιμο</a>
+</div>
+<form action="<?php echo $e(OfferHelper::url('task=notify.saveService')); ?>" method="post" id="adminForm">
+ <div class="sp-card">
+  <h2><?php echo $s ? $e(($s->service_name ?: 'Υπηρεσία') . ($s->label !== '' ? ' – ' . $s->label : '')) : 'Ανάθεση υπηρεσίας σε πελάτη'; ?></h2>
+  <div class="sp-grid">
+   <label>Πελάτης *<?php echo NotifyUi::select('client_id', $clients, $clientId ?: '', '— Επιλογή —', 'required'); ?></label>
+   <label>Υπηρεσία *<select name="catalog_id" id="sp-n-catalog" required><option value="">— Επιλογή —</option>
+    <?php foreach ($this->catalog as $k): ?><?php if (!(int) $k->published && (int) $k->id !== $catalogId) continue; ?>
+    <option value="<?php echo (int) $k->id; ?>" data-price="<?php echo $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" data-duration="<?php echo (int) $k->duration_months; ?>" data-remind="<?php echo (int) $k->auto_remind; ?>" data-days="<?php echo $e($k->reminder_days !== '' ? $k->reminder_days : Notify::setting('notify_reminder_days')); ?>"<?php echo (int) $k->id === $catalogId ? ' selected' : ''; ?>><?php echo $e($k->name); ?></option>
+    <?php endforeach; ?></select></label>
+   <label>Domain / περιγραφή<input name="label" value="<?php echo $e($s->label ?? ''); ?>" placeholder="π.χ. example.gr"></label>
+   <label>Τιμή για τον πελάτη (€)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
+   <label>Διάρκεια (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
+   <label>Έναρξη<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? Notify::today()); ?>"></label>
+   <label>Λήξη<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
+   <label>Κατάσταση<?php echo NotifyUi::select('status', Notify::SERVICE_STATUSES, $s->status ?? 'active'); ?></label>
+   <label>Δικές του ημέρες υπενθύμισης<input name="reminder_days" id="sp-n-days" value="<?php echo $e($s->reminder_days ?? ''); ?>" placeholder="όπως η υπηρεσία"></label>
+   <div class="sp-wide sp-check-row"><label class="sp-check"><input type="checkbox" name="auto_remind" id="sp-n-remind" value="1" <?php echo !$s || (int) $s->auto_remind ? 'checked' : ''; ?>> Αυτόματες υπενθυμίσεις ανανέωσης στον πελάτη</label></div>
+   <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($s->notes ?? ''); ?></textarea></label>
+  </div>
+  <p class="sp-n-help">Αν αφήσετε κενή τη λήξη, υπολογίζεται από την έναρξη + τη διάρκεια. Χωρίς λήξη δεν προγραμματίζονται υπενθυμίσεις. <span id="sp-n-days-hint"></span></p>
+ </div>
+ <input type="hidden" name="id" value="<?php echo (int) ($s->id ?? 0); ?>"><input type="hidden" name="after" id="sp-after" value=""><input type="hidden" name="task" value="notify.saveService">
+ <?php echo HTMLHelper::_('form.token'); ?>
+</form>
+<script>
+(function () {
+  var cat = document.getElementById('sp-n-catalog'), isNew = <?php echo $s ? 'false' : 'true'; ?>;
+  var price = document.getElementById('sp-n-price'), dur = document.getElementById('sp-n-duration'), remind = document.getElementById('sp-n-remind');
+  var start = document.getElementById('sp-n-start'), expiry = document.getElementById('sp-n-expiry'), hint = document.getElementById('sp-n-days-hint');
+  function opt() { return cat.options[cat.selectedIndex] || null; }
+  function addMonths(ymd, n) {
+    var p = ymd.split('-'); if (p.length !== 3) return '';
+    var y = +p[0], m = +p[1] - 1 + n, d = +p[2];
+    var last = new Date(y, m + 1, 0).getDate(), t = new Date(y, m, Math.min(d, last));
+    return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  }
+  function suggest() { if (isNew && start.value && dur.value && !expiry.dataset.touched) expiry.value = addMonths(start.value, +dur.value); }
+  function showDays() { var o = opt(); hint.textContent = o && o.value ? 'Ημέρες υπενθύμισης της υπηρεσίας: ' + o.dataset.days + '.' : ''; }
+  cat.addEventListener('change', function () {
+    var o = opt(); showDays();
+    if (!isNew || !o || !o.value) return;
+    price.value = o.dataset.price; dur.value = o.dataset.duration; remind.checked = o.dataset.remind === '1'; suggest();
+  });
+  expiry.addEventListener('input', function () { expiry.dataset.touched = '1'; });
+  start.addEventListener('change', suggest); dur.addEventListener('change', suggest);
+  showDays();
+  if (isNew && opt() && opt().value) cat.dispatchEvent(new Event('change'));
+})();
+</script>
+<?php if ($s): ?>
+<div class="sp-card">
+  <h2>Ενέργειες</h2>
+  <div class="sp-n-actions">
+    <?php if ($s->expiry_date): ?><?php echo NotifyUi::button('renew', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Ανανεώθηκε (+' . Notify::durationLabel((int) $s->duration_months) . ')', 'Μετάθεση της λήξης κατά ' . Notify::durationLabel((int) $s->duration_months) . ';', 'btn btn-outline-primary'); ?>
+    <?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Αποστολή υπενθύμισης τώρα', 'Αποστολή υπενθύμισης στο ' . $s->client_email . ';', 'btn btn-outline-secondary'); ?><?php endif; ?>
+    <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Νέα αναφορά maintenance</a>
+    <?php echo NotifyUi::button('deleteService', ['id' => $s->id], 'Διαγραφή', 'Διαγραφή της υπηρεσίας του πελάτη και των αναφορών της;', 'btn btn-outline-danger'); ?>
+  </div>
+</div>
+<?php endif; ?>

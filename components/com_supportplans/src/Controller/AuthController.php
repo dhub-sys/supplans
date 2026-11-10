@@ -45,11 +45,28 @@ final class AuthController extends BaseController
             ->bind(':username', $username);
         $user = $db->setQuery($query)->loadObject();
 
+        // Throttle per IP and per username in the database: clearing the browser cookies
+        // (a new session) does not reset it.
+        $ip = substr((string) $this->input->server->getString('REMOTE_ADDR', ''), 0, 45);
+        if ($this->tooManyFailures($db, $ip, $username)) {
+            $app->enqueueMessage('Έγιναν πολλές αποτυχημένες προσπάθειες. Δοκίμασε ξανά σε 15 λεπτά.', 'warning');
+            $app->redirect(Route::_('index.php?option=com_supportplans&view=app&tmpl=component&Itemid=' . max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785)) . '', false));
+            return;
+        }
+
         $valid = $user
             && !(int) $user->block
             && !(int) $user->requireReset
             && $password !== ''
-            && UserHelper::verifyPassword($password, (string) $user->password);
+            && UserHelper::verifyPassword($password, (string) $user->password)
+            // Only Super Users may enter the Service Hub (same message, so accounts cannot be probed).
+            && \Support\Component\Supportplans\Site\Helper\AuthCookie::allowed((int) $user->id);
+
+        if (!$valid) {
+            $this->recordFailure($db, $ip, $username);
+        } else {
+            $this->clearFailures($db, $ip, $username);
+        }
 
         if (!$valid) {
             $attempts = (int) $session->get('supportplans.login.attempts', 0) + 1;
@@ -95,6 +112,41 @@ final class AuthController extends BaseController
         $session->clear('supportplans.otp.attempts');
         $session->clear('supportplans.otp.last_sent');
         $app->redirect(Route::_('index.php?option=com_supportplans&view=app&tmpl=component&Itemid=' . max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785)) . '', false));
+    }
+
+    private const THROTTLE_WINDOW = 900;
+    private const MAX_FAILS_PER_IP = 10;
+    private const MAX_FAILS_PER_USERNAME = 5;
+
+    private function tooManyFailures($db, string $ip, string $username): bool
+    {
+        try {
+            $since = gmdate('Y-m-d H:i:s', time() - self::THROTTLE_WINDOW);
+            $table = $db->quoteName('#__supportplans_login_attempts');
+            $byIp = (int) $db->setQuery('SELECT COUNT(*) FROM ' . $table . ' WHERE ip=' . $db->quote($ip) . ' AND attempted>' . $db->quote($since))->loadResult();
+            $byUser = (int) $db->setQuery('SELECT COUNT(*) FROM ' . $table . ' WHERE username=' . $db->quote(mb_strtolower($username)) . ' AND attempted>' . $db->quote($since))->loadResult();
+            return $byIp >= self::MAX_FAILS_PER_IP || ($username !== '' && $byUser >= self::MAX_FAILS_PER_USERNAME);
+        } catch (\Throwable $e) {
+            return false; // table missing before the update finished: fall back to the session limit
+        }
+    }
+
+    private function recordFailure($db, string $ip, string $username): void
+    {
+        try {
+            $row = (object) ['ip' => $ip, 'username' => mb_substr(mb_strtolower($username), 0, 150), 'attempted' => gmdate('Y-m-d H:i:s')];
+            $db->insertObject('#__supportplans_login_attempts', $row);
+            $db->setQuery('DELETE FROM ' . $db->quoteName('#__supportplans_login_attempts') . ' WHERE attempted<' . $db->quote(gmdate('Y-m-d H:i:s', time() - 86400)))->execute();
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function clearFailures($db, string $ip, string $username): void
+    {
+        try {
+            $db->setQuery('DELETE FROM ' . $db->quoteName('#__supportplans_login_attempts') . ' WHERE ip=' . $db->quote($ip) . ' OR username=' . $db->quote(mb_strtolower($username)))->execute();
+        } catch (\Throwable $e) {
+        }
     }
 
     private function clearAuthState(): void

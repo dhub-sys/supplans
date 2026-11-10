@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="task" method="upgrade">
+  <name>plg_task_supportplansnotify</name>
+  <version>1.12.0</version>
+  <description>PLG_TASK_SUPPORTPLANSNOTIFY_XML_DESCRIPTION</description>
+  <files>
+    <filename plugin="supportplansnotify">supportplansnotify.php</filename>
+    <folder>language</folder>
+  </files>
+</extension>

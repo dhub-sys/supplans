@@ -20,7 +20,8 @@ final class AuthCookie
 {
     private const NAME = 'sp_hub_auth';
     private const DEFAULT_HOURS = 12;
-    private const MAX_HOURS = 24 * 90;
+    /** Upper limit (v1.12.0): a stolen browser stays signed in for at most a day. */
+    private const MAX_HOURS = 24;
 
     /** Lifetime in hours; 0 means "only for the browser session". */
     public static function hours(): int
@@ -90,7 +91,25 @@ final class AuthCookie
             ->from($db->quoteName('#__users'))
             ->where($db->quoteName('id') . '=' . $userId);
         $user = $db->setQuery($q)->loadObject();
-        return $user && !(int) $user->block && !(int) $user->requireReset ? $user : null;
+        return $user && !(int) $user->block && !(int) $user->requireReset && self::allowed($userId) ? $user : null;
+    }
+
+    /**
+     * Only Joomla Super Users (core.admin on the component, inherited from the global
+     * permissions) may use the Service Hub. Any other site account — registered visitors,
+     * customers, editors — is refused even with a correct password and OTP.
+     */
+    public static function allowed(int $userId): bool
+    {
+        if ($userId < 1) {
+            return false;
+        }
+        try {
+            $user = Factory::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($userId);
+            return $user && (int) $user->id === $userId && !(int) $user->block && $user->authorise('core.admin', 'com_supportplans');
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     private static function sign(int $userId, int $expires, string $passwordHash): string

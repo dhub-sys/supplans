@@ -26,7 +26,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <div class="sp-sidebar-section-label">Διαχείριση</div>
-  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
+  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=notify&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2"/></svg></span><span>Πελάτες</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
 <a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg></span><span>Οδηγίες</span></a></nav>
   <div class="sp-sidebar-bottom">
     <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
@@ -156,9 +156,39 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ul>
  </section>
 
+ <section class="sp-help-card">
+  <h2>8. Πελάτες &amp; Ειδοποιήσεις</h2>
+  <p>Λίστα πελατών, κατάλογος υπηρεσιών (π.χ. Web Hosting Green, Ανανέωση Domain .gr), αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance και ενημερώσεις μέσω email.</p>
+  <ol>
+   <li><strong>Κατάλογος υπηρεσιών</strong>: προσθέστε τις υπηρεσίες που προσφέρετε με τιμή, διάρκεια (μήνες) και ημέρες υπενθύμισης. Δεν υπάρχουν προκαθορισμένες υπηρεσίες.</li>
+   <li><strong>Πελάτες</strong>: όνομα, εταιρεία, email, τηλέφωνο. Υπάρχει και εισαγωγή από CSV.</li>
+   <li><strong>Ανάθεση υπηρεσίας</strong>: επιλέξτε πελάτη και υπηρεσία. Η τιμή και η διάρκεια αντιγράφονται (και αλλάζουν ανά πελάτη), η λήξη υπολογίζεται από την έναρξη + τη διάρκεια. Από εκεί και πέρα οι υπενθυμίσεις προγραμματίζονται μόνες τους.</li>
+   <li>Όταν ο πελάτης πληρώσει, πατήστε <strong>Ανανεώθηκε</strong>: η λήξη μετακινείται μία περίοδο και οι εκκρεμείς υπενθυμίσεις ακυρώνονται.</li>
+  </ol>
+  <h3>Ημέρες υπενθύμισης</h3>
+  <p>Χωρισμένες με κόμμα, π.χ. <code>30,14,7,1,0,-3</code>: <code>0</code> = την ημέρα λήξης, αρνητικό = μετά τη λήξη. Σειρά προτεραιότητας: της ανάθεσης, της υπηρεσίας του καταλόγου, η γενική ρύθμιση. Κάθε υπενθύμιση στέλνεται μία φορά· αν η εργασία δεν τρέξει για μέρες, στέλνεται μόνο η πιο πρόσφατη.</p>
+  <h3>Αναφορές maintenance</h3>
+  <p>Σύνοψη εργασιών και πίνακας ενημερώσεων, μία γραμμή ανά ενημέρωση: <code>Τύπος | Όνομα | Προηγούμενη έκδοση | Νέα έκδοση</code>. Προεπισκόπηση, δοκιμή στο email σας και αποστολή στον πελάτη.</p>
+  <h3>Αποστολές</h3>
+  <p>Ελεύθερο μήνυμα σε όλους, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους πελάτες. Τα μηνύματα φεύγουν σταδιακά από την ουρά. Κάθε μήνυμα έχει σύνδεσμο διαγραφής· οι υπενθυμίσεις ανανέωσης και οι αναφορές στέλνονται πάντα, γιατί αφορούν υπηρεσίες του πελάτη.</p>
+  <h3>Αυτόματη εκτέλεση</h3>
+  <ol>
+   <li>Joomla Administrator → Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → <strong>Support Plans – Ειδοποιήσεις</strong>, κάθε 5 λεπτά.</li>
+   <li>Για αξιόπιστη εκτέλεση, cron στο hosting κάθε 5 λεπτά: <code>php /διαδρομή/του/site/cli/joomla.php scheduler:run --all</code> (ή το Web Cron των Χρονοπρογραμματισμένων εργασιών).</li>
+   <li>Στις <strong>Ρυθμίσεις email</strong> ορίστε αποστολέα, Reply-To και τα κείμενα, και στείλτε ένα δοκιμαστικό. Χρησιμοποιήστε SMTP με SPF, DKIM και DMARC στο domain σας.</li>
+  </ol>
+  <div class="sp-help-note">Το Ιστορικό κρατά κάθε μήνυμα με το ακριβές περιεχόμενο που στάλθηκε. Τα αποτυχημένα ξαναδοκιμάζονται έως 3 φορές· μπορείτε και χειροκίνητα.</div>
+ </section>
+
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.12.0</div><div><ul>
+<li>Νέα ενότητα <b>Πελάτες</b>: πελάτες, κατάλογος υπηρεσιών (τιμή, διάρκεια, ημέρες υπενθύμισης), ανάθεση υπηρεσιών σε πελάτες, αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance, αποστολές ενημερώσεων και ιστορικό μηνυμάτων.</li>
+<li>Νέα χρονοπρογραμματισμένη εργασία Joomla «Support Plans – Ειδοποιήσεις» για τις αυτόματες αποστολές.</li>
+<li>Ασφάλεια: στο Service Hub συνδέονται μόνο Super Users του Joomla· άλλοι λογαριασμοί απορρίπτονται ακόμα και με σωστό κωδικό. Κλείδωμα 15 λεπτών μετά από 5 λάθος κωδικούς ανά χρήστη ή 10 ανά IP, που δεν παρακάμπτεται με νέο browser. Η «Διάρκεια σύνδεσης» έχει πλέον ανώτατο όριο 24 ώρες.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.11.2</div><div><ul>
 <li>Νέο πακέτο: το πεδίο «Ημερομηνία αγοράς» είναι πλέον στο ίδιο ύψος με τα υπόλοιπα πεδία, χωρίς το πράσινο πλαίσιο.</li>
@@ -212,7 +242,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.3</div><div><ul>
 <li>Παραμονή σύνδεσης: μετά τον κωδικό OTP μένετε συνδεδεμένοι στον ίδιο browser. Όταν ανοίγετε ξανά το Support Plans από το Joomla, μπαίνετε κατευθείαν στα Πακέτα.</li>
-<li>Ρυθμίσεις → «Διάρκεια σύνδεσης (ώρες)»: προεπιλογή 12 ώρες, έως 2160 (90 ημέρες). Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser. Η Αποσύνδεση, η αλλαγή κωδικού ή το μπλοκάρισμα του χρήστη ακυρώνουν τη σύνδεση.</li>
+<li>Ρυθμίσεις → «Διάρκεια σύνδεσης (ώρες)»: προεπιλογή 12 ώρες, έως 24 ώρες. Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser. Η Αποσύνδεση, η αλλαγή κωδικού ή το μπλοκάρισμα του χρήστη ακυρώνουν τη σύνδεση.</li>
 </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.7.2</div><div><ul>
 <li>Όταν έχετε ορίσει λογότυπο, εμφανίζεται μόνο του: χωρίς «Support Plans / Workspace» στη σύνδεση και στο OTP, και χωρίς επωνυμία / «Service Hub» στην μπάρα της εφαρμογής.</li>

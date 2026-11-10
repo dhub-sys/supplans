@@ -19,7 +19,7 @@ final class Dispatcher extends ComponentDispatcher
         $view = $input->getCmd('view', 'app');
         $task = $input->getCmd('task', '');
         $publicViews = ['app', 'otp'];
-        $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify'];
+        $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify', 'unsubscribe.run'];
 
         // Customer link to a package report (?view=report&t=<96 hex>): public, read-only.
         $sharedReport = $view === 'report' && $task === '' && ShareLink::isToken((string) $input->getString('t', ''));
@@ -32,9 +32,21 @@ final class Dispatcher extends ComponentDispatcher
                 return;
             }
         }
+        // Unsubscribe link of the campaign e-mails: public, protected by its own HMAC token.
+        if ($task === 'unsubscribe.run') {
+            parent::dispatch();
+            return;
+        }
         $needsAuth = !$sharedReport && (!in_array($view, $publicViews, true) || ($task !== '' && !in_array($task, $publicTasks, true)));
         $session = $app->getSession();
         $signedIn = (int) $session->get('supportplans.auth.user_id', 0) > 0 && (bool) $session->get('supportplans.otp.verified', false);
+        // Blocked, demoted or deleted users lose access immediately, not when the session ends.
+        if ($signedIn && !AuthCookie::allowed((int) $session->get('supportplans.auth.user_id', 0))) {
+            $session->clear('supportplans.auth.user_id');
+            $session->clear('supportplans.otp.verified');
+            AuthCookie::clear();
+            $signedIn = false;
+        }
         if (!$signedIn && $task !== 'auth.logout') {
             $signedIn = AuthCookie::restore();
         }

@@ -14,6 +14,8 @@ class Com_SupportplansInstallerScript
   // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
   $this->installSystemPlugin('supportplanslauncher','System - Support Plans Launcher','Visible top-level Support Plans launcher');
   $this->installSystemPlugin('supportplansnocpnb','System - Support Plans No CPNB','Hides Web357 CPNB inside the Support Plans Service Hub');
+  // Scheduled Task routine "Support Plans – Ειδοποιήσεις" (v1.12.0).
+  $this->installPlugin('task','supportplansnotify','plg_task_supportplansnotify','PLG_TASK_SUPPORTPLANSNOTIFY_XML_DESCRIPTION');
   $this->syncMedia($parent);
   if($ok) $this->migrateOfferBlocks();
   return $ok;
@@ -31,6 +33,16 @@ class Com_SupportplansInstallerScript
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_templates` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL,`doc_title` text NULL,`doc_subtitle` varchar(255) NOT NULL DEFAULT '',`footer_title` varchar(255) NOT NULL DEFAULT '',`pricing_title` varchar(255) NOT NULL DEFAULT '',`payment_text` mediumtext NULL,`terms_title` varchar(255) NOT NULL DEFAULT '',`terms_body` mediumtext NULL,`vat_rate` decimal(5,2) NOT NULL DEFAULT 24.00,`show_banks` tinyint NOT NULL DEFAULT 1,`show_header` tinyint NOT NULL DEFAULT 1,`header_logo` smallint NOT NULL DEFAULT 28,`header_gap` smallint NOT NULL DEFAULT 6,`pricing_break` tinyint NOT NULL DEFAULT 0,`pricing_space` smallint NOT NULL DEFAULT 5,`terms_break` tinyint NOT NULL DEFAULT 0,`terms_space` smallint NOT NULL DEFAULT 5,`header_text` varchar(255) NOT NULL DEFAULT '',`intro_title` varchar(255) NOT NULL DEFAULT '',`intro_body` mediumtext NULL,`intro_lists` mediumtext NULL,`items` mediumtext NULL,`variables` mediumtext NULL,`published` tinyint NOT NULL DEFAULT 1,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offers` (`id` int unsigned NOT NULL AUTO_INCREMENT,`offer_number` varchar(40) NOT NULL DEFAULT '',`offer_date` date NOT NULL,`customer_name` varchar(190) NOT NULL DEFAULT '',`project_name` varchar(190) NOT NULL DEFAULT '',`template_id` int unsigned NOT NULL DEFAULT 0,`doc_title` text NULL,`doc_subtitle` varchar(255) NOT NULL DEFAULT '',`footer_title` varchar(255) NOT NULL DEFAULT '',`pricing_title` varchar(255) NOT NULL DEFAULT '',`payment_text` mediumtext NULL,`terms_title` varchar(255) NOT NULL DEFAULT '',`terms_body` mediumtext NULL,`vat_rate` decimal(5,2) NOT NULL DEFAULT 24.00,`show_banks` tinyint NOT NULL DEFAULT 1,`show_header` tinyint NOT NULL DEFAULT 1,`header_logo` smallint NOT NULL DEFAULT 28,`header_gap` smallint NOT NULL DEFAULT 6,`pricing_break` tinyint NOT NULL DEFAULT 0,`pricing_space` smallint NOT NULL DEFAULT 5,`terms_break` tinyint NOT NULL DEFAULT 0,`terms_space` smallint NOT NULL DEFAULT 5,`header_text` varchar(255) NOT NULL DEFAULT '',`intro_title` varchar(255) NOT NULL DEFAULT '',`intro_body` mediumtext NULL,`intro_lists` mediumtext NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`notes` text NULL,`variables` mediumtext NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_status` (`status`),KEY `idx_template_id` (`template_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_items` (`id` int unsigned NOT NULL AUTO_INCREMENT,`offer_id` int unsigned NOT NULL,`service_id` int unsigned NOT NULL DEFAULT 0,`kind` varchar(20) NOT NULL DEFAULT 'service',`ordering` int NOT NULL DEFAULT 0,`show_description` tinyint NOT NULL DEFAULT 1,`in_table` tinyint NOT NULL DEFAULT 1,`page_break` tinyint NOT NULL DEFAULT 0,`space_before` smallint NOT NULL DEFAULT 5,`section_title` varchar(255) NOT NULL DEFAULT '',`table_label` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`lists` mediumtext NULL,`price` decimal(10,2) NOT NULL DEFAULT 0.00,`discount` decimal(10,2) NOT NULL DEFAULT 0.00,PRIMARY KEY (`id`),KEY `idx_offer_id` (`offer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+
+  // Clients & notifications (v1.12.0).
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_clients` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL DEFAULT '',`company` varchar(190) NOT NULL DEFAULT '',`email` varchar(190) NOT NULL,`phone` varchar(50) NOT NULL DEFAULT '',`notes` text NULL,`status` varchar(20) NOT NULL DEFAULT 'active',`unsubscribed_at` datetime NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_email` (`email`),KEY `idx_status` (`status`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_catalog` (`id` int unsigned NOT NULL AUTO_INCREMENT,`name` varchar(190) NOT NULL,`description` text NULL,`price` decimal(10,2) NULL,`duration_months` smallint unsigned NOT NULL DEFAULT 12,`reminder_days` varchar(100) NOT NULL DEFAULT '',`auto_remind` tinyint NOT NULL DEFAULT 1,`published` tinyint NOT NULL DEFAULT 1,`ordering` int NOT NULL DEFAULT 0,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_client_services` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_id` int unsigned NOT NULL,`catalog_id` int unsigned NOT NULL DEFAULT 0,`label` varchar(190) NOT NULL DEFAULT '',`price` decimal(10,2) NULL,`duration_months` smallint unsigned NOT NULL DEFAULT 12,`start_date` date NULL,`expiry_date` date NULL,`reminder_days` varchar(100) NOT NULL DEFAULT '',`auto_remind` tinyint NOT NULL DEFAULT 1,`status` varchar(20) NOT NULL DEFAULT 'active',`notes` text NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_client_id` (`client_id`),KEY `idx_catalog_id` (`catalog_id`),KEY `idx_expiry` (`status`,`expiry_date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_reports` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_service_id` int unsigned NOT NULL,`period` varchar(100) NOT NULL DEFAULT '',`summary` mediumtext NULL,`items` mediumtext NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`sent` datetime NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_client_service_id` (`client_service_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_campaigns` (`id` int unsigned NOT NULL AUTO_INCREMENT,`subject` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`audience` text NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`recipients` int unsigned NOT NULL DEFAULT 0,`created` datetime NOT NULL,`modified` datetime NULL,`queued` datetime NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_notify_messages` (`id` int unsigned NOT NULL AUTO_INCREMENT,`client_id` int unsigned NOT NULL DEFAULT 0,`service_id` int unsigned NULL,`campaign_id` int unsigned NULL,`kind` varchar(20) NOT NULL,`ref` varchar(190) NULL,`to_email` varchar(190) NOT NULL,`subject` varchar(255) NOT NULL DEFAULT '',`body` mediumtext NULL,`unsub_url` varchar(500) NOT NULL DEFAULT '',`status` varchar(20) NOT NULL DEFAULT 'queued',`attempts` tinyint unsigned NOT NULL DEFAULT 0,`last_error` text NULL,`created` datetime NOT NULL,`scheduled` datetime NOT NULL,`claimed` datetime NULL,`sent` datetime NULL,PRIMARY KEY (`id`),UNIQUE KEY `idx_ref` (`ref`),KEY `idx_queue` (`status`,`scheduled`),KEY `idx_client_id` (`client_id`),KEY `idx_campaign_id` (`campaign_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  // Failed Service Hub logins, per IP and username (v1.12.0).
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_login_attempts` (`id` int unsigned NOT NULL AUTO_INCREMENT,`ip` varchar(45) NOT NULL DEFAULT '',`username` varchar(150) NOT NULL DEFAULT '',`attempted` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_ip` (`ip`,`attempted`),KEY `idx_username` (`username`,`attempted`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
 
   // Upgrade safety for installations coming from any older release: every column the
   // current version uses is added when missing. Columns are added without AFTER, so the
@@ -183,28 +195,37 @@ class Com_SupportplansInstallerScript
  }
  private function installSystemPlugin(string $element,string $name,string $description): void
  {
+  $this->installPlugin('system',$element,$name,$description);
+ }
+ /** Copies a bundled plugin folder (with sub-folders, e.g. language) to /plugins/$group and registers it. */
+ private function installPlugin(string $group,string $element,string $name,string $description): void
+ {
   try{
-   $src=JPATH_ADMINISTRATOR.'/components/com_supportplans/plugins/system/'.$element;
-   $dst=JPATH_PLUGINS.'/system/'.$element;
+   $src=JPATH_ADMINISTRATOR.'/components/com_supportplans/plugins/'.$group.'/'.$element;
+   $dst=JPATH_PLUGINS.'/'.$group.'/'.$element;
    if(!is_dir($src)) return;
    if(!is_dir($dst) && !@mkdir($dst,0755,true) && !is_dir($dst)) throw new \RuntimeException('Cannot create '.$dst);
-   foreach(['.php','.xml'] as $ext){
-    if(!@copy($src.'/'.$element.$ext,$dst.'/'.$element.$ext)) throw new \RuntimeException('Cannot copy '.$element.$ext.' to '.$dst);
-    if(function_exists('opcache_invalidate')) @opcache_invalidate($dst.'/'.$element.$ext,true);
+   $it=new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src,\FilesystemIterator::SKIP_DOTS),\RecursiveIteratorIterator::SELF_FIRST);
+   foreach($it as $file){
+    $target=$dst.'/'.substr($file->getPathname(),strlen($src)+1);
+    if($file->isDir()){ if(!is_dir($target) && !@mkdir($target,0755,true) && !is_dir($target)) throw new \RuntimeException('Cannot create '.$target); continue; }
+    if(!@copy($file->getPathname(),$target)) throw new \RuntimeException('Cannot copy '.basename($target).' to '.$dst);
+    @chmod($target,0644);
+    if(function_exists('opcache_invalidate')) @opcache_invalidate($target,true);
    }
 
    $db=Factory::getContainer()->get('DatabaseDriver');
    $q=$db->getQuery(true)->select('extension_id')->from($db->quoteName('#__extensions'))
      ->where($db->quoteName('type').'='.$db->quote('plugin'))
-     ->where($db->quoteName('folder').'='.$db->quote('system'))
+     ->where($db->quoteName('folder').'='.$db->quote($group))
      ->where($db->quoteName('element').'='.$db->quote($element));
    $id=(int)$db->setQuery($q)->loadResult();
    $version='1.0.0';
    $xml=@simplexml_load_file($dst.'/'.$element.'.xml');
    if($xml && isset($xml->version)) $version=(string)$xml->version;
-   $cache=json_encode(['name'=>$name,'type'=>'plugin','version'=>$version,'group'=>'system','description'=>$description],JSON_UNESCAPED_SLASHES);
+   $cache=json_encode(['name'=>$name,'type'=>'plugin','version'=>$version,'group'=>$group,'description'=>$description],JSON_UNESCAPED_SLASHES);
    if(!$id){
-    $row=['name'=>$name,'type'=>'plugin','element'=>$element,'folder'=>'system','client_id'=>0,'enabled'=>1,'access'=>1,'protected'=>0,'locked'=>0,
+    $row=['name'=>$name,'type'=>'plugin','element'=>$element,'folder'=>$group,'client_id'=>0,'enabled'=>1,'access'=>1,'protected'=>0,'locked'=>0,
       'manifest_cache'=>$cache,'params'=>'{}','custom_data'=>'','system_data'=>'{}','ordering'=>0,'state'=>0,'package_id'=>0,'changelogurl'=>'','note'=>''];
     // Column sets differ between Joomla versions (e.g. system_data was removed in Joomla 6).
     $row=array_intersect_key($row,$db->getTableColumns('#__extensions',false));
