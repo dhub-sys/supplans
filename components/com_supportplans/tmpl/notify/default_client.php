@@ -47,14 +47,18 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
 </div>
 <div class="sp-card">
   <h2>Υπενθυμίσεις ανανέωσης</h2>
-  <p class="sp-n-help">Οι υπηρεσίες με λήξεις σε απόσταση έως <?php echo (int) Notify::setting('notify_group_days'); ?> ημερών μεταξύ τους στέλνονται μαζί, σε ένα μήνυμα.</p>
+  <p class="sp-n-help">Οι υπηρεσίες με λήξεις σε απόσταση έως <?php echo (int) Notify::setting('notify_group_days'); ?> ημερών μεταξύ τους στέλνονται μαζί, σε ένα μήνυμα. Όταν ο πελάτης πληρώσει, πατήστε «Πληρώθηκε»: η λήξη μετακινείται και οι υπενθυμίσεις σταματούν. Για ημερομηνία πληρωμής, ποσό ή διαφορετική νέα λήξη, ανοίξτε την υπηρεσία.</p>
   <?php if (!$this->groups): ?><p class="text-muted">Δεν υπάρχουν υπηρεσίες με αυτόματες υπενθυμίσεις στο επόμενο διάστημα.</p><?php endif; ?>
   <?php foreach ($this->groups as $i => $g): ?><?php $next = Notify::nextReminderDate($g); ?>
   <div class="sp-n-group">
     <div><strong><?php echo count($g) > 1 ? 'Συνδυαστική υπενθύμιση' : 'Υπενθύμιση'; ?></strong> · επόμενη αποστολή: <strong><?php echo $e($next === null ? 'καμία' : ($next === Notify::today() ? 'σήμερα' : Notify::dateGr($next))); ?></strong>
       <ul><?php foreach ($g as $x): ?><li><?php echo $e(Notify::serviceFull($x)); ?> — <?php echo NotifyUi::expiry($x->expiry_date, $x->status); ?></li><?php endforeach; ?></ul></div>
     <div class="sp-row-actions"><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id . '&preview=' . ($i + 1)); ?>#sp-n-preview">Προεπισκόπηση</a>
-      <?php echo NotifyUi::button('remindNow', ['id' => $g[0]->id, 'back' => 'section=clients&id=' . (int) $c->id], 'Αποστολή τώρα', 'Αποστολή της υπενθύμισης στο ' . $c->email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?></div>
+      <?php echo NotifyUi::button('remindNow', ['id' => $g[0]->id, 'back' => 'section=clients&id=' . (int) $c->id], 'Αποστολή τώρα', 'Αποστολή της υπενθύμισης στο ' . $c->email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?>
+      <form class="sp-inline-form" method="post" action="<?php echo $e(OfferHelper::url('task=notify.renewGroup')); ?>" onsubmit="return confirm(<?php echo $e(json_encode('Καταχώρηση πληρωμής για ' . (count($g) > 1 ? 'όλες τις ' . count($g) . ' υπηρεσίες' : 'την υπηρεσία') . '; Κάθε μία ανανεώνεται κατά τη δική της διάρκεια και οι υπενθυμίσεις σταματούν.', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)); ?>);">
+        <?php foreach ($g as $x): ?><input type="hidden" name="ids[]" value="<?php echo (int) $x->id; ?>"><?php endforeach; ?>
+        <input type="hidden" name="client_id" value="<?php echo (int) $c->id; ?>"><?php echo HTMLHelper::_('form.token'); ?>
+        <button class="btn btn-sm btn-primary"><?php echo count($g) > 1 ? 'Πληρώθηκαν όλες' : 'Πληρώθηκε'; ?></button></form></div>
   </div>
   <?php endforeach; ?>
   <?php if ($this->preview): ?>

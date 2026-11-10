@@ -461,19 +461,49 @@ class NotifyController extends BaseController
     {
         $this->guard();
         $id = $this->input->post->getInt('id', 0);
+        Notify::cancelQueuedRenewals($id, 'Η υπηρεσία διαγράφηκε.');
         $this->delete(Notify::T_REPORTS, 'client_service_id=' . $id);
-        $this->delete(Notify::T_MESSAGES, 'service_id=' . $id . " AND status='queued'");
+        $this->delete(Notify::T_RENEWALS, 'service_id=' . $id);
         $this->delete(Notify::T_SERVICES, 'id=' . $id);
         $this->msg('Η υπηρεσία του πελάτη διαγράφηκε.');
         $this->go('section=services');
     }
 
+    /**
+     * "Πληρώθηκε": records the payment and moves the expiry. Optional fields: new_expiry (else one
+     * period after the current expiry), paid_on (else today), amount, note.
+     */
     public function renew(): void
     {
         $this->guard();
-        $new = Notify::renew($this->input->post->getInt('id', 0));
-        $this->msg($new ? 'Νέα ημερομηνία λήξης: ' . Notify::dateGr($new) . '.' : 'Η υπηρεσία δεν βρέθηκε.', $new ? 'message' : 'error');
+        $id = $this->input->post->getInt('id', 0);
+        $newExpiry = Notify::parseDate($this->input->post->getString('new_expiry', ''));
+        $paidOn = Notify::parseDate($this->input->post->getString('paid_on', ''));
+        $s = Notify::service($id);
+        if ($s && $newExpiry !== '' && $s->expiry_date && $newExpiry <= $s->expiry_date) {
+            $this->msg('Η νέα ημερομηνία λήξης πρέπει να είναι μετά την τρέχουσα (' . Notify::dateGr($s->expiry_date) . ').', 'error');
+            $this->go($this->back());
+            return;
+        }
+        $new = Notify::renew($id, $newExpiry ?: null, $paidOn ?: null, $this->price('amount'), mb_substr(trim((string) $this->input->post->getString('note', '')), 0, 1000));
+        $this->msg($new ? 'Καταχωρήθηκε η πληρωμή. Νέα λήξη: ' . Notify::dateGr($new) . '· οι υπενθυμίσεις για την προηγούμενη λήξη σταμάτησαν.' : 'Η υπηρεσία δεν βρέθηκε.', $new ? 'message' : 'error');
         $this->go($this->back());
+    }
+
+    /** "Πληρώθηκαν όλες": every service of a (combined) reminder, each by its own period. */
+    public function renewGroup(): void
+    {
+        $this->guard();
+        $clientId = $this->input->post->getInt('client_id', 0);
+        $done = [];
+        foreach (array_unique(array_map('intval', (array) $this->input->post->get('ids', [], 'array'))) as $id) {
+            $s = Notify::service($id);
+            if (!$s || (int) $s->client_id !== $clientId) continue;
+            $new = Notify::renew($id);
+            if ($new) $done[] = Notify::serviceFull($s) . ' → ' . Notify::dateGr($new);
+        }
+        $this->msg($done ? 'Καταχωρήθηκε πληρωμή για: ' . implode(', ', $done) . '.' : 'Δεν επιλέχθηκαν υπηρεσίες.', $done ? 'message' : 'warning');
+        $this->go('section=clients&id=' . $clientId);
     }
 
     public function remindNow(): void

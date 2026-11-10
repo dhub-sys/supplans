@@ -27,6 +27,8 @@ final class Notify
     public const T_MESSAGES = '#__supportplans_notify_messages';
     /** One row per (client service, expiry date, reminder day) already covered by a reminder. */
     public const T_SENT = '#__supportplans_notify_sent';
+    /** Payments / renewals recorded with "Πληρώθηκε" (history per client service). */
+    public const T_RENEWALS = '#__supportplans_renewals';
 
     public const MAX_ATTEMPTS = 3;
     public const DEFAULT_REMINDER_DAYS = '30,14,7,1,0,-3';
@@ -411,25 +413,55 @@ final class Notify
         if ($sids) {
             $db->setQuery($db->getQuery(true)->delete($db->quoteName(self::T_REPORTS))->where('client_service_id IN (' . implode(',', array_map('intval', $sids)) . ')'))->execute();
         }
-        foreach ([self::T_SERVICES, self::T_MESSAGES] as $t) {
+        foreach ([self::T_SERVICES, self::T_MESSAGES, self::T_RENEWALS] as $t) {
             $db->setQuery($db->getQuery(true)->delete($db->quoteName($t))->where('client_id=' . $id))->execute();
         }
         $db->setQuery($db->getQuery(true)->delete($db->quoteName(self::T_CLIENTS))->where('id=' . $id))->execute();
     }
 
-    /** Moves the expiry forward by one period and cancels reminders queued for the old date. */
-    public static function renew(int $id): ?string
+    /** Expiry after one more period (from the current expiry, or today when there is none). */
+    public static function nextExpiry(object $s): string
+    {
+        return self::addMonths($s->expiry_date ?: self::today(), max(1, (int) $s->duration_months));
+    }
+
+    /**
+     * "Πληρώθηκε": records the payment, moves the expiry (by default one period after the
+     * current expiry, also when it was paid late), reactivates the service and cancels every
+     * queued reminder for it. No further reminders go out until the new expiry approaches.
+     */
+    public static function renew(int $id, ?string $newExpiry = null, ?string $paidOn = null, ?float $amount = null, string $note = ''): ?string
     {
         $s = self::service($id);
         if (!$s) {
             return null;
         }
         $db = self::db();
-        $new = self::addMonths($s->expiry_date ?: self::today(), max(1, (int) $s->duration_months));
+        $new = $newExpiry ?: self::nextExpiry($s);
         $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_SERVICES))
             ->set(['expiry_date=' . $db->quote($new), "status='active'", 'modified=' . $db->quote(self::now())])->where('id=' . $id))->execute();
-        self::cancelQueuedRenewals($id, 'Η υπηρεσία ανανεώθηκε.');
+        $row = (object) [
+            'service_id' => $id, 'client_id' => (int) $s->client_id, 'old_expiry' => $s->expiry_date ?: null, 'new_expiry' => $new,
+            'paid_on' => $paidOn ?: self::today(), 'amount' => $amount, 'note' => mb_substr($note, 0, 1000), 'created' => self::now(),
+            'created_by' => (int) Factory::getApplication()->getSession()->get('supportplans.auth.user_id', 0),
+        ];
+        try {
+            $db->insertObject(self::T_RENEWALS, $row);
+        } catch (\Throwable $e) {
+            // History table missing before the update finished: the renewal itself still counts.
+        }
+        self::cancelQueuedRenewals($id, 'Ο πελάτης πλήρωσε / η υπηρεσία ανανεώθηκε.');
         return $new;
+    }
+
+    public static function renewals(int $serviceId): array
+    {
+        $db = self::db();
+        try {
+            return $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_RENEWALS))->where('service_id=' . $serviceId)->order('id DESC'))->loadObjectList();
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**

@@ -40,6 +40,8 @@ class HtmlView extends BaseHtmlView
     public array $schedule = [];
     /** Reminder groups of the selected client. */
     public array $groups = [];
+    /** Payments / renewals of the selected client service. */
+    public array $renewals = [];
 
     public function display($tpl = null): void
     {
@@ -100,6 +102,9 @@ class HtmlView extends BaseHtmlView
                 } else {
                     $this->clients = Notify::clients();
                     $this->selected = $id ? Notify::service($id) : null;
+                    if ($this->selected) {
+                        $this->renewals = Notify::renewals($id);
+                    }
                 }
                 break;
 

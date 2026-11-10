@@ -72,13 +72,38 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
 })();
 </script>
 <?php if ($s): ?>
+<?php $next = Notify::nextExpiry($s); $vatPrice = $s->price !== null ? Notify::withVat((float) $s->price) : null; ?>
+<div class="sp-card" id="sp-n-pay">
+  <h2>Πληρώθηκε / Ανανέωση</h2>
+  <p class="sp-n-help">Όταν ο πελάτης πληρώσει, καταχωρήστε το εδώ: η λήξη μετακινείται και <b>οι υπενθυμίσεις για την τρέχουσα λήξη σταματούν αμέσως</b> (και όσες περιμένουν στην ουρά ακυρώνονται). Οι επόμενες υπενθυμίσεις θα έρθουν όταν πλησιάσει η νέα λήξη.</p>
+  <form method="post" action="<?php echo $e(OfferHelper::url('task=notify.renew')); ?>" onsubmit="return confirm('Καταχώρηση πληρωμής και νέα λήξη ' + this.new_expiry.value.split('-').reverse().join('/') + ';');">
+   <div class="sp-grid">
+    <label>Τρέχουσα λήξη<input value="<?php echo $e(Notify::dateGr($s->expiry_date)); ?>" disabled></label>
+    <label>Ημερομηνία πληρωμής<input type="date" name="paid_on" value="<?php echo $e(Notify::today()); ?>" required></label>
+    <label>Νέα λήξη<input type="date" name="new_expiry" value="<?php echo $e($next); ?>" min="<?php echo $e($s->expiry_date ? Notify::addDays($s->expiry_date, 1) : ''); ?>" required></label>
+    <label>Ποσό (€, προαιρετικά)<input name="amount" inputmode="decimal" placeholder="<?php echo $vatPrice !== null ? $e(number_format($vatPrice, 2, ',', '') . ' με ΦΠΑ') : ''; ?>"></label>
+    <label class="sp-wide">Σημείωση<input name="note" placeholder="π.χ. τιμολόγιο 123, κατάθεση Eurobank"></label>
+   </div>
+   <p class="sp-n-help">Η νέα λήξη προτείνεται +<?php echo $e(Notify::durationLabel((int) $s->duration_months)); ?> από την τρέχουσα λήξη (όχι από σήμερα), όπως ανανεώνονται τα domains και το hosting· αλλάξτε την αν χρειάζεται.</p>
+   <input type="hidden" name="id" value="<?php echo (int) $s->id; ?>"><input type="hidden" name="back" value="section=services&id=<?php echo (int) $s->id; ?>">
+   <?php echo HTMLHelper::_('form.token'); ?>
+   <div class="sp-n-actions"><button class="btn btn-primary">Πληρώθηκε – ανανέωση έως <?php echo $e(Notify::dateGr($next)); ?></button></div>
+  </form>
+  <?php if ($this->renewals): ?>
+  <h3>Ιστορικό πληρωμών / ανανεώσεων</h3>
+  <div class="table-responsive"><table class="table sp-offer-table">
+   <thead><tr><th>Πληρωμή</th><th>Λήξη πριν</th><th>Νέα λήξη</th><th class="sp-num">Ποσό</th><th>Σημείωση</th></tr></thead>
+   <tbody><?php foreach ($this->renewals as $r): ?><tr><td><?php echo $e(Notify::dateGr($r->paid_on)); ?></td><td><?php echo $e(Notify::dateGr($r->old_expiry)); ?></td><td><?php echo $e(Notify::dateGr($r->new_expiry)); ?></td><td class="sp-num"><?php echo $e(Notify::money($r->amount) ?: '—'); ?></td><td><?php echo $e($r->note); ?></td></tr><?php endforeach; ?></tbody>
+  </table></div>
+  <?php endif; ?>
+</div>
 <div class="sp-card">
   <h2>Ενέργειες</h2>
   <div class="sp-n-actions">
-    <?php if ($s->expiry_date): ?><?php echo NotifyUi::button('renew', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Ανανεώθηκε (+' . Notify::durationLabel((int) $s->duration_months) . ')', 'Μετάθεση της λήξης κατά ' . Notify::durationLabel((int) $s->duration_months) . ';', 'btn btn-outline-primary'); ?>
-    <?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Αποστολή υπενθύμισης τώρα', 'Αποστολή υπενθύμισης στο ' . $s->client_email . ';', 'btn btn-outline-secondary'); ?><?php endif; ?>
+    <?php if ($s->expiry_date && $s->status === 'active'): ?><?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => 'section=services&id=' . (int) $s->id], 'Αποστολή υπενθύμισης τώρα', 'Αποστολή υπενθύμισης στο ' . $s->client_email . ';', 'btn btn-outline-secondary'); ?><?php endif; ?>
     <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Νέα αναφορά maintenance</a>
-    <?php echo NotifyUi::button('deleteService', ['id' => $s->id], 'Διαγραφή', 'Διαγραφή της υπηρεσίας του πελάτη και των αναφορών της;', 'btn btn-outline-danger'); ?>
+    <?php echo NotifyUi::button('deleteService', ['id' => $s->id], 'Διαγραφή', 'Διαγραφή της υπηρεσίας του πελάτη, των αναφορών και του ιστορικού πληρωμών της;', 'btn btn-outline-danger'); ?>
   </div>
+  <p class="sp-n-help">Για να μη στέλνονται ποτέ υπενθυμίσεις για αυτή την υπηρεσία, ξετσεκάρετε «Αυτόματες υπενθυμίσεις» παραπάνω· αν ο πελάτης δεν θα ανανεώσει, αλλάξτε την κατάσταση σε «Ακυρωμένη».</p>
 </div>
 <?php endif; ?>

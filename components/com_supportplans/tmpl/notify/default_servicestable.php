@@ -25,7 +25,7 @@ $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->sele
         <br><small class="text-muted" title="Ημέρες υπενθύμισης"><?php echo (int) $s->auto_remind && $s->expiry_date ? $e(implode(', ', Notify::reminderDays($s))) : ''; ?></small></td>
       <td class="sp-num sp-row-actions">
         <?php if ($s->expiry_date): ?>
-          <?php echo NotifyUi::button('renew', ['id' => $s->id, 'back' => $back], 'Ανανεώθηκε', 'Μετάθεση της λήξης κατά ' . Notify::durationLabel((int) $s->duration_months) . ' (από ' . Notify::dateGr($s->expiry_date) . ');'); ?>
+          <a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=services&id=' . (int) $s->id); ?>#sp-n-pay" title="Καταχώρηση πληρωμής: η λήξη μετακινείται και οι υπενθυμίσεις σταματούν">Πληρώθηκε…</a>
           <?php if ($s->status === 'active'): ?><?php echo NotifyUi::button('remindNow', ['id' => $s->id, 'back' => $back], 'Υπενθύμιση τώρα', 'Αποστολή υπενθύμισης ανανέωσης στο ' . $s->client_email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?><?php endif; ?>
         <?php endif; ?>
         <a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Αναφορά</a>
