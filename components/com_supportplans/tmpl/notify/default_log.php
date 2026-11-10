@@ -9,7 +9,7 @@ $pages = (int) ceil($this->total / 50);
 $base = 'section=log' . ($this->filters['kind'] ? '&kind=' . $this->filters['kind'] : '') . ($this->filters['status'] ? '&status=' . $this->filters['status'] : '') . ($this->filters['campaign_id'] ? '&campaign_id=' . (int) $this->filters['campaign_id'] : '');
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Πελάτες &amp; Ειδοποιήσεις</span><h1>Ιστορικό αποστολών</h1><p>Κάθε μήνυμα με το ακριβές περιεχόμενο που στάλθηκε. Τα αποτυχημένα ξαναδοκιμάζονται αυτόματα έως <?php echo Notify::MAX_ATTEMPTS; ?> φορές.</p></div>
+  <div><span class="sp-eyebrow">Client Management</span><h1>Ιστορικό αποστολών</h1><p>Κάθε μήνυμα με το ακριβές περιεχόμενο που στάλθηκε. Τα αποτυχημένα ξαναδοκιμάζονται αυτόματα έως <?php echo Notify::MAX_ATTEMPTS; ?> φορές.</p></div>
   <?php echo NotifyUi::button('runNow', ['back' => 'section=log'], 'Αποστολή ουράς τώρα', '', 'sp-primary-action'); ?>
 </section>
 <div class="sp-card">

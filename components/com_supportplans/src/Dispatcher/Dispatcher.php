@@ -7,17 +7,35 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Dispatcher\ComponentDispatcher;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
+use Support\Component\Supportplans\Site\Helper\Activity;
 use Support\Component\Supportplans\Site\Helper\AuthCookie;
 use Support\Component\Supportplans\Site\Helper\ShareLink;
 
 final class Dispatcher extends ComponentDispatcher
 {
+    /** Runs the task/view; a failure is written to the activity log before it propagates. */
+    private function run(): void
+    {
+        try {
+            parent::dispatch();
+        } catch (\Throwable $e) {
+            Activity::finish($e);
+            throw $e;
+        }
+    }
+
     public function dispatch(): void
     {
         $app = Factory::getApplication();
         $input = $app->input;
         $view = $input->getCmd('view', 'app');
         $task = $input->getCmd('task', '');
+        // Activity log: every task (not plain page views), also when it ends with a redirect.
+        // The unsubscribe page is logged only when the client confirms (POST).
+        if ($task !== '' && ($task !== 'unsubscribe.run' || strtoupper($input->getMethod()) === 'POST')) {
+            Activity::begin($task);
+            register_shutdown_function([Activity::class, 'finish']);
+        }
         $publicViews = ['app', 'otp'];
         $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify', 'unsubscribe.run'];
 
@@ -34,7 +52,7 @@ final class Dispatcher extends ComponentDispatcher
         }
         // Unsubscribe link of the campaign e-mails: public, protected by its own HMAC token.
         if ($task === 'unsubscribe.run') {
-            parent::dispatch();
+            $this->run();
             return;
         }
         $needsAuth = !$sharedReport && (!in_array($view, $publicViews, true) || ($task !== '' && !in_array($task, $publicTasks, true)));
@@ -64,7 +82,7 @@ final class Dispatcher extends ComponentDispatcher
                 return;
             }
         }
-        parent::dispatch();
+        $this->run();
 
         // Browser tab title of the Service Hub (Settings > Τίτλος σελίδας). The printable views
         // keep their own title, which the browser uses as the Pdf file name.

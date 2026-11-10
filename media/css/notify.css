@@ -23,10 +23,21 @@
 .sp-n-group ul{margin:6px 0 0;padding-left:18px}.sp-n-group li{margin:3px 0}
 @media (max-width:640px){.sp-n-group{flex-direction:column}}
 .sp-n-checklist{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px}
-.sp-n-checklist .sp-check{align-items:flex-start!important;font-weight:400}
-.sp-n-checklist .sp-check input{margin-top:3px}
+.sp-n-checklist .sp-check{align-items:center!important;font-weight:400;gap:10px!important}
+.sp-n-checklist .sp-check input{margin:0!important;flex:0 0 auto;width:16px!important;height:16px!important}
+.sp-n-checklist .sp-check>span{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px}
 .sp-n-logo-row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
 .sp-n-logo-box{min-width:220px;min-height:70px;padding:12px 16px;border:1px dashed #cfd6e1;border-radius:10px;display:flex;align-items:center;justify-content:flex-end;background:#fff}
 .sp-n-logo-box img{height:44px;width:auto;max-width:220px}
-.sp-n-expiry-check{display:block;font-weight:400;font-size:12px;color:#475467;margin-top:4px;min-height:16px}
-.sp-n-expiry-check.is-warn{color:#b45309;font-weight:600}
+.sp-n-label-row{display:inline-flex;align-items:center;gap:6px}
+.sp-n-info{width:16px;height:16px;border-radius:50%;background:#e0e7ff;color:#1d4ed8;font-size:11px!important;font-weight:700;justify-content:center;font-style:normal;line-height:16px}
+.sp-n-info.is-warn{background:#fde68a;color:#92400e}
+.sp-n-info::after{max-width:260px!important}
+
+/* Links in the tables: same size as the other cell text, semibold, no underline. */
+.sp-offers-workspace .sp-offer-table a:not(.btn){font-size:inherit;font-weight:600;text-decoration:none;color:#1d4ed8}
+.sp-offers-workspace .sp-offer-table a:not(.btn) strong{font-weight:inherit}
+.sp-offers-workspace .sp-offer-table a:not(.btn):hover{text-decoration:underline}
+.sp-n-inline{display:inline-flex!important;align-items:center;gap:6px;font-weight:600;font-size:13px}
+.sp-n-nowrap{white-space:nowrap}
+.sp-n-activity td{font-size:13.5px}

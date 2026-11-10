@@ -1523,6 +1523,13 @@ final class Notify
             OfferHelper::saveParam('notify_last_run', self::now());
         } catch (\Throwable $e) {
         }
+        // Scheduled runs are logged only when they did something (they run every few minutes).
+        $app = Factory::getApplication();
+        $isTask = !(method_exists($app, 'isClient') && $app->isClient('site') && $app->input->getCmd('task', '') !== '');
+        if ($isTask && ($queued || $sent || $failed)) {
+            Activity::write('Ουρά email', 'Αυτόματη εκτέλεση (Χρονοπρογραμματισμένη εργασία)', 0, '', [], $failed ? 'warning' : 'ok',
+                sprintf('Νέες υπενθυμίσεις: %d · Εστάλησαν: %d · Απέτυχαν: %d', $queued, $sent, $failed), 'scheduler');
+        }
         return ['queued' => $queued, 'sent' => $sent, 'failed' => $failed];
     }
 

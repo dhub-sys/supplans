@@ -32,7 +32,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
     <option value="<?php echo (int) $k->id; ?>" data-price="<?php echo $k->price !== null ? $e(number_format((float) $k->price, 2, ',', '')) : ''; ?>" data-duration="<?php echo (int) $k->duration_months; ?>" data-remind="<?php echo (int) $k->auto_remind; ?>" data-days="<?php echo $e($k->reminder_days !== '' ? $k->reminder_days : Notify::setting('notify_reminder_days')); ?>"<?php echo (int) $k->id === $catalogId ? ' selected' : ''; ?>><?php echo $e($k->name); ?></option>
     <?php endforeach; ?></select></label>
    <label>Domain / περιγραφή<input name="label" value="<?php echo $e($s->label ?? ''); ?>" placeholder="π.χ. example.gr"></label>
-   <label>Λήξη (τρέχουσα) *<input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"><small id="sp-n-expiry-check" class="sp-n-expiry-check" aria-live="polite"></small></label>
+   <label><span class="sp-n-label-row">Λήξη (τρέχουσα) * <span class="sp-label-tooltip sp-n-info" id="sp-n-expiry-check" tabindex="0" data-tooltip="" aria-label="">i</span></span><input type="date" name="expiry_date" id="sp-n-expiry" value="<?php echo $e($s->expiry_date ?? ''); ?>"></label>
    <label>Τιμή ανανέωσης (€ προ ΦΠΑ)<input name="price" id="sp-n-price" inputmode="decimal" value="<?php echo $s && $s->price !== null ? $e(number_format((float) $s->price, 2, ',', '')) : ''; ?>"></label>
    <label>Ανανέωση για (μήνες)<input type="number" min="1" max="120" name="duration_months" id="sp-n-duration" value="<?php echo (int) ($s->duration_months ?? 12); ?>"></label>
    <label>Έναρξη (προαιρετικά)<input type="date" name="start_date" id="sp-n-start" value="<?php echo $e($s->start_date ?? ''); ?>"></label>
@@ -73,14 +73,16 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
   var check = document.getElementById('sp-n-expiry-check');
   var todayYmd = <?php echo json_encode(Notify::today()); ?>;
   function checkExpiry() {
-    if (!expiry.value) { check.textContent = ''; check.className = 'sp-n-expiry-check'; return; }
+    if (!expiry.value) { check.dataset.tooltip = 'Η ημερομηνία που λήγει τώρα η υπηρεσία.'; check.setAttribute('aria-label', check.dataset.tooltip); check.classList.remove('is-warn'); return; }
     var p = expiry.value.split('-'), t = todayYmd.split('-');
     var d = Date.UTC(+p[0], +p[1] - 1, +p[2]), n = Date.UTC(+t[0], +t[1] - 1, +t[2]);
     var days = Math.round((d - n) / 86400000);
     var wd = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'][new Date(d).getUTCDay()];
     var when = days > 1 ? 'λήγει σε ' + days + ' ημέρες' : days === 1 ? 'λήγει αύριο' : days === 0 ? 'λήγει σήμερα' : 'έληξε πριν από ' + (-days) + ' ημέρες';
-    check.textContent = wd + ' ' + p[2] + '/' + p[1] + '/' + p[0] + ' · ' + when + (days > 365 ? ' — προσοχή: πάνω από ένα έτος, ελέγξτε ότι το έτος είναι σωστό' : '');
-    check.className = 'sp-n-expiry-check' + (days > 365 ? ' is-warn' : '');
+    check.dataset.tooltip = wd + ' ' + p[2] + '/' + p[1] + '/' + p[0] + ' · ' + when + (days > 365 ? ' — προσοχή: πάνω από ένα έτος, ελέγξτε ότι το έτος είναι σωστό' : '');
+    check.setAttribute('aria-label', check.dataset.tooltip);
+    check.classList.toggle('is-warn', days > 365);
+    check.textContent = days > 365 ? '!' : 'i';
   }
   expiry.addEventListener('input', checkExpiry); expiry.addEventListener('change', checkExpiry); checkExpiry();
   start.addEventListener('change', suggest); dur.addEventListener('change', suggest);

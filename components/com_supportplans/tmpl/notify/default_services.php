@@ -9,7 +9,7 @@ $catalogOptions = [];
 foreach ($this->catalog as $k) $catalogOptions[$k->id] = $k->name;
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Πελάτες &amp; Ειδοποιήσεις</span><h1>Υπηρεσίες πελατών</h1><p>Οι υπηρεσίες του καταλόγου που έχετε αναθέσει σε πελάτες, ταξινομημένες κατά ημερομηνία λήξης. Με «Ανανεώθηκε» η λήξη μετακινείται μία περίοδο και οι εκκρεμείς υπενθυμίσεις ακυρώνονται.</p></div>
+  <div><span class="sp-eyebrow">Client Management</span><h1>Υπηρεσίες πελατών</h1><p>Οι υπηρεσίες του καταλόγου που έχετε αναθέσει σε πελάτες, ταξινομημένες κατά ημερομηνία λήξης. Με «Ανανεώθηκε» η λήξη μετακινείται μία περίοδο και οι εκκρεμείς υπενθυμίσεις ακυρώνονται.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=services&mode=new'); ?>">＋ Ανάθεση υπηρεσίας</a>
 </section>
 <div class="sp-card">

@@ -44,6 +44,7 @@ final class PlgTaskSupportplansnotify extends CMSPlugin implements SubscriberInt
                 return Status::KNOCKOUT;
             }
             require_once JPATH_SITE . '/components/com_supportplans/src/Helper/OfferHelper.php';
+            require_once JPATH_SITE . '/components/com_supportplans/src/Helper/Activity.php';
             require_once $helper;
         }
         try {

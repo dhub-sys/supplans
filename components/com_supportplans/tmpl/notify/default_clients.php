@@ -8,7 +8,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 $e = [NotifyUi::class, 'e'];
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Πελάτες &amp; Ειδοποιήσεις</span><h1>Πελάτες</h1><p>Τα στοιχεία επικοινωνίας των πελατών σας. Από τον πελάτη αναθέτετε υπηρεσίες του καταλόγου και βλέπετε τι του έχει σταλεί.</p></div>
+  <div><span class="sp-eyebrow">Client Management</span><h1>Πελάτες</h1><p>Τα στοιχεία επικοινωνίας των πελατών σας. Από τον πελάτη αναθέτετε υπηρεσίες του καταλόγου και βλέπετε τι του έχει σταλεί.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=clients&mode=new'); ?>">＋ Νέος πελάτης</a>
 </section>
 <div class="sp-card">
