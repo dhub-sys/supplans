@@ -44,3 +44,5 @@
 .sp-n-inline{display:inline-flex!important;align-items:center;gap:6px;font-weight:600;font-size:13px}
 .sp-n-nowrap{white-space:nowrap}
 
+.sp-doc-sender-title{font-size:15px!important;margin:18px 0 8px!important;padding-top:14px;border-top:1px solid #eef0f3}
+#sp-doc-senders .sp-doc-sender-title:first-of-type{border-top:0;padding-top:0}

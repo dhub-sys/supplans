@@ -31,6 +31,12 @@ class HtmlView extends BaseHtmlView
                 throw new \RuntimeException('Not found', 404);
             }
             ShareLink::protectPage();
+            $gate = \Support\Component\Supportplans\Site\Helper\DocGate::guard('offer', $offer, $token);
+            if ($gate !== '') {
+                $app->input->set('tmpl', 'component');
+                echo $gate;
+                return;
+            }
             $this->shared = true;
             $this->offer = $offer;
             $db = Factory::getContainer()->get('DatabaseDriver');

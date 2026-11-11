@@ -47,6 +47,10 @@ final class Notify
             'notify_from_email'      => '',
             'notify_reply_to'        => '',
             'notify_bcc'             => '',
+            // Sender per document type (offer / structure / plan); empty = the sender above.
+            'doc_offer_from_name' => '', 'doc_offer_from_email' => '', 'doc_offer_reply_to' => '', 'doc_offer_bcc' => '',
+            'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
+            'doc_plan_from_name' => '', 'doc_plan_from_email' => '', 'doc_plan_reply_to' => '', 'doc_plan_bcc' => '',
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
             'notify_batch_size'      => 20,
             'notify_footer'          => '',
@@ -1438,18 +1442,42 @@ final class Notify
         return false;
     }
 
-    /** Mailer with the sender, name and reply-to of the Client Management email settings. */
-    public static function senderMailer()
+    /** [name, email] that a document type is sent from (for display). */
+    public static function senderOf(string $docType = ''): array
+    {
+        $pick = static function (string $key) use ($docType): string {
+            $own = $docType !== '' ? trim((string) self::setting('doc_' . $docType . '_' . $key)) : '';
+            return $own !== '' ? $own : trim((string) self::setting('notify_' . $key));
+        };
+        // Same rules as senderMailer(): own email (+ name or company), else Joomla's sender.
+        $app = Factory::getApplication();
+        $email = $pick('from_email');
+        $name = trim(preg_replace('/[\r\n"<>]+/', '', $pick('from_name')));
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return [$name !== '' ? $name : self::brandName(), $email];
+        }
+        return [$name !== '' ? $name : (string) $app->get('fromname'), (string) $app->get('mailfrom')];
+    }
+
+    /**
+     * Mailer with the sender, name and reply-to of the email settings. With a document type
+     * (offer / structure / plan), that type's own sender is used where set (Αποστολείς εγγράφων).
+     */
+    public static function senderMailer(string $docType = '')
     {
         $mailer = self::mailer();
-        $fromEmail = trim((string) self::setting('notify_from_email'));
-        $fromName = trim(preg_replace('/[\r\n"<>]+/', '', (string) self::setting('notify_from_name')));
+        $pick = static function (string $key) use ($docType): string {
+            $own = $docType !== '' ? trim((string) self::setting('doc_' . $docType . '_' . $key)) : '';
+            return $own !== '' ? $own : trim((string) self::setting('notify_' . $key));
+        };
+        $fromEmail = $pick('from_email');
+        $fromName = trim(preg_replace('/[\r\n"<>]+/', '', $pick('from_name')));
         if ($fromEmail !== '' && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
             $mailer->setSender([$fromEmail, $fromName !== '' ? $fromName : self::brandName()]);
         } elseif ($fromName !== '') {
             $mailer->setSender([(string) Factory::getApplication()->get('mailfrom'), $fromName]);
         }
-        $replyTo = trim((string) self::setting('notify_reply_to'));
+        $replyTo = $pick('reply_to');
         if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
             $mailer->addReplyTo($replyTo);
         }

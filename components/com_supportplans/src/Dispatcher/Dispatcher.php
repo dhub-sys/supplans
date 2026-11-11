@@ -37,7 +37,7 @@ final class Dispatcher extends ComponentDispatcher
             register_shutdown_function([Activity::class, 'finish']);
         }
         $publicViews = ['app', 'otp'];
-        $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify', 'unsubscribe.run'];
+        $publicTasks = ['auth.authenticate', 'auth.logout', 'otp.send', 'otp.verify', 'unsubscribe.run', 'docgate.send', 'docgate.verify'];
 
         // Customer link to a package report (?view=report&t=<96 hex>): public, read-only.
         $sharedReport = $view === 'report' && $task === '' && ShareLink::isToken((string) $input->getString('t', ''));

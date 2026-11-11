@@ -133,21 +133,40 @@ final class DocMail
         if ($subject === '') $subject = trim($c['subject'] . ' ' . $number . ($project !== '' ? ' – ' . $project : ''));
         $message = str_replace("\r\n", "\n", trim((string) ($in['message'] ?? '')));
         $link = $withLink ? self::link($type, $doc, true) : '';
+        $otp = $withLink && !empty($in['link_otp']);
+        $days = (int) ($in['link_days'] ?? 0);
+        $expires = $withLink && $days > 0 ? gmdate('Y-m-d H:i:s', time() + $days * 86400) : null;
 
         $esc = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         $inner = OfferHelper::render($message, $vars);
         if ($link !== '') {
-            $inner .= '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 8px"><tr><td style="background:' . $esc($brand['accent'] ?: '#367d22') . ';border-radius:8px;">'
-                . '<a href="' . $esc($link) . '" style="display:inline-block;padding:12px 22px;color:' . $esc($brand['secondary'] ?: '#ffffff') . ';text-decoration:none;font-weight:bold;">' . $esc($c['button']) . '</a></td></tr></table>'
-                . '<p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Από τη σελίδα μπορείτε να το εκτυπώσετε ή να το αποθηκεύσετε σε Pdf. Ο σύνδεσμος είναι προσωπικός.</p>';
+            $bg = $esc($brand['accent'] ?: '#367d22');
+            $fg = $esc($brand['secondary'] ?: '#ffffff');
+            $label = $esc($c['button']);
+            $width = max(200, (int) ceil(mb_strlen($c['button']) * 9.5) + 48);
+            // Outlook for Windows ignores padding on links: rounded VML button there, a padded
+            // table cell everywhere else (the whole cell is clickable through the link).
+            $inner .= '<div style="margin:22px 0 10px;">'
+                . '<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . $esc($link) . '" style="height:44px;v-text-anchor:middle;width:' . $width . 'px;" arcsize="18%" stroke="f" fillcolor="' . $bg . '"><w:anchorlock/>'
+                . '<center style="color:' . $fg . ';font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">' . $label . '</center></v:roundrect><![endif]-->'
+                . '<!--[if !mso]><!--><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>'
+                . '<td align="center" bgcolor="' . $bg . '" style="background:' . $bg . ';border-radius:8px;padding:12px 24px;">'
+                . '<a href="' . $esc($link) . '" style="color:' . $fg . ';text-decoration:none;font-weight:bold;font-size:15px;line-height:20px;display:inline-block;">' . $label . '</a>'
+                . '</td></tr></table><!--<![endif]--></div>'
+                . '<p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Από τη σελίδα μπορείτε να το εκτυπώσετε ή να το αποθηκεύσετε σε Pdf. Ο σύνδεσμος είναι προσωπικός'
+                . ($otp ? '· για την προβολή θα σας ζητηθεί κωδικός, που θα σταλεί σε αυτό το email' : '')
+                . ($expires ? '· ισχύει έως ' . $esc(Notify::datetimeGr($expires)) : '') . '.</p>';
         }
         if ($attachment) {
             $inner .= '<p style="margin:10px 0 0;font-size:13px;color:#6b7280;">Συνημμένο: ' . $esc($attachment['name']) . '</p>';
         }
         $body = Notify::wrap($inner);
         try {
-            $mailer = Notify::senderMailer();
+            $mailer = Notify::senderMailer($type);
             foreach ($to as $addr) $mailer->addRecipient($addr);
+            // Copy to the office (Αποστολείς εγγράφων → Κρυφή κοινοποίηση).
+            $bcc = trim((string) Notify::setting('doc_' . $type . '_bcc'));
+            if ($bcc !== '' && filter_var($bcc, FILTER_VALIDATE_EMAIL) && !in_array($bcc, array_merge($to, $cc), true)) $mailer->addBcc($bcc);
             foreach ($cc as $addr) $mailer->addCc($addr);
             $mailer->setSubject($subject);
             $mailer->isHtml(true);
@@ -167,11 +186,23 @@ final class DocMail
             'subject' => mb_substr($subject, 0, 255), 'attachment' => $attachment ? mb_substr($attachment['name'], 0, 255) : '',
             'with_link' => $link !== '' ? 1 : 0, 'username' => (string) ($user->username ?? ''), 'sent' => Factory::getDate()->toSql(),
         ];
+        $log->link_otp = $otp ? 1 : 0;
+        $log->link_expires = $expires;
         $db->insertObject(self::T_SENDS, $log);
+        if ($link !== '') {
+            // Protection of the link: code by email to the recipients, and expiry (this send's settings).
+            $allowed = array_values(array_unique(array_merge(DocGate::emails($doc), $to, $cc)));
+            $q = $db->getQuery(true)->update($db->quoteName($c['table']))
+                ->set($db->quoteName('share_otp') . '=' . ($otp ? 1 : 0))
+                ->set($db->quoteName('share_expires') . '=' . ($expires ? $db->quote($expires) : 'NULL'))
+                ->set($db->quoteName('share_emails') . '=' . $db->quote(mb_substr(implode(',', $allowed), 0, 1000)))
+                ->where('id=' . (int) $doc->id);
+            $db->setQuery($q)->execute();
+        }
         if ($c['statuses'] && ($doc->status ?? '') === 'draft') {
             $db->setQuery($db->getQuery(true)->update($db->quoteName($c['table']))->set($db->quoteName('status') . '=' . $db->quote('sent'))->where('id=' . (int) $doc->id))->execute();
         }
-        Activity::note(self::label($type, $doc) . ' · προς ' . implode(', ', $to) . ($cc ? ' (κοιν. ' . implode(', ', $cc) . ')' : '') . ($attachment ? ' · Pdf' : '') . ($link !== '' ? ' · σύνδεσμος' : ''));
+        Activity::note(self::label($type, $doc) . ' · προς ' . implode(', ', $to) . ($cc ? ' (κοιν. ' . implode(', ', $cc) . ')' : '') . ($attachment ? ' · Pdf' : '') . ($link !== '' ? ' · σύνδεσμος' . ($otp ? ' με κωδικό' : '') . ($expires ? ' έως ' . Notify::datetimeGr($expires) : '') : ''));
         $app->enqueueMessage('Στάλθηκε στο ' . implode(', ', $to) . '.');
         return '';
     }
@@ -205,18 +236,27 @@ final class DocMail
         $message = "Καλησπέρα σας,\n\nσας αποστέλλουμε " . $c['the'] . ($number !== '' ? ' {number}' : '') . ($project !== '' ? ' για {project}' : '')
             . ".\nΕίμαστε στη διάθεσή σας για οποιαδήποτε διευκρίνιση.\n\nΜε εκτίμηση,\n{company}";
         $statusNote = $c['statuses'] ? 'Αν είναι «Πρόχειρη», γίνεται «Απεσταλμένη».' : '';
+        // Defaults: protected, 30 days (packages: no expiry, their link follows the package).
+        $otpDefault = true;
+        $daysDefault = $type === 'plan' ? 0 : 30;
         ob_start(); ?>
 <dialog class="sp-send" id="sp-send" aria-label="Αποστολή με email">
  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=docmail.send', false)); ?>" id="sp-send-form">
   <div class="sp-send-head"><div><strong>Αποστολή: <?php echo $e(trim($c['name'] . ' ' . $number)); ?></strong><span>Αποστέλλεται η αποθηκευμένη μορφή του εγγράφου.</span></div><button type="button" class="sp-preview-close" onclick="document.getElementById('sp-send').close()" aria-label="Κλείσιμο">×</button></div>
   <div class="sp-send-body">
+   <?php [$fromName, $fromMail] = Notify::senderOf($type); ?>
+   <div class="sp-send-from">Από: <b><?php echo $e($fromName); ?></b> &lt;<?php echo $e($fromMail); ?>&gt; <a href="<?php echo $e(OfferHelper::url('view=notify&section=settings', false)); ?>#sp-doc-senders" target="_blank" rel="noopener">αλλαγή</a></div>
    <label>Προς<input type="text" name="to" value="<?php echo $e($to); ?>" list="sp-send-clients" required placeholder="pelatis@example.gr — για περισσότερους, χωρίστε με κόμμα" autocomplete="off"></label>
    <datalist id="sp-send-clients"><?php foreach ($clientMails as $cm): ?><option value="<?php echo $e($cm['email']); ?>"><?php echo $e($cm['label']); ?></option><?php endforeach; ?></datalist>
    <label>Κοινοποίηση (cc)<input type="text" name="cc" placeholder="προαιρετικό"></label>
    <label>Θέμα<input name="subject" value="<?php echo $e($subject); ?>" required></label>
    <label>Μήνυμα<textarea name="message" rows="7"><?php echo $e($message); ?></textarea><small>Μεταβλητές: {customer}, {project}, {number}, {company}. **έντονα**, γραμμές με «- » για λίστα.</small></label>
    <div class="sp-send-what">
-    <label class="sp-check"><input type="checkbox" name="with_link" value="1" checked> Σύνδεσμος προβολής <small>— ο πελάτης βλέπει το έγγραφο online και το εκτυπώνει / αποθηκεύει σε Pdf</small></label>
+    <label class="sp-check"><input type="checkbox" name="with_link" value="1" checked data-link-toggle> Σύνδεσμος προβολής <small>— ο πελάτης βλέπει το έγγραφο online και το εκτυπώνει / αποθηκεύει σε Pdf</small></label>
+    <div class="sp-send-protect" data-link-opts>
+     <label class="sp-check"><input type="checkbox" name="link_otp" value="1"<?php echo $otpDefault ? ' checked' : ''; ?>> Προστασία με κωδικό μίας χρήσης <small>— πριν το δει, ο πελάτης λαμβάνει κωδικό στο email του</small></label>
+     <label class="sp-send-days">Λήξη συνδέσμου<select name="link_days"><?php foreach ([0 => 'Χωρίς λήξη', 7 => 'Σε 7 ημέρες', 14 => 'Σε 14 ημέρες', 30 => 'Σε 30 ημέρες', 60 => 'Σε 60 ημέρες', 90 => 'Σε 90 ημέρες'] as $d => $dl): ?><option value="<?php echo $d; ?>"<?php echo $d === $daysDefault ? ' selected' : ''; ?>><?php echo $dl; ?></option><?php endforeach; ?></select></label>
+    </div>
     <div class="sp-send-file">
      <span>Συνημμένο Pdf <small>(προαιρετικό)</small></span>
      <div><input type="file" name="attachment" accept="application/pdf,.pdf" id="sp-send-file"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="<?php echo $c['print']; ?>()">Δημιουργία Pdf…</button></div>
@@ -242,6 +282,9 @@ final class DocMail
     }
     document.getElementById('sp-send').showModal();
   };
+  var lt = document.querySelector('#sp-send [data-link-toggle]'), lo = document.querySelector('#sp-send [data-link-opts]');
+  var syncLink = function () { lo.hidden = !lt.checked; };
+  lt.addEventListener('change', syncLink); syncLink();
   document.getElementById('sp-send-form').addEventListener('submit', function () {
     if (typeof window.spDocClean === 'function') window.spDocClean();
     this.querySelector('button.btn-primary').disabled = true;
@@ -269,14 +312,15 @@ final class DocMail
    <td class="sp-n-nowrap"><?php echo $e(Notify::datetimeGr($sd->sent)); ?></td>
    <td><?php echo $e($sd->to_email); ?><?php if ($sd->cc !== ''): ?><br><small class="text-muted">κοιν. <?php echo $e($sd->cc); ?></small><?php endif; ?></td>
    <td><?php echo $e($sd->subject); ?></td>
-   <td><?php echo $e(implode(' + ', array_filter([(int) $sd->with_link ? 'Σύνδεσμος' : '', $sd->attachment !== '' ? 'Pdf: ' . $sd->attachment : '']))); ?></td>
+   <td><?php echo $e(implode(' + ', array_filter([(int) $sd->with_link ? 'Σύνδεσμος' . (!empty($sd->link_otp) ? ' 🔒' : '') : '', $sd->attachment !== '' ? 'Pdf: ' . $sd->attachment : '']))); ?></td>
    <td><?php echo $e($sd->username); ?></td>
   </tr><?php endforeach; ?></tbody>
  </table></div>
  <?php else: ?><p class="sp-foot">Δεν έχει σταλεί ακόμα από το Back Office.</p><?php endif; ?>
  <?php if ($link !== ''): ?>
  <div class="sp-send-link">
-  <span>Σύνδεσμος προβολής (ενεργός)</span>
+  <span><?php echo DocGate::expired($doc) ? 'Σύνδεσμος προβολής (έληξε)' : 'Σύνδεσμος προβολής (ενεργός)'; ?></span>
+  <small class="sp-send-prot"><?php echo $e(implode(' · ', array_filter([DocGate::needsCode($doc) ? '🔒 με κωδικό στο email' : 'χωρίς κωδικό', (string) ($doc->share_expires ?? '') !== '' ? 'λήξη ' . Notify::datetimeGr((string) $doc->share_expires) : 'χωρίς λήξη']))); ?></small>
   <input type="text" readonly value="<?php echo $e($link); ?>" onclick="this.select()" aria-label="Σύνδεσμος προβολής">
   <a class="btn btn-sm btn-outline-secondary" href="<?php echo $e($link); ?>" target="_blank" rel="noopener">Άνοιγμα</a>
   <form method="post" action="<?php echo $e(OfferHelper::url('task=docmail.revoke', false)); ?>" onsubmit="return confirm('Να απενεργοποιηθεί ο σύνδεσμος; Όσοι τον έχουν δεν θα βλέπουν πλέον το έγγραφο.');"><input type="hidden" name="doc_type" value="<?php echo $e($type); ?>"><input type="hidden" name="id" value="<?php echo (int) $doc->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-sm btn-outline-danger">Απενεργοποίηση</button></form>

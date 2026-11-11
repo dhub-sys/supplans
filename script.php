@@ -65,6 +65,7 @@ class Com_SupportplansInstallerScript
     'published'=>'tinyint NOT NULL DEFAULT 1','modified'=>'datetime NULL',
    ],
    '#__supportplans_plans'=>[
+    'share_otp'=>'tinyint NOT NULL DEFAULT 0','share_expires'=>'datetime NULL','share_emails'=>"varchar(1000) NOT NULL DEFAULT ''",
     'sequence_no'=>'int unsigned NOT NULL DEFAULT 0','user_id'=>'int unsigned NOT NULL DEFAULT 0','customer_name'=>"varchar(190) NOT NULL DEFAULT ''",'supported_websites'=>"varchar(500) NOT NULL DEFAULT ''",'form_number'=>"varchar(80) NOT NULL DEFAULT ''",
     'service_plan_id'=>'int unsigned NOT NULL DEFAULT 0','billing_mode'=>"varchar(20) NOT NULL DEFAULT 'prepaid'",'subscription_months'=>'int unsigned NOT NULL DEFAULT 1',
     'min_minutes'=>'int unsigned NOT NULL DEFAULT 30','step_minutes'=>'int unsigned NOT NULL DEFAULT 5','plan_description'=>'text NULL','vat_rate'=>'decimal(5,2) NOT NULL DEFAULT 24.00','status'=>"varchar(20) NOT NULL DEFAULT 'active'",'share_token'=>"varchar(100) NOT NULL DEFAULT ''",
@@ -84,15 +85,17 @@ class Com_SupportplansInstallerScript
    ],
    // v1.23.1: page layout of the document sections of the structure proposals.
    '#__supportplans_structures'=>[
+    'share_otp'=>'tinyint NOT NULL DEFAULT 0','share_expires'=>'datetime NULL','share_emails'=>"varchar(1000) NOT NULL DEFAULT ''",
     'intro_break'=>'tinyint NOT NULL DEFAULT 0','intro_space'=>'smallint NOT NULL DEFAULT 5','sitemap_break'=>'tinyint NOT NULL DEFAULT 0','sitemap_space'=>'smallint NOT NULL DEFAULT 8',
     'share_token'=>"varchar(100) NOT NULL DEFAULT ''",
     'content_break'=>'tinyint NOT NULL DEFAULT 1','content_space'=>'smallint NOT NULL DEFAULT 8','outro_break'=>'tinyint NOT NULL DEFAULT 0','outro_space'=>'smallint NOT NULL DEFAULT 8',
    ],
    '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
-   '#__supportplans_offer_sends'=>['doc_type'=>"varchar(20) NOT NULL DEFAULT 'offer'"],
+   '#__supportplans_offer_sends'=>['doc_type'=>"varchar(20) NOT NULL DEFAULT 'offer'",'link_otp'=>'tinyint NOT NULL DEFAULT 0','link_expires'=>'datetime NULL'],
    '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
    '#__supportplans_renewals'=>['old_status'=>"varchar(20) NOT NULL DEFAULT 'active'"],
    '#__supportplans_offers'=>[
+    'share_otp'=>'tinyint NOT NULL DEFAULT 0','share_expires'=>'datetime NULL','share_emails'=>"varchar(1000) NOT NULL DEFAULT ''",
     'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
     'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5','intro_title'=>"varchar(255) NOT NULL DEFAULT ''",'intro_body'=>'mediumtext NULL','intro_lists'=>'mediumtext NULL',
     'share_token'=>"varchar(100) NOT NULL DEFAULT ''",

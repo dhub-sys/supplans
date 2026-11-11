@@ -30,6 +30,11 @@ class HtmlView extends BaseHtmlView
             }
             ShareLink::protectPage();
             $app->input->set('tmpl', 'component');
+            $gate = \Support\Component\Supportplans\Site\Helper\DocGate::guard('structure', $this->doc, $token);
+            if ($gate !== '') {
+                echo $gate;
+                return;
+            }
             parent::display($tpl);
             return;
         }

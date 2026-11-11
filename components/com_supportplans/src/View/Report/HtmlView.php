@@ -18,6 +18,8 @@ class HtmlView extends BaseHtmlView
             // Customer link: read-only report for the package that owns the token.
             $shared=ShareLink::plan($token); if(!$shared) throw new \RuntimeException('Not found',404);
             $id=(int)$shared->id; $this->shared=true; ShareLink::protectPage();
+            $gate=\Support\Component\Supportplans\Site\Helper\DocGate::guard('plan',\Support\Component\Supportplans\Site\Helper\DocMail::find('plan',$id),$token);
+            if($gate!==''){ $app->input->set('tmpl','component'); echo $gate; return; }
         }else{
             if(!$userId || !$session->get('supportplans.otp.verified',false)) throw new \RuntimeException('Login required',403);
             $id=$app->input->getInt('plan_id');

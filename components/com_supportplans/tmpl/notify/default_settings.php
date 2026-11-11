@@ -24,6 +24,19 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
   </div>
   <p class="sp-n-help">Κενά πεδία = οι ρυθμίσεις email του Joomla (Καθολική ρύθμιση → Διακομιστής → Ταχυδρομείο). Χρησιμοποιήστε SMTP και διεύθυνση στο domain σας, με σωστά SPF, DKIM και DMARC, ώστε τα μηνύματα να μην πηγαίνουν στα spam.</p>
  </div>
+ <div class="sp-card" id="sp-doc-senders">
+  <h2>Αποστολείς εγγράφων</h2>
+  <p class="sp-n-help">Αποστολέας για τα έγγραφα που στέλνετε με «Αποστολή με email». Όσα πεδία μείνουν κενά παίρνουν τις τιμές του «Αποστολέας» παραπάνω. Η κρυφή κοινοποίηση στέλνει αντίγραφο κάθε αποστολής (π.χ. στο λογιστήριο). Το email αποστολέα πρέπει να επιτρέπεται από τον mail server σας (ίδιο domain / SPF).</p>
+  <?php foreach (['offer' => 'Προσφορές', 'structure' => 'Προτάσεις δομής', 'plan' => 'Πακέτα'] as $dt => $dl): ?>
+  <h3 class="sp-doc-sender-title"><?php echo $e($dl); ?></h3>
+  <div class="sp-grid">
+   <label>Όνομα αποστολέα<input name="doc_<?php echo $dt; ?>_from_name" value="<?php echo $e($v('doc_' . $dt . '_from_name')); ?>" placeholder="<?php echo $e($v('notify_from_name') ?: Notify::brandName()); ?>"></label>
+   <label>Email αποστολέα<input type="email" name="doc_<?php echo $dt; ?>_from_email" value="<?php echo $e($v('doc_' . $dt . '_from_email')); ?>" placeholder="<?php echo $e($v('notify_from_email') ?: Factory::getApplication()->get('mailfrom')); ?>"></label>
+   <label>Reply-To<input type="email" name="doc_<?php echo $dt; ?>_reply_to" value="<?php echo $e($v('doc_' . $dt . '_reply_to')); ?>" placeholder="<?php echo $e($v('notify_reply_to')); ?>"></label>
+   <label>Κρυφή κοινοποίηση<input type="email" name="doc_<?php echo $dt; ?>_bcc" value="<?php echo $e($v('doc_' . $dt . '_bcc')); ?>" placeholder="αντίγραφο σε εσάς"></label>
+  </div>
+  <?php endforeach; ?>
+ </div>
  <?php $mailLogo = Notify::emailLogoUrl(); $brandLogo = OfferHelper::assetUrl((string) $this->params->get('brand_logo', '')); ?>
  <div class="sp-card">
   <h2>Λογότυπο &amp; γραμματοσειρά στα email</h2>

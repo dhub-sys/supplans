@@ -25,6 +25,7 @@ class DocmailController extends BaseController
             'to' => $this->input->getString('to', ''), 'cc' => $this->input->getString('cc', ''),
             'subject' => $this->input->getString('subject', ''), 'message' => (string) $this->input->get('message', '', 'raw'),
             'with_link' => $this->input->getInt('with_link', 0) === 1,
+            'link_otp' => $this->input->getInt('link_otp', 0) === 1, 'link_days' => min(365, max(0, $this->input->getInt('link_days', 0))),
         ], is_array($file) ? $file : null);
         if ($error !== '') {
             Factory::getApplication()->enqueueMessage($error, 'error');

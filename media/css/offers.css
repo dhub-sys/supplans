@@ -409,3 +409,9 @@
 .sp-send-link>span{font-size:13px;font-weight:600;color:#067647}
 .sp-send-link input{flex:1;min-width:220px;padding:6px 9px;border:1px solid #d0d5dd;border-radius:7px;font-size:12px;color:#475467}
 .sp-send-link form{margin:0}
+.sp-send-protect{display:grid;gap:8px;margin:-2px 0 4px 26px;padding:10px 12px;border-radius:9px;background:#fff;border:1px solid #e4e7ec}
+.sp-send-protect[hidden]{display:none}
+.sp-send-days{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#344054}
+.sp-send-days select{padding:6px 8px;border:1px solid #d0d5dd;border-radius:7px;font-size:13px}
+.sp-send-prot{font-size:12px;color:#475467}
+.sp-send-from{font-size:13px;color:#475467}.sp-send-from a{margin-left:6px;font-size:12.5px}

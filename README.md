@@ -862,3 +862,9 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.25.0 — Αποστολή όλων των εγγράφων
 - `Helper\DocMail`: κοινή αποστολή για `offer`, `structure`, `plan` (διάλογος, ιστορικό, σύνδεσμος, αποστολή), `DocmailController` (`docmail.send`, `docmail.revoke`)· αντικαθιστά τα `offer.send` / `offer.revokelink`. Στήλη `doc_type` στο `#__supportplans_offer_sends`, `share_token` στις προτάσεις δομής, δημόσιο `view=structuredoc&t=…`. Στα πακέτα ο σύνδεσμος είναι ο υπάρχων σύνδεσμος αναφοράς (`share.*`), η φόρμα email της κάρτας συνδέσμου αντικαταστάθηκε από τον κοινό διάλογο. `&send=1` ανοίγει τον διάλογο (κουμπί «✉ Email» στα Έγγραφα).
 
+## v1.26.0 — Προστασία συνδέσμων, αποστολείς ανά είδος
+- `Helper\DocGate`: λήξη (`share_expires`, 410) και OTP (`share_otp`, `share_emails`) για τους συνδέσμους `offerdoc` / `structuredoc` / `report`. Κωδικός 6 ψηφίων (password_hash στο session, 10΄, 5 προσπάθειες, 1 ανά λεπτό / 5 ανά ώρα) στο επιλεγμένο (masked) email· σωστός κωδικός → υπογεγραμμένο HMAC cookie (httponly, 12 ώρες) ανά σύνδεσμο. Δημόσια tasks `docgate.send` / `docgate.verify` με CSRF token. Η σελίδα του κωδικού δεν δείχνει τίποτα από το έγγραφο.
+- Διάλογος αποστολής: «Προστασία με κωδικό μίας χρήσης», «Λήξη συνδέσμου»· οι ρυθμίσεις της αποστολής εφαρμόζονται στον σύνδεσμο του εγγράφου, οι παραλήπτες (to + cc) προστίθενται στους επιτρεπτούς.
+- Αποστολείς ανά είδος: `doc_{offer|structure|plan}_{from_name|from_email|reply_to|bcc}`, `Notify::senderMailer($type)` / `Notify::senderOf($type)` (κενά → γενικός αποστολέας).
+- Κουμπί email «bulletproof»: VML `v:roundrect` για Outlook Windows, padding στο κελί για τους υπόλοιπους.
+
