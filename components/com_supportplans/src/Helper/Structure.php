@@ -35,15 +35,10 @@ final class Structure
     }
 
     /** "26001", "26002"… like the offers, with its own sequence. */
+    /** Next document number, shared by all document types (see Documents). */
     public static function nextNumber(): string
     {
-        $db = Factory::getContainer()->get('DatabaseDriver');
-        $prefix = date('y');
-        $max = 0;
-        foreach ((array) $db->setQuery($db->getQuery(true)->select('number')->from($db->quoteName(self::T))->where('number LIKE ' . $db->quote($prefix . '%')))->loadColumn() as $n) {
-            if (preg_match('/^' . $prefix . '(\d+)$/', trim((string) $n), $m)) $max = max($max, (int) $m[1]);
-        }
-        return $prefix . str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+        return Documents::nextNumber();
     }
 
     /**

@@ -595,3 +595,11 @@ html body .sp-saas-root h4,html body .sp-saas-root h5,html body .sp-saas-root h6
 html body .sp-saas-root .sp-kpis strong{font-size:29px!important}
 /* Printed reports and offers: Geom too, whatever the template sets on headings. */
 html body .sp-report,html body .sp-report *{font-family:'Geom',Arial,Helvetica,sans-serif!important}
+/* Sub menu of "Έγγραφα" (v1.24.0) */
+.sp-sidebar .sp-side-sub{display:flex;flex-direction:column;gap:2px;margin:2px 0 6px 22px;padding-left:10px;border-left:1px solid rgba(203,216,245,.22);transition:margin .2s ease,padding .2s ease,border-color .2s ease}
+.sp-sidebar .sp-side-link.is-sub{min-height:38px!important;font-size:12.5px!important;font-weight:560!important}
+.sp-sidebar .sp-side-link.is-sub .sp-side-icon svg{width:17px;height:17px}
+.sp-sidebar .sp-side-link.is-parent-active{color:#fff!important}
+.sp-sb-collapsed .sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left-color:transparent}
+@media (max-width:900px){.sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left:0}}
+@media (max-width:620px){.sp-sidebar .sp-side-sub{display:contents}}

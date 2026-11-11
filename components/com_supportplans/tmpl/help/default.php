@@ -26,8 +26,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
-  <nav class="sp-side-nav"><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h6"/></svg></span><span>Πακέτα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=serviceplans&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg></span><span>Πλάνα</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=offers&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M14.2 11.6a2.6 2.6 0 1 0 0 3.8M9.5 12.8h3.2M9.5 14.4h3.2"/></svg></span><span>Προσφορές</span></a><?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::extraLink('structures'); ?><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=notify&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2"/></svg></span><span>Client Management</span></a><a class="sp-side-link" href="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&spapp=1&Itemid='.(int)$spItemid.''); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.75.6 1 .3.25.7.4 1.1.4h.1v4h-.1c-.4 0-.8.15-1.1.4-.3.25-.5.6-.6 1z"/></svg></span><span>Ρυθμίσεις</span></a>
-<?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::extraLink('activity'); ?><a class="sp-side-link is-active" href="<?php echo Route::_('index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid='.(int)$spItemid); ?>"><span class="sp-side-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg></span><span>Οδηγίες</span></a></nav>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('help'); ?>
   <div class="sp-sidebar-bottom">
     <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
@@ -198,6 +197,12 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  </section>
 
  <section class="sp-help-card">
+  <h2>11. Έγγραφα &amp; αποστολή προσφορών</h2>
+  <p>Το μενού <b>Έγγραφα</b> δείχνει όλα τα πακέτα, τις προσφορές και τις προτάσεις δομής ταξινομημένα κατά αριθμό. Όλα τα έγγραφα έχουν κοινή αρίθμηση: ένα νέο έγγραφο προτείνει τον επόμενο αριθμό μετά τον τελευταίο, τον οποίο μπορείτε να αλλάξετε.</p>
+  <p>Για να στείλετε μια προσφορά, ανοίξτε την και πατήστε <b>«Αποστολή με email»</b>. Επιλέξτε <b>σύνδεσμο προβολής</b> (ο πελάτης ανοίγει την προσφορά online και την αποθηκεύει σε Pdf) ή/και <b>συνημμένο Pdf</b>: πατήστε «Δημιουργία Pdf…», αποθηκεύστε το αρχείο και επιλέξτε το στο πεδίο. Οι αποστολές φαίνονται στην κάρτα «Αποστολές με email», όπου μπορείτε και να απενεργοποιήσετε τον σύνδεσμο.</p>
+ </section>
+
+ <section class="sp-help-card">
   <h2>10. Προτάσεις δομής</h2>
   <p>Έντυπο με την προτεινόμενη δομή (sitemap) μιας ιστοσελίδας και προτάσεις περιεχομένου για κάθε ενότητα. Πατήστε «Νέα πρόταση δομής», συμπληρώστε πελάτη και έργο και διαλέξτε αρχική δομή (εταιρική, e-shop ή κενή).</p>
   <ul>
@@ -211,6 +216,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.24.0</div><div><ul>
+<li><b>Έγγραφα</b>: νέο μενού με όλα τα έγγραφα (πακέτα, προσφορές, προτάσεις δομής) ταξινομημένα κατά αριθμό, με φίλτρο είδους, αναζήτηση και κουμπιά Pdf / Άνοιγμα.</li>
+<li><b>Κοινή αρίθμηση</b>: κάθε νέο έγγραφο (πακέτο, προσφορά, πρόταση δομής) παίρνει αυτόματα τον επόμενο αριθμό μετά τον τελευταίο, από όλα τα είδη μαζί· το πεδίο μένει επεξεργάσιμο. Η αρίθμηση έτους (π.χ. 26001) ξεκινά από 001 με το νέο έτος.</li>
+<li><b>Μενού</b>: πάνω τα Πλάνα, μετά τα Έγγραφα με υπομενού Πακέτα, Προσφορές, Προτάσεις δομής.</li>
+<li><b>Αποστολή προσφοράς με email</b> από την προσφορά: παραλήπτες, κοινοποίηση, θέμα, μήνυμα, προσωπικός σύνδεσμος προβολής (ο πελάτης βλέπει και αποθηκεύει την προσφορά σε Pdf) ή/και συνημμένο το Pdf. Ιστορικό αποστολών ανά προσφορά, απενεργοποίηση συνδέσμου, αυτόματη αλλαγή σε «Απεσταλμένη». Αποστέλλεται με τον αποστολέα των ρυθμίσεων email του Client Management.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.23.1</div><div><ul>
 <li>Προτάσεις δομής: επιλογή <b>«Συνέχεια στην ίδια σελίδα» με απόσταση σε mm ή «Ξεκινά σε νέα σελίδα»</b> για την Εισαγωγή, το Sitemap, τις Προτάσεις περιεχομένου και το Κλείσιμο (Κείμενα εγγράφου), καθώς και για κάθε ενότητα του δέντρου (στο «Περιεχόμενο» της, για τις προτάσεις περιεχομένου· κενή απόσταση = αυτόματη).</li>

@@ -74,21 +74,10 @@ final class OfferHelper
     }
 
     /** Next offer number in the form YY + 3 digit sequence (e.g. 26023). */
-    public static function nextNumber($db): string
+    /** Next document number, shared by packages, offers and structure proposals (see Documents). */
+    public static function nextNumber($db = null): string
     {
-        $prefix = date('y');
-        $q = $db->getQuery(true)
-            ->select($db->quoteName('offer_number'))
-            ->from($db->quoteName('#__supportplans_offers'))
-            ->where($db->quoteName('offer_number') . ' LIKE ' . $db->quote($prefix . '%'));
-        $max = 0;
-        foreach ((array) $db->setQuery($q)->loadColumn() as $number) {
-            $number = trim((string) $number);
-            if (preg_match('/^' . $prefix . '(\d+)$/', $number, $m)) {
-                $max = max($max, (int) $m[1]);
-            }
-        }
-        return $prefix . str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+        return Documents::nextNumber();
     }
 
     /**

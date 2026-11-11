@@ -50,6 +50,9 @@ final class Dispatcher extends ComponentDispatcher
                 return;
             }
         }
+        // Customer link to an offer document (?view=offerdoc&t=<96 hex>): public, read-only.
+        $sharedOffer = $view === 'offerdoc' && $task === '' && ShareLink::isToken((string) $input->getString('t', ''));
+        $sharedReport = $sharedReport || $sharedOffer;
         // Unsubscribe link of the campaign e-mails: public, protected by its own HMAC token.
         if ($task === 'unsubscribe.run') {
             $this->run();

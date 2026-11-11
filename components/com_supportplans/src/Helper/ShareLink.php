@@ -36,6 +36,26 @@ final class ShareLink
         return rtrim(Uri::root(), '/') . '/index.php?option=com_supportplans&view=report&tmpl=component&spapp=1&Itemid=' . $itemid . '&t=' . $token;
     }
 
+    /** Private link to an offer document (view only, the customer can print / save it as Pdf). */
+    public static function offerUrl(string $token): string
+    {
+        $itemid = max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));
+        return rtrim(Uri::root(), '/') . '/index.php?option=com_supportplans&view=offerdoc&tmpl=component&spapp=1&Itemid=' . $itemid . '&t=' . $token;
+    }
+
+    /** Offer for a token, or null. */
+    public static function offer(string $token): ?object
+    {
+        if (!self::isToken($token)) {
+            return null;
+        }
+        $db = Factory::getContainer()->get('DatabaseDriver');
+        $q = $db->getQuery(true)->select('*')->from($db->quoteName('#__supportplans_offers'))
+            ->where($db->quoteName('share_token') . ' = :token')->bind(':token', $token);
+        $row = $db->setQuery($q)->loadObject();
+        return $row && hash_equals((string) $row->share_token, $token) ? $row : null;
+    }
+
     /** Plan for a token, or null. */
     public static function plan(string $token): ?object
     {

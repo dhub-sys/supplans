@@ -8,6 +8,20 @@ $o = $this->selected;
 $docUrl = OfferHelper::url('view=offerdoc&id=' . (int) $o->id);
 $fileTitle = trim($o->offer_number . ' - ' . ($o->project_name ?: $o->customer_name), ' -');
 $num = static fn($v) => number_format((float) $v, 2, '.', '');
+// Email sending: history, client emails (suggestions) and the client of this offer (prefilled).
+$spDb = \Joomla\CMS\Factory::getContainer()->get('DatabaseDriver');
+$sends = $spDb->setQuery($spDb->getQuery(true)->select('*')->from($spDb->quoteName('#__supportplans_offer_sends'))->where('offer_id=' . (int) $o->id)->order('sent DESC, id DESC'))->loadObjectList();
+$clientMails = [];
+$sendTo = '';
+foreach (\Support\Component\Supportplans\Site\Helper\Notify::clients() as $c) {
+    if (trim((string) $c->email) === '') continue;
+    $clientMails[] = ['email' => (string) $c->email, 'label' => trim((string) $c->name . ((string) $c->company !== '' ? ' · ' . $c->company : ''))];
+    $cust = mb_strtolower(trim((string) $o->customer_name));
+    if ($sendTo === '' && $cust !== '' && in_array($cust, [mb_strtolower(trim((string) $c->name)), mb_strtolower(trim((string) $c->company))], true)) $sendTo = (string) $c->email;
+}
+if ($sendTo === '' && $sends) $sendTo = (string) $sends[0]->to_email;
+$sendSubject = trim('Οικονομική προσφορά ' . $o->offer_number . ($o->project_name !== '' ? ' – ' . $o->project_name : ''));
+$sendMessage = "Καλησπέρα σας,\n\nσας αποστέλλουμε την οικονομική προσφορά {number}" . ($o->project_name !== '' ? ' για {project}' : '') . ".\nΕίμαστε στη διάθεσή σας για οποιαδήποτε διευκρίνιση.\n\nΜε εκτίμηση,\n{company}";
 
 $row = static function ($i, $item, bool $open = false) use ($e, $num) {
     $kind = OfferHelper::kind($item->kind ?? 'service');
@@ -76,6 +90,7 @@ foreach ($this->services as $s) {
  <button type="button" class="btn btn-outline-secondary" onclick="spSubmit('offer.save')">Αποθήκευση &amp; κλείσιμο</button>
  <button type="button" class="btn btn-secondary" onclick="spPrintOffer()" title="Αποθηκεύστε πρώτα τις αλλαγές">Εκτύπωση / Pdf</button>
  <button type="button" class="btn btn-outline-secondary" onclick="spPreviewOffer()" title="Προβολή του εγγράφου με τις τρέχουσες αλλαγές, χωρίς αποθήκευση">Προεπισκόπηση</button>
+ <button type="button" class="btn btn-outline-primary" onclick="spOpenSend()" title="Αποστολή της προσφοράς στον πελάτη με email">✉ Αποστολή με email</button>
  <a class="btn btn-outline-secondary" href="<?php echo OfferHelper::url('view=offers'); ?>">Κλείσιμο</a>
 </div>
 <iframe id="sp-offer-print-frame" title="Προσφορά" src="<?php echo $docUrl; ?>" style="position:fixed;width:1px;height:1px;right:0;bottom:0;border:0;opacity:0;pointer-events:none;" aria-hidden="true"></iframe>
@@ -93,6 +108,34 @@ foreach ($this->services as $s) {
  <div class="sp-preview-body"><div class="sp-preview-loading" id="sp-preview-loading">Δημιουργία προεπισκόπησης…</div><iframe name="sp-preview-frame" id="sp-preview-frame" title="Προεπισκόπηση προσφοράς"></iframe></div>
 </dialog>
 
+
+<dialog class="sp-send" id="sp-send" aria-label="Αποστολή προσφοράς με email">
+ <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=offer.send', false)); ?>" id="sp-send-form">
+  <div class="sp-send-head"><div><strong>Αποστολή προσφοράς <?php echo $e($o->offer_number); ?></strong><span>Αποστέλλεται η αποθηκευμένη μορφή της προσφοράς.</span></div><button type="button" class="sp-preview-close" onclick="document.getElementById('sp-send').close()" aria-label="Κλείσιμο">×</button></div>
+  <div class="sp-send-body">
+   <label>Προς<input type="text" name="to" value="<?php echo $e($sendTo); ?>" list="sp-send-clients" required placeholder="pelatis@example.gr — για περισσότερους, χωρίστε με κόμμα" autocomplete="off"></label>
+   <datalist id="sp-send-clients"><?php foreach ($clientMails as $cm): ?><option value="<?php echo $e($cm['email']); ?>"><?php echo $e($cm['label']); ?></option><?php endforeach; ?></datalist>
+   <label>Κοινοποίηση (cc)<input type="text" name="cc" placeholder="προαιρετικό"></label>
+   <label>Θέμα<input name="subject" value="<?php echo $e($sendSubject); ?>" required></label>
+   <label>Μήνυμα<textarea name="message" rows="7"><?php echo $e($sendMessage); ?></textarea><small>Μεταβλητές: {customer}, {project}, {number}, {company}. **έντονα**, γραμμές με «- » για λίστα.</small></label>
+   <div class="sp-send-what">
+    <label class="sp-check"><input type="checkbox" name="with_link" value="1" checked> Σύνδεσμος προβολής της προσφοράς <small>— ο πελάτης τη βλέπει online και την εκτυπώνει / αποθηκεύει σε Pdf</small></label>
+    <div class="sp-send-file">
+     <span>Συνημμένο Pdf <small>(προαιρετικό)</small></span>
+     <div><input type="file" name="attachment" accept="application/pdf,.pdf" id="sp-send-file"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="spPrintOffer()">Δημιουργία Pdf…</button></div>
+     <small>Πατήστε «Δημιουργία Pdf…», επιλέξτε «Αποθήκευση ως PDF» και μετά επιλέξτε εδώ το αρχείο. Έως 15 MB.</small>
+    </div>
+   </div>
+  </div>
+  <div class="sp-send-foot">
+   <span>Αν η προσφορά είναι «Πρόχειρη», γίνεται «Απεσταλμένη».</span>
+   <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-send').close()">Άκυρο</button>
+   <button class="btn btn-primary">✉ Αποστολή</button>
+  </div>
+  <input type="hidden" name="id" value="<?php echo (int) $o->id; ?>">
+  <?php echo HTMLHelper::_('form.token'); ?>
+ </form>
+</dialog>
 <form action="<?php echo OfferHelper::url('view=offers&id=' . (int) $o->id); ?>" method="post" name="adminForm" id="adminForm" data-dirty-watch>
  <div class="sp-card">
   <div class="sp-title-row"><div><h2>Προσφορά <?php echo $e($o->offer_number); ?></h2><div class="sp-plan-subtitle"><?php echo $e($o->customer_name . ($o->project_name ? ' · ' . $o->project_name : '')); ?></div></div><span class="sp-offer-status is-<?php echo $e($o->status); ?>"><?php echo $e(OfferHelper::statusLabel($o->status)); ?></span></div>
@@ -162,6 +205,29 @@ foreach ($this->services as $s) {
  <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
+<div class="sp-card" id="sp-sends">
+ <div class="sp-title-row"><h3>Αποστολές με email</h3><button type="button" class="btn btn-sm btn-outline-primary" onclick="spOpenSend()">✉ Νέα αποστολή</button></div>
+ <?php if ($sends): ?>
+ <div class="table-responsive"><table class="table sp-offer-table">
+  <thead><tr><th>Ημερομηνία</th><th>Προς</th><th>Θέμα</th><th>Περιεχόμενο</th><th>Χρήστης</th></tr></thead>
+  <tbody><?php foreach ($sends as $sd): ?><tr>
+   <td class="sp-n-nowrap"><?php echo $e(\Support\Component\Supportplans\Site\Helper\Notify::datetimeGr($sd->sent)); ?></td>
+   <td><?php echo $e($sd->to_email); ?><?php if ($sd->cc !== ''): ?><br><small class="text-muted">κοιν. <?php echo $e($sd->cc); ?></small><?php endif; ?></td>
+   <td><?php echo $e($sd->subject); ?></td>
+   <td><?php echo $e(implode(' + ', array_filter([(int) $sd->with_link ? 'Σύνδεσμος' : '', $sd->attachment !== '' ? 'Pdf: ' . $sd->attachment : '']))); ?></td>
+   <td><?php echo $e($sd->username); ?></td>
+  </tr><?php endforeach; ?></tbody>
+ </table></div>
+ <?php else: ?><p class="sp-foot">Η προσφορά δεν έχει σταλεί ακόμα από το Back Office.</p><?php endif; ?>
+ <?php if (\Support\Component\Supportplans\Site\Helper\ShareLink::isToken((string) ($o->share_token ?? ''))): $shareUrl = \Support\Component\Supportplans\Site\Helper\ShareLink::offerUrl((string) $o->share_token); ?>
+ <div class="sp-send-link">
+  <span>Σύνδεσμος προβολής (ενεργός)</span>
+  <input type="text" readonly value="<?php echo $e($shareUrl); ?>" onclick="this.select()" aria-label="Σύνδεσμος προβολής">
+  <a class="btn btn-sm btn-outline-secondary" href="<?php echo $e($shareUrl); ?>" target="_blank" rel="noopener">Άνοιγμα</a>
+  <form method="post" action="<?php echo $e(OfferHelper::url('task=offer.revokelink', false)); ?>" onsubmit="return confirm('Να απενεργοποιηθεί ο σύνδεσμος; Όσοι τον έχουν δεν θα βλέπουν πλέον την προσφορά.');"><input type="hidden" name="id" value="<?php echo (int) $o->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-sm btn-outline-danger">Απενεργοποίηση</button></form>
+ </div>
+ <?php endif; ?>
+</div>
 <div class="sp-card sp-offer-danger">
  <form method="post" action="<?php echo OfferHelper::url('task=offer.duplicate'); ?>"><input type="hidden" name="id" value="<?php echo (int) $o->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-primary">Αντίγραφο ως νέα προσφορά</button></form>
  <form method="post" action="<?php echo OfferHelper::url('task=offer.delete'); ?>" onsubmit="return confirm('Να διαγραφεί οριστικά η προσφορά;');"><input type="hidden" name="id" value="<?php echo (int) $o->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-danger">Διαγραφή προσφοράς</button></form>
@@ -269,6 +335,14 @@ foreach ($this->services as $s) {
 
   const origSubmit = window.spSubmit;
   window.spSubmit = function(task){ dirty = false; origSubmit(task); };
+  // Email: sends the saved offer, so unsaved changes are saved first (on request).
+  window.spOpenSend = function(){
+    if (dirty) {
+      if (confirm('Υπάρχουν μη αποθηκευμένες αλλαγές. Να αποθηκευτούν πρώτα; (Μετά την αποθήκευση πατήστε ξανά «Αποστολή με email».)')) { window.spSubmit('offer.apply'); return; }
+    }
+    document.getElementById('sp-send').showModal();
+  };
+  document.getElementById('sp-send-form').addEventListener('submit', function(){ dirty = false; this.querySelector('button.btn-primary').disabled = true; });
   // Preview: posts the current form (including unsaved changes) to offer.preview inside the dialog.
   window.spPreviewOffer = function(){
     const dlg = document.getElementById('sp-preview');

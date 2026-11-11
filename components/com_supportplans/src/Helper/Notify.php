@@ -1407,18 +1407,7 @@ final class Notify
 
         $error = '';
         try {
-            $mailer = self::mailer();
-            $fromEmail = trim((string) self::setting('notify_from_email'));
-            $fromName = trim(preg_replace('/[\r\n"<>]+/', '', (string) self::setting('notify_from_name')));
-            if ($fromEmail !== '' && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
-                $mailer->setSender([$fromEmail, $fromName !== '' ? $fromName : self::brandName()]);
-            } elseif ($fromName !== '') {
-                $mailer->setSender([(string) Factory::getApplication()->get('mailfrom'), $fromName]);
-            }
-            $replyTo = trim((string) self::setting('notify_reply_to'));
-            if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
-                $mailer->addReplyTo($replyTo);
-            }
+            $mailer = self::senderMailer();
             $bcc = trim((string) self::setting('notify_bcc'));
             if ($m->kind === 'renewal' && $bcc !== '' && filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                 $mailer->addBcc($bcc);
@@ -1447,6 +1436,24 @@ final class Notify
         $retry = (int) $m->attempts < self::MAX_ATTEMPTS && $m->kind !== 'test';
         $set(['status' => $retry ? 'queued' : 'failed', 'last_error' => mb_substr($error, 0, 1000), 'scheduled' => self::now(900 * max(1, (int) $m->attempts))]);
         return false;
+    }
+
+    /** Mailer with the sender, name and reply-to of the Client Management email settings. */
+    public static function senderMailer()
+    {
+        $mailer = self::mailer();
+        $fromEmail = trim((string) self::setting('notify_from_email'));
+        $fromName = trim(preg_replace('/[\r\n"<>]+/', '', (string) self::setting('notify_from_name')));
+        if ($fromEmail !== '' && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+            $mailer->setSender([$fromEmail, $fromName !== '' ? $fromName : self::brandName()]);
+        } elseif ($fromName !== '') {
+            $mailer->setSender([(string) Factory::getApplication()->get('mailfrom'), $fromName]);
+        }
+        $replyTo = trim((string) self::setting('notify_reply_to'));
+        if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+            $mailer->addReplyTo($replyTo);
+        }
+        return $mailer;
     }
 
     private static function mailer()

@@ -46,6 +46,7 @@ final class Activity
         'serviceplan.delete' => 'Διαγραφή πλάνου', 'serviceplan.cancel' => 'Κλείσιμο πλάνου',
         'offer.create' => 'Νέα προσφορά', 'offer.apply' => 'Αποθήκευση προσφοράς', 'offer.save' => 'Αποθήκευση προσφοράς', 'offer.preview' => 'Προεπισκόπηση προσφοράς',
         'offer.duplicate' => 'Αντίγραφο προσφοράς', 'offer.delete' => 'Διαγραφή προσφοράς',
+        'offer.send' => 'Αποστολή προσφοράς με email', 'offer.revokelink' => 'Απενεργοποίηση συνδέσμου προσφοράς',
         'offerservice.apply' => 'Αποθήκευση υπηρεσίας προσφορών', 'offerservice.save' => 'Αποθήκευση υπηρεσίας προσφορών', 'offerservice.delete' => 'Διαγραφή υπηρεσίας προσφορών',
         'offertemplate.apply' => 'Αποθήκευση template', 'offertemplate.save' => 'Αποθήκευση template', 'offertemplate.duplicate' => 'Αντίγραφο template',
         'offertemplate.delete' => 'Διαγραφή template', 'offertemplate.sample' => 'Δημιουργία παραδείγματος template',
