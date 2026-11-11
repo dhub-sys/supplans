@@ -24,7 +24,7 @@ $badge = ['ok' => 'is-accepted', 'warning' => 'sp-n-warn', 'error' => 'is-reject
 <header class="sp-appbar">
  <div class="sp-brand">
   <?php if ($spLogoUrl !== ''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo $e($spLogoUrl); ?>" alt="<?php echo $e($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo $e($spInitials ?: 'SP'); ?></span><?php endif; ?>
-  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Service Hub</small></div>
+  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Back Office</small></div>
  </div>
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
@@ -32,13 +32,13 @@ $badge = ['ok' => 'is-accepted', 'warning' => 'sp-n-warn', 'error' => 'is-reject
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo Sidebar::nav('activity'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Ασφάλεια &amp; έλεγχος</span><h1>Ιστορικό ενεργειών</h1><p>Κάθε ενέργεια στο Service Hub: συνδέσεις, πακέτα, εργασίες, πλάνα, προσφορές, ρυθμίσεις, πελάτες, υπηρεσίες, πληρωμές, υπενθυμίσεις, αποστολές και αυτόματες εκτελέσεις. Δεν καταγράφονται κωδικοί ούτε κείμενα.</p></div>
+  <div><span class="sp-eyebrow">Ασφάλεια &amp; έλεγχος</span><h1>Ιστορικό ενεργειών</h1><p>Κάθε ενέργεια στο Back Office: συνδέσεις, πακέτα, εργασίες, πλάνα, προσφορές, ρυθμίσεις, πελάτες, υπηρεσίες, πληρωμές, υπενθυμίσεις, αποστολές και αυτόματες εκτελέσεις. Δεν καταγράφονται κωδικοί ούτε κείμενα.</p></div>
   <a class="sp-primary-action" href="<?php echo $e(OfferHelper::url('task=activity.export' . ($query !== '' ? '&' . $query : ''), false)); ?>">⭳ Εξαγωγή σε Excel</a>
 </section>
 <div class="sp-card">

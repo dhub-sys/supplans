@@ -891,3 +891,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.28.2
 - `Year::links()`: κάρτα «Προηγούμενες χρονιές» στο τέλος της Επισκόπησης (με «Επιστροφή» όταν βλέπετε παλιό έτος), αντί για σύνδεσμους στο sidebar.
 
+## v1.28.3
+- «Service Hub» → «Back Office» στο κάτω μέρος του sidebar, στη μπάρα των κινητών, στο Ιστορικό ενεργειών, στις οδηγίες και στη ρύθμιση τίτλου σελίδας.
+

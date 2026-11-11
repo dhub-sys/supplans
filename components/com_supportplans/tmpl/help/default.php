@@ -21,14 +21,14 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <div class="sp-saas-root">
 <header class="sp-appbar"><div class="sp-brand">
 <?php if($spLogoUrl!==''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo htmlspecialchars($spLogoUrl); ?>" alt="<?php echo htmlspecialchars($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo htmlspecialchars($spInitials); ?></span><?php endif; ?>
-<div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Service Hub</small></div>
+<div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Back Office</small></div>
 </div><div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div></header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('help'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
@@ -79,8 +79,8 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  </section>
 
  <section class="sp-help-card">
-  <h2>2. Σύνδεση στο Service Hub</h2>
-  <p>Η είσοδος γίνεται από το Service Hub του Back Office χωρίς μετάβαση στο Joomla Administrator.</p>
+  <h2>2. Σύνδεση στο Back Office</h2>
+  <p>Η είσοδος στο Back Office γίνεται χωρίς μετάβαση στο Joomla Administrator.</p>
   <ol>
    <li>Συμπληρώστε Joomla username και password.</li>
    <li>Θα αποσταλεί εξαψήφιος κωδικός OTP στο email του λογαριασμού. Ισχύει 2 λεπτά — η μπάρα δείχνει τον χρόνο που απομένει.</li>
@@ -120,7 +120,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
    <li>Η πρώτη σελίδα περιλαμβάνει στοιχεία πελάτη/πακέτου και τη σύνοψη του αντίστοιχου τύπου Πλάνου.</li>
    <li>Η δεύτερη σελίδα περιλαμβάνει το αναλυτικό δελτίο εργασιών. Στα Ongoing και Συνδρομητικά πλάνα ακολουθούν η Οικονομική σύνοψη και οι Τράπεζες / Λογαριασμοί. Στα προπληρωμένα δεν εμφανίζονται, γιατί έχουν ήδη εξοφληθεί.</li>
    <li>Η Οικονομική σύνοψη περιλαμβάνει συνολικό χρεώσιμο χρόνο, καθαρή αξία, Φ.Π.Α. και σύνολο με Φ.Π.Α.</li>
-   <li>Το Web357 CPNB δεν εμφανίζεται στο Service Hub ούτε στην εκτύπωση/PDF.</li>
+   <li>Το Web357 CPNB δεν εμφανίζεται στο Back Office ούτε στην εκτύπωση/PDF.</li>
   </ul>
  </section>
 
@@ -218,6 +218,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.28.3</div><div><ul>
+<li>Στο κάτω μέρος του μενού και στις σελίδες γράφει πλέον «Back Office» αντί για «Service Hub».</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.28.2</div><div><ul>
 <li>Οι <b>προηγούμενες χρονιές</b> βρίσκονται πλέον μέσα στην Επισκόπηση (κάρτα «Προηγούμενες χρονιές», στο κάτω μέρος) και όχι στο μενού. Όσο βλέπετε παλιό έτος, η κάρτα έχει και «Επιστροφή» στο τρέχον.</li>

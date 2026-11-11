@@ -21,7 +21,7 @@ $tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services
 <header class="sp-appbar">
  <div class="sp-brand">
   <?php if ($spLogoUrl !== ''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo $e($spLogoUrl); ?>" alt="<?php echo $e($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo $e($spInitials); ?></span><?php endif; ?>
-  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Service Hub</small></div>
+  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Back Office</small></div>
  </div>
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
@@ -29,7 +29,7 @@ $tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('offers'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Service Hub</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
