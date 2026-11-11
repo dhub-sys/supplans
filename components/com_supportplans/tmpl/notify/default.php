@@ -10,7 +10,7 @@ use Support\Component\Supportplans\Site\View\Notify\HtmlView;
 echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css', 'offers.css', 'notify.css');
 $spItemid = OfferHelper::itemid();
 $spParams = $this->params;
-$spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Back Office');
+$spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Dashboard');
 $spLogoUrl = OfferHelper::assetUrl((string) $spParams->get('brand_logo', ''));
 $spInitials = '';
 foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= \Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
@@ -30,7 +30,7 @@ $templates = [
 <header class="sp-appbar">
  <div class="sp-brand">
   <?php if ($spLogoUrl !== ''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo $e($spLogoUrl); ?>" alt="<?php echo $e($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo $e($spInitials); ?></span><?php endif; ?>
-  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Back Office</small></div>
+  <div class="sp-brand-copy"><strong><?php echo $e($spCompany); ?></strong><small>Dashboard</small></div>
  </div>
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
@@ -38,7 +38,7 @@ $templates = [
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('notify'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>

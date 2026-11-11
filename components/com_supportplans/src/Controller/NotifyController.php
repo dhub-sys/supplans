@@ -828,7 +828,7 @@ class NotifyController extends BaseController
         } elseif ($tpl === 'report') {
             $service->service_name = 'Maintenance';
             $report = (object) ['period' => 'Δοκιμή', 'summary' => 'Έγινε πλήρες backup, έλεγχος ασφαλείας και ενημέρωση όλων των στοιχείων.',
-                'items' => "Joomla | Core | 6.2.0 | 6.2.1\nExtension | Back Office | 1.11.2 | 1.12.0"];
+                'items' => "Joomla | Core | 6.2.0 | 6.2.1\nExtension | Dashboard | 1.11.2 | 1.12.0"];
             [$subject, $body] = Notify::buildReport($report, $service, $client);
         } else {
             [$subject, $body] = Notify::buildRenewal($service, $client);

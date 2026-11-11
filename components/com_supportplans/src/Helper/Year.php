@@ -7,7 +7,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 
 /**
- * Working year ("Χρήση") of the Back Office. Every year is a fresh start for the documents and
+ * Working year ("Χρήση") of the Dashboard. Every year is a fresh start for the documents and
  * the figures (offers, structure proposals, packages, activity log, sent emails, summaries),
  * while clients, services and the catalogue are shared by all years. The year is chosen in the
  * sidebar (?year=2026) and kept in the session; the current calendar year by default.

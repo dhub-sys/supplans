@@ -12,9 +12,9 @@ class Com_SupportplansInstallerScript
   foreach(['/components/com_supportplans/tmpl/offers/default_variables.php'] as $obsolete){ if(is_file(JPATH_SITE.$obsolete)) @unlink(JPATH_SITE.$obsolete); }
   // Bundled system plugins: the launcher opens the Service Hub in a new tab from the
   // Joomla administrator; nocpnb hides the Web357 cookie banner inside the Service Hub.
-  $this->installSystemPlugin('supportplanslauncher','System - Back Office Launcher','Visible top-level Back Office launcher');
-  $this->installSystemPlugin('supportplansnocpnb','System - Back Office No CPNB','Hides Web357 CPNB inside the Back Office Service Hub');
-  // Scheduled Task routine "Back Office – Ειδοποιήσεις" (v1.12.0).
+  $this->installSystemPlugin('supportplanslauncher','System - Dashboard Launcher','Visible top-level Dashboard launcher');
+  $this->installSystemPlugin('supportplansnocpnb','System - Dashboard No CPNB','Hides Web357 CPNB inside the Dashboard Service Hub');
+  // Scheduled Task routine "Dashboard – Ειδοποιήσεις" (v1.12.0).
   $this->installPlugin('task','supportplansnotify','plg_task_supportplansnotify','PLG_TASK_SUPPORTPLANSNOTIFY_XML_DESCRIPTION');
   $this->syncMedia($parent);
   if($ok) $this->migrateOfferBlocks();
@@ -49,7 +49,7 @@ class Com_SupportplansInstallerScript
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_activity` (`id` int unsigned NOT NULL AUTO_INCREMENT,`created` datetime NOT NULL,`user_id` int unsigned NOT NULL DEFAULT 0,`username` varchar(150) NOT NULL DEFAULT '',`ip` varchar(45) NOT NULL DEFAULT '',`area` varchar(60) NOT NULL DEFAULT '',`action` varchar(190) NOT NULL DEFAULT '',`task` varchar(60) NOT NULL DEFAULT '',`item_id` int unsigned NOT NULL DEFAULT 0,`item` varchar(255) NOT NULL DEFAULT '',`result` varchar(10) NOT NULL DEFAULT 'ok',`message` text NULL,`details` text NULL,PRIMARY KEY (`id`),KEY `idx_created` (`created`),KEY `idx_area` (`area`),KEY `idx_username` (`username`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Website structure proposals (v1.23.0): sitemap tree + content suggestions per section.
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_structures` (`id` int unsigned NOT NULL AUTO_INCREMENT,`number` varchar(40) NOT NULL DEFAULT '',`proposal_date` date NOT NULL,`customer_name` varchar(190) NOT NULL DEFAULT '',`project_name` varchar(190) NOT NULL DEFAULT '',`doc_title` varchar(255) NOT NULL DEFAULT '',`doc_subtitle` varchar(255) NOT NULL DEFAULT '',`intro_title` varchar(255) NOT NULL DEFAULT '',`intro_body` mediumtext NULL,`sitemap_title` varchar(255) NOT NULL DEFAULT '',`content_title` varchar(255) NOT NULL DEFAULT '',`outro_title` varchar(255) NOT NULL DEFAULT '',`outro_body` mediumtext NULL,`tree` mediumtext NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`notes` text NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_status` (`status`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
-  // Offers sent by email from the Back Office (v1.24.0).
+  // Offers sent by email from the Dashboard (v1.24.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_sends` (`id` int unsigned NOT NULL AUTO_INCREMENT,`doc_type` varchar(20) NOT NULL DEFAULT 'offer',`offer_id` int unsigned NOT NULL DEFAULT 0,`to_email` varchar(255) NOT NULL DEFAULT '',`cc` varchar(500) NOT NULL DEFAULT '',`subject` varchar(255) NOT NULL DEFAULT '',`attachment` varchar(255) NOT NULL DEFAULT '',`with_link` tinyint NOT NULL DEFAULT 0,`username` varchar(150) NOT NULL DEFAULT '',`sent` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_offer` (`offer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Failed Service Hub logins, per IP and username (v1.12.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_login_attempts` (`id` int unsigned NOT NULL AUTO_INCREMENT,`ip` varchar(45) NOT NULL DEFAULT '',`username` varchar(150) NOT NULL DEFAULT '',`attempted` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_ip` (`ip`,`attempted`),KEY `idx_username` (`username`,`attempted`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
@@ -168,7 +168,7 @@ class Com_SupportplansInstallerScript
     @chmod($target,0644);
    }
   }catch(\Throwable $e){
-   Factory::getApplication()->enqueueMessage('Back Office: media files could not be refreshed ('.$e->getMessage().').','warning');
+   Factory::getApplication()->enqueueMessage('Dashboard: media files could not be refreshed ('.$e->getMessage().').','warning');
   }
  }
  // v1.9.0: the price section and the terms of templates/offers become entries of the library
@@ -226,7 +226,7 @@ class Com_SupportplansInstallerScript
    $db->transactionCommit();
   }catch(\Throwable $e){
    try{ Factory::getContainer()->get('DatabaseDriver')->transactionRollback(); }catch(\Throwable $ignored){}
-   Factory::getApplication()->enqueueMessage('Back Office: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
+   Factory::getApplication()->enqueueMessage('Dashboard: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
   }
  }
  // v1.27.0: "Αγαπητέ/ή {client_name}," becomes "{greeting}," (general "Αγαπητέ/ή πελάτη" or the
@@ -317,7 +317,7 @@ class Com_SupportplansInstallerScript
    }
    try{Factory::getApplication()->getCache('com_plugins')->clean();}catch(\Throwable $e){}
   }catch(\Throwable $e){
-   try{Factory::getApplication()->enqueueMessage('Back Office: δεν ήταν δυνατή η εγκατάσταση του plugin '.$element.' ('.$e->getMessage().').','warning');}catch(\Throwable $ignored){}
+   try{Factory::getApplication()->enqueueMessage('Dashboard: δεν ήταν δυνατή η εγκατάσταση του plugin '.$element.' ('.$e->getMessage().').','warning');}catch(\Throwable $ignored){}
   }
  }
 }

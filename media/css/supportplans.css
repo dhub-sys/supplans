@@ -579,10 +579,10 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 @media(max-width:900px){.sp-sb-toggle,.sp-sb-brand{display:none!important}.sp-sb-head{height:auto;margin:0}}
 .sp-sb-logo-setting .sp-check{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;font-weight:600;cursor:pointer}
 .sp-sb-logo-setting .sp-check input{width:auto!important;margin:0!important;padding:0!important}
-/* v1.21.1 — Geom everywhere in the Back Office, also for variables shown as <code>. */
+/* v1.21.1 — Geom everywhere in the Dashboard, also for variables shown as <code>. */
 .sp-saas-root code,.sp-saas-root kbd,.sp-saas-root pre,.sp-saas-root samp{font-family:'Geom',Arial,Helvetica,sans-serif!important;font-size:.92em;background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:5px}
 .sp-saas-root input,.sp-saas-root select,.sp-saas-root textarea,.sp-saas-root button,.sp-saas-root option{font-family:'Geom',Arial,Helvetica,sans-serif!important}
-/* v1.21.2 — Geom on every element of the Back Office, even where the site template sets its own
+/* v1.21.2 — Geom on every element of the Dashboard, even where the site template sets its own
    font or sizes on h1–h6, p, a, td… (those rules beat inheritance). Higher specificity + !important. */
 html body .sp-saas-root,html body .sp-saas-root *{font-family:'Geom',Arial,Helvetica,sans-serif!important}
 html body .sp-saas-root h1,html body .sp-saas-root h2,html body .sp-saas-root h3,html body .sp-saas-root h4,html body .sp-saas-root h5,html body .sp-saas-root h6{text-transform:none!important;font-style:normal!important;letter-spacing:-.2px!important;color:#101828}
@@ -608,3 +608,27 @@ html body .sp-report,html body .sp-report *{font-family:'Geom',Arial,Helvetica,s
 .sp-archive-banner a{color:#1d4ed8;text-decoration:underline;margin-left:6px}
 /* Cards are width:100% with padding: count the padding inside the width (no overflow, no overlap). */
 .sp-saas-root .sp-card,.sp-saas-root .sp-panel,.sp-saas-root .sp-list-card,.sp-saas-root .sp-kpis>article{box-sizing:border-box}
+/* ---- v1.29.0: sidebar polish ---------------------------------------------------------- */
+/* Nothing in the sidebar shrinks when it is taller than the screen (it scrolls instead): the
+   items stay exactly in place when the sidebar opens or closes. */
+html body .sp-saas-root .sp-sidebar>*{flex-shrink:0}
+
+/* Active item: no white pill; light green icon, white label and a pulsing green dot on the left. */
+html body .sp-saas-root .sp-sidebar .sp-side-link{position:relative}
+html body .sp-saas-root .sp-sidebar .sp-side-link.is-active{background:rgba(255,255,255,.06)!important;color:#fff!important;box-shadow:none!important;font-weight:700!important}
+html body .sp-saas-root .sp-sidebar .sp-side-link.is-active .sp-side-icon{color:#4ade80}
+html body .sp-saas-root .sp-sidebar .sp-side-link.is-active:hover{background:rgba(255,255,255,.09)!important}
+html body .sp-saas-root .sp-sidebar .sp-side-link.is-active::before{content:"";position:absolute;left:4px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.55);animation:spPulse 2.2s ease-out infinite}
+html body .sp-saas-root .sp-sidebar .sp-side-link.is-parent-active .sp-side-icon{color:#86efac}
+@keyframes spPulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}70%{box-shadow:0 0 0 5px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+@media (prefers-reduced-motion:reduce){html body .sp-saas-root .sp-sidebar .sp-side-link.is-active::before{animation:none}}
+
+/* Burger: three lines; when the sidebar is closed they morph into an arrow (→ open). */
+.sp-saas-root .sp-sb-toggle span{transform-origin:right center;transition:width .42s cubic-bezier(.65,0,.35,1),transform .48s cubic-bezier(.65,0,.35,1),opacity .3s ease}
+.sp-saas-root .sp-sb-toggle span:nth-child(1),.sp-saas-root .sp-sb-toggle span:nth-child(3){transition-delay:.04s}
+.sp-saas-root .sp-sb-toggle span:nth-child(2){transform:translateX(8px)}
+.sp-saas-root .sp-sb-toggle:hover span:nth-child(2){width:20px;transform:translateX(0)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(1){width:10px;transform:translate(10px,6px) rotate(42deg)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(2){width:20px;transform:translateX(0)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(3){width:10px;transform:translate(10px,-6px) rotate(-42deg)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle:hover span:nth-child(2){transform:translateX(2px)}

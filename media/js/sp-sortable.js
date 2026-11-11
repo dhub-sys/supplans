@@ -1,5 +1,5 @@
 /**
- * Back Office – drag & drop ordering.
+ * Dashboard – drag & drop ordering.
  *
  * <div data-sortable>               container (or <tbody data-sortable>)
  *   <div data-sort-item>            each sortable row

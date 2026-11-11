@@ -8,7 +8,7 @@ use Joomla\CMS\Uri\Uri;
 echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');
 $spParams=ComponentHelper::getParams('com_supportplans');
 $spItemid=max(1,(int)$spParams->get('standalone_itemid',785));
-$spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Back Office');
+$spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Dashboard');
 $spLogo=trim((string)$spParams->get('brand_logo',''));
 $spInitials='';
 foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=\Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
@@ -21,14 +21,14 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <div class="sp-saas-root">
 <header class="sp-appbar"><div class="sp-brand">
 <?php if($spLogoUrl!==''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo htmlspecialchars($spLogoUrl); ?>" alt="<?php echo htmlspecialchars($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo htmlspecialchars($spInitials); ?></span><?php endif; ?>
-<div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Back Office</small></div>
+<div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Dashboard</small></div>
 </div><div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div></header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('help'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
@@ -58,7 +58,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <div class="sp-help-head">
   <div>
    <h1>Οδηγίες &amp; Changelog</h1>
-   <p>Οδηγός χρήσης και ιστορικό αλλαγών του Back Office.</p>
+   <p>Οδηγός χρήσης και ιστορικό αλλαγών του Dashboard.</p>
   </div>
  </div>
 
@@ -74,13 +74,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
    <li>Ανοίξτε τις <strong>Ρυθμίσεις</strong> και συμπληρώστε τα στοιχεία εταιρείας, το λογότυπο, τα στοιχεία επικοινωνίας και τα χρώματα του PDF.</li>
    <li>Ορίστε την ονομασία του πεδίου υπηρεσιών/υποστηριζόμενων websites όπως θέλετε να εμφανίζεται στα Πακέτα και στα PDF.</li>
    <li>Προσθέστε όσους τραπεζικούς λογαριασμούς χρειάζεστε. Κάθε γραμμή περιλαμβάνει Τράπεζα, IBAN και Όνομα δικαιούχου.</li>
-   <li>Ελέγξτε ότι το Itemid Κέντρου Υπηρεσιών αντιστοιχεί στο Joomla menu item που χρησιμοποιείται για το Back Office.</li>
+   <li>Ελέγξτε ότι το Itemid Κέντρου Υπηρεσιών αντιστοιχεί στο Joomla menu item που χρησιμοποιείται για το Dashboard.</li>
   </ol>
  </section>
 
  <section class="sp-help-card">
-  <h2>2. Σύνδεση στο Back Office</h2>
-  <p>Η είσοδος στο Back Office γίνεται χωρίς μετάβαση στο Joomla Administrator.</p>
+  <h2>2. Σύνδεση στο Dashboard</h2>
+  <p>Η είσοδος στο Dashboard γίνεται χωρίς μετάβαση στο Joomla Administrator.</p>
   <ol>
    <li>Συμπληρώστε Joomla username και password.</li>
    <li>Θα αποσταλεί εξαψήφιος κωδικός OTP στο email του λογαριασμού. Ισχύει 2 λεπτά — η μπάρα δείχνει τον χρόνο που απομένει.</li>
@@ -110,7 +110,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 
  <section class="sp-help-card">
   <h2>5. Καταχώρηση εργασιών</h2>
-  <p>Σε κάθε Πακέτο μπορείτε να προσθέτετε ημερομηνία/περίοδο, αίτημα ή εργασία, περιγραφή και διάρκεια. Στα χρεώσιμα πλάνα το Back Office υπολογίζει τον χρεώσιμο χρόνο και το αντίστοιχο κόστος σύμφωνα με τους κανόνες του Πλάνου.</p>
+  <p>Σε κάθε Πακέτο μπορείτε να προσθέτετε ημερομηνία/περίοδο, αίτημα ή εργασία, περιγραφή και διάρκεια. Στα χρεώσιμα πλάνα το Dashboard υπολογίζει τον χρεώσιμο χρόνο και το αντίστοιχο κόστος σύμφωνα με τους κανόνες του Πλάνου.</p>
  </section>
 
  <section class="sp-help-card">
@@ -120,7 +120,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
    <li>Η πρώτη σελίδα περιλαμβάνει στοιχεία πελάτη/πακέτου και τη σύνοψη του αντίστοιχου τύπου Πλάνου.</li>
    <li>Η δεύτερη σελίδα περιλαμβάνει το αναλυτικό δελτίο εργασιών. Στα Ongoing και Συνδρομητικά πλάνα ακολουθούν η Οικονομική σύνοψη και οι Τράπεζες / Λογαριασμοί. Στα προπληρωμένα δεν εμφανίζονται, γιατί έχουν ήδη εξοφληθεί.</li>
    <li>Η Οικονομική σύνοψη περιλαμβάνει συνολικό χρεώσιμο χρόνο, καθαρή αξία, Φ.Π.Α. και σύνολο με Φ.Π.Α.</li>
-   <li>Το Web357 CPNB δεν εμφανίζεται στο Back Office ούτε στην εκτύπωση/PDF.</li>
+   <li>Το Web357 CPNB δεν εμφανίζεται στο Dashboard ούτε στην εκτύπωση/PDF.</li>
   </ul>
  </section>
 
@@ -174,7 +174,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <h3>Χειροκίνητη υπενθύμιση</h3>
   <p>Στη σελίδα του πελάτη, «Χειροκίνητη υπενθύμιση ανανέωσης»: τσεκάρετε τις υπηρεσίες που θα μπουν σε ένα μήνυμα (όσες θέλετε, ανεξάρτητα από τις ημερομηνίες), «Προεπισκόπηση» και «Αποστολή τώρα».</p>
   <h3>Λογότυπο στα email</h3>
-  <p>Μπαίνει πάνω δεξιά. Αν το λογότυπο του Back Office είναι SVG, πατήστε στις Ρυθμίσεις email «Δημιουργία PNG από το λογότυπο» και αποθηκεύστε (τα Gmail/Outlook δεν δείχνουν SVG)· εναλλακτικά ανεβάστε PNG/JPG.</p>
+  <p>Μπαίνει πάνω δεξιά. Αν το λογότυπο του Dashboard είναι SVG, πατήστε στις Ρυθμίσεις email «Δημιουργία PNG από το λογότυπο» και αποθηκεύστε (τα Gmail/Outlook δεν δείχνουν SVG)· εναλλακτικά ανεβάστε PNG/JPG.</p>
   <h3>Τιμές, ΦΠΑ και τράπεζες</h3>
   <p>Οι τιμές είναι προ ΦΠΑ. Το email έχει «Οικονομική σύνοψη» (αξία, ΦΠΑ, σύνολο ανά υπηρεσία και συνολικά) και τους τραπεζικούς λογαριασμούς των Ρυθμίσεων, όπως στις Προσφορές. Ο συντελεστής ΦΠΑ ορίζεται στις Ρυθμίσεις email.</p>
   <h3>Αναφορές maintenance</h3>
@@ -183,7 +183,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <p>Ελεύθερο μήνυμα σε όλους, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους πελάτες. Τα μηνύματα φεύγουν σταδιακά από την ουρά. Κάθε μήνυμα έχει σύνδεσμο διαγραφής· οι υπενθυμίσεις ανανέωσης και οι αναφορές στέλνονται πάντα, γιατί αφορούν υπηρεσίες του πελάτη.</p>
   <h3>Αυτόματη εκτέλεση</h3>
   <ol>
-   <li>Joomla Administrator → Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → <strong>Back Office – Ειδοποιήσεις</strong>, κάθε 5 λεπτά. Οι αυτόματες υπενθυμίσεις ετοιμάζονται από την «Ώρα αποστολής» των Ρυθμίσεων email (προεπιλογή 09:30) και φεύγουν στις επόμενες εκτελέσεις.</li>
+   <li>Joomla Administrator → Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → <strong>Dashboard – Ειδοποιήσεις</strong>, κάθε 5 λεπτά. Οι αυτόματες υπενθυμίσεις ετοιμάζονται από την «Ώρα αποστολής» των Ρυθμίσεων email (προεπιλογή 09:30) και φεύγουν στις επόμενες εκτελέσεις.</li>
    <li>Για αξιόπιστη εκτέλεση, cron στο hosting κάθε 5 λεπτά: <code>php /διαδρομή/του/site/cli/joomla.php scheduler:run --all</code> (ή το Web Cron των Χρονοπρογραμματισμένων εργασιών).</li>
    <li>Στις <strong>Ρυθμίσεις email</strong> ορίστε αποστολέα, Reply-To και τα κείμενα, και στείλτε ένα δοκιμαστικό. Χρησιμοποιήστε SMTP με SPF, DKIM και DMARC στο domain σας.</li>
   </ol>
@@ -218,6 +218,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.29.0</div><div><ul>
+<li>Η εφαρμογή λέγεται πλέον <b>Dashboard</b> (μενού, σελίδες, σύνδεση, Joomla Administrator, εργασία ειδοποιήσεων).</li>
+<li>Νέα εμφάνιση του ενεργού στοιχείου του μενού: πράσινο εικονίδιο, λευκό όνομα και παλλόμενη πράσινη κουκκίδα αριστερά (χωρίς λευκό φόντο).</li>
+<li>Τα στοιχεία του μενού δεν μετακινούνται πλέον όταν ανοιγοκλείνει το μενού (σε οθόνες μικρού ύψους η κεφαλίδα «συμπιεζόταν»).</li>
+<li>Ομαλό animation στο εικονίδιο του μενού: οι τρεις γραμμές γίνονται βέλος «→» όταν το μενού είναι κλειστό.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.28.3</div><div><ul>
 <li>Στο κάτω μέρος του μενού και στις σελίδες γράφει πλέον «Back Office» αντί για «Service Hub».</li>

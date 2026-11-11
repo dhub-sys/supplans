@@ -6,7 +6,7 @@ namespace Support\Component\Supportplans\Site\Helper;
 use Joomla\CMS\Factory;
 
 /**
- * All the documents of the Back Office (packages, offers, structure proposals) in one register,
+ * All the documents of the Dashboard (packages, offers, structure proposals) in one register,
  * with one shared numbering: a new document takes the number after the last one of any type.
  */
 final class Documents

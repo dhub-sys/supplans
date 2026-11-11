@@ -19,7 +19,7 @@ class HtmlView extends BaseHtmlView
   $registry=new \Joomla\Registry\Registry;
   $registry->loadString($raw,'JSON');
   $this->params=$registry;
-  ToolbarHelper::title('Back Office — Στοιχεία επιχείρησης','cog');
+  ToolbarHelper::title('Dashboard — Στοιχεία επιχείρησης','cog');
   ToolbarHelper::apply('settings.apply');
   ToolbarHelper::save('settings.save');
   ToolbarHelper::cancel('settings.cancel','JTOOLBAR_CLOSE');

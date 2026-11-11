@@ -894,3 +894,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.28.3
 - «Service Hub» → «Back Office» στο κάτω μέρος του sidebar, στη μπάρα των κινητών, στο Ιστορικό ενεργειών, στις οδηγίες και στη ρύθμιση τίτλου σελίδας.
 
+## v1.29.0 — Dashboard
+- «Back Office» → «Dashboard» σε όλο τον κώδικα, τα templates, το manifest (όνομα επέκτασης και μενού Administrator), τα plugins και τις γλώσσες (τα παλιά changelog μένουν ως έχουν).
+- Sidebar: `flex-shrink:0` στα παιδιά του (σε χαμηλές οθόνες η κεφαλίδα συμπιεζόταν 1–6px μόνο στην ανοιχτή κατάσταση → τα στοιχεία «πηδούσαν»). Ενεργό στοιχείο: `#4ade80` εικονίδιο, λευκό κείμενο, παλλόμενη κουκκίδα (`spPulse`, σέβεται το prefers-reduced-motion). Burger: γραμμές με `transform-origin:right`, κλειστό μενού = βέλος (rotate ±42°), cubic-bezier .65,0,.35,1.
+

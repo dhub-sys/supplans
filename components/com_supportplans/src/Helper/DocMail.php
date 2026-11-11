@@ -318,7 +318,7 @@ final class DocMail
    <td><?php echo $e($sd->username); ?></td>
   </tr><?php endforeach; ?></tbody>
  </table></div>
- <?php else: ?><p class="sp-foot">Δεν έχει σταλεί ακόμα από το Back Office.</p><?php endif; ?>
+ <?php else: ?><p class="sp-foot">Δεν έχει σταλεί ακόμα από το Dashboard.</p><?php endif; ?>
  <?php if ($link !== ''): ?>
  <div class="sp-send-link">
   <span><?php echo DocGate::expired($doc) ? 'Σύνδεσμος προβολής (έληξε)' : 'Σύνδεσμος προβολής (ενεργός)'; ?></span>

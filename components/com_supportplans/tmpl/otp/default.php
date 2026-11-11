@@ -25,7 +25,7 @@ $spOtpLeft=$spSession->get('supportplans.otp.hash','')!=='' ? max(0,(int)$spSess
 $spResendLeft=max(0,60-(time()-(int)$spSession->get('supportplans.otp.last_sent',0)));
 ?>
 <!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Back Office', ENT_QUOTES, 'UTF-8'); ?></title>
+<title><?php echo htmlspecialchars(trim((string) ($spRawParams['page_title'] ?? '')) ?: 'Dashboard', ENT_QUOTES, 'UTF-8'); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geom:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@ h1{font-size:23px;margin:0 0 8px}p{font-size:14px;color:#667085;line-height:1.55
 @media(max-width:720px){body{padding-top:20px!important}}
 .shell{width:min(100%,430px);margin:0 auto}
 </style></head><body><main class="shell">
-<div class="brand"><div class="mark<?php echo $loginIcon ? ' has-image' : ''; ?>"><?php if ($loginIcon): ?><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Back Office"><?php else: ?>SP<?php endif; ?></div><?php if (!$loginIcon): ?><strong>Back Office</strong><?php endif; ?></div>
+<div class="brand"><div class="mark<?php echo $loginIcon ? ' has-image' : ''; ?>"><?php if ($loginIcon): ?><img src="<?php echo htmlspecialchars($loginIcon, ENT_QUOTES, 'UTF-8'); ?>" alt="Dashboard"><?php else: ?>SP<?php endif; ?></div><?php if (!$loginIcon): ?><strong>Dashboard</strong><?php endif; ?></div>
 <section class="card" id="otp-card"><h1>Έλεγξε το email σου</h1><p>Στείλαμε έναν 6ψήφιο κωδικό στο <strong><?php echo htmlspecialchars($masked,ENT_QUOTES,'UTF-8'); ?></strong>. Ισχύει για 2 λεπτά.</p>
 <form id="otp-form" action="<?php echo Route::_('index.php?option=com_supportplans&task=otp.verify&tmpl=component&Itemid=' . (int) $spItemid,false); ?>" method="post">
 <div class="otp-boxes" id="otp-boxes" role="group" aria-label="6ψήφιος κωδικός">

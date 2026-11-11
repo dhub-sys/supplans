@@ -4,7 +4,7 @@ $spItemid=max(1,(int)\Joomla\CMS\Component\ComponentHelper::getParams('com_suppo
  use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route; echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');HTMLHelper::_('behavior.formvalidator');$item=$this->selected;$mode=$item->billing_mode??'prepaid'; ?>
 <?php
 $spParams=$this->params ?? \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans');
-$spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Back Office');
+$spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Dashboard');
 $spLogo=trim((string)$spParams->get('brand_logo',''));
 $spAccent=trim((string)$spParams->get('accent_color','#367d22'));
 $spSecondary=trim((string)$spParams->get('secondary_color','#245719'));
@@ -20,7 +20,7 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
 <header class="sp-appbar">
  <div class="sp-brand">
   <?php if($spLogoUrl!==''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo htmlspecialchars($spLogoUrl); ?>" alt="<?php echo htmlspecialchars($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo htmlspecialchars($spInitials); ?></span><?php endif; ?>
-  <div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Back Office</small></div>
+  <div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Dashboard</small></div>
  </div>
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
@@ -28,7 +28,7 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('serviceplans'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>

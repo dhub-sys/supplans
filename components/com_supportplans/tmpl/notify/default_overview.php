@@ -21,7 +21,7 @@ $expired = count(array_filter($this->rows, static fn($s) => Notify::daysUntil($s
 <?php endif; ?>
 <?php if ($stale): ?>
 <div class="sp-n-warning"><strong>Οι αυτόματες ειδοποιήσεις δεν έχουν τρέξει <?php echo $lastRun === '' ? 'ακόμα' : 'τις τελευταίες 2 ώρες'; ?>.</strong>
-Στο Joomla Administrator: <em>Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → «Back Office – Ειδοποιήσεις»</em>, εκτέλεση κάθε 5 λεπτά. Για αξιόπιστη λειτουργία ρυθμίστε και cron στο hosting (δείτε τις Οδηγίες).</div>
+Στο Joomla Administrator: <em>Σύστημα → Χρονοπρογραμματισμένες εργασίες → Νέα → «Dashboard – Ειδοποιήσεις»</em>, εκτέλεση κάθε 5 λεπτά. Για αξιόπιστη λειτουργία ρυθμίστε και cron στο hosting (δείτε τις Οδηγίες).</div>
 <?php endif; ?>
 <section class="sp-kpis sp-n-kpis">
   <article><span>Ενεργοί πελάτες</span><strong><?php echo count($this->clients); ?></strong><small>με δυνατότητα αποστολής</small></article>

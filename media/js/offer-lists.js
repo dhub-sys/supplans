@@ -1,5 +1,5 @@
 /**
- * Back Office – extra blocks on offer services: "＋ Λίστα" (card list with title,
+ * Dashboard – extra blocks on offer services: "＋ Λίστα" (card list with title,
  * description, 1/2 columns, one item per line) and "＋ Κείμενο" (formatted text).
  */
 (function () {

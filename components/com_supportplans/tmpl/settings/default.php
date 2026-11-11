@@ -9,7 +9,7 @@ $p=$this->params;
 ?>
 <?php
 $spParams=$this->params ?? \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans');
-$spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Back Office');
+$spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Dashboard');
 $spLogo=trim((string)$spParams->get('brand_logo',''));
 $spAccent=trim((string)$spParams->get('accent_color','#367d22'));
 $spSecondary=trim((string)$spParams->get('secondary_color','#245719'));
@@ -25,7 +25,7 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
 <header class="sp-appbar">
  <div class="sp-brand">
   <?php if($spLogoUrl!==''): ?><span class="sp-brandlogo sp-brandlogo-natural"><img src="<?php echo htmlspecialchars($spLogoUrl); ?>" alt="<?php echo htmlspecialchars($spCompany); ?>"></span><?php else: ?><span class="sp-brandmark"><?php echo htmlspecialchars($spInitials); ?></span><?php endif; ?>
-  <div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Back Office</small></div>
+  <div class="sp-brand-copy"><strong><?php echo htmlspecialchars($spCompany); ?></strong><small>Dashboard</small></div>
  </div>
  <div class="sp-app-actions"><span class="sp-header-pill"><span class="sp-header-dot"></span>Workspace</span></div>
 </header>
@@ -33,7 +33,7 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('settings'); ?>
   <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Back Office</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
+    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
@@ -90,7 +90,7 @@ echo $savedWatermark!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($s
      </div>
     </label>
     <label><span class="sp-label-tooltip" tabindex="0" data-tooltip="Για πόσες ώρες μένετε συνδεδεμένοι μετά τον κωδικό OTP σε αυτόν τον browser (π.χ. 8, 12 ή 24· έως 24 για λόγους ασφαλείας). Με 0 η σύνδεση κρατά μόνο όσο είναι ανοιχτός ο browser.">Διάρκεια σύνδεσης (ώρες)</span><input class="form-control" type="number" min="0" max="24" step="1" name="login_lifetime" value="<?php echo max(0,min(24,(int)$p->get('login_lifetime',12))); ?>"></label>
-    <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Ο τίτλος που εμφανίζεται στο tab του browser σε όλες τις σελίδες του Back Office.">Τίτλος σελίδας (tab browser)</span><input class="form-control" name="page_title" value="<?php echo htmlspecialchars((string)$p->get('page_title','')); ?>" placeholder="Back Office"></label>
+    <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Ο τίτλος που εμφανίζεται στο tab του browser σε όλες τις σελίδες του Dashboard.">Τίτλος σελίδας (tab browser)</span><input class="form-control" name="page_title" value="<?php echo htmlspecialchars((string)$p->get('page_title','')); ?>" placeholder="Dashboard"></label>
     <label class="sp-wide sp-upload-setting"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Εικονίδιο που εμφανίζεται πάνω από τις οθόνες σύνδεσης και επιβεβαίωσης OTP.">Login icon</span>
      <div class="sp-media-row">
       <input class="form-control" id="login_icon" name="login_icon" value="<?php echo htmlspecialchars((string)$p->get('login_icon','')); ?>" placeholder="images/supportplans/login-icon.png ή URL">
@@ -116,7 +116,7 @@ echo $savedSignature!=='' ? '✓ Αποθηκευμένο: '.htmlspecialchars($s
             <label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Η ονομασία που εμφανίζεται για το πεδίο supported_websites μέσα στα Πακέτα.">Ονομασία πεδίου Υπηρεσιών στα Πακέτα</span>
      <input class="form-control" type="text" name="supported_websites_label" value="<?php echo htmlspecialchars((string)$p->get('supported_websites_label','Υποστηριζόμενα websites'), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Υποστηριζόμενα websites">
     </label>
-<label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Joomla Menu Item ID για το standalone Back Office. Διατηρείται σε Login, OTP και εφαρμογή ώστε integrations όπως το Web357 να αναγνωρίζουν πάντα την ίδια σελίδα.">Standalone Menu Item ID</span>
+<label class="sp-wide"><span class="sp-label-tooltip" tabindex="0" data-tooltip="Joomla Menu Item ID για το standalone Dashboard. Διατηρείται σε Login, OTP και εφαρμογή ώστε integrations όπως το Web357 να αναγνωρίζουν πάντα την ίδια σελίδα.">Standalone Menu Item ID</span>
      <input class="form-control" type="number" min="0" step="1" name="standalone_itemid" value="<?php echo (int)$p->get('standalone_itemid',785); ?>" placeholder="785">
     </label>
 

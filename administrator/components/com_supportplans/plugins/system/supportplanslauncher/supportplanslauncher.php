@@ -28,7 +28,7 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
 (function () {
   var serviceHubUrl = '../index.php?option=com_supportplans&view=app&tmpl=component&Itemid=__SP_ITEMID__';
 
-  // Joomla's own "Components > Back Office" entries also open the standalone Service Hub in a new tab.
+  // Joomla's own "Components > Dashboard" entries also open the standalone Service Hub in a new tab.
   function redirectComponentLinks() {
     var links = document.querySelectorAll('#sidebar-wrapper a[href*="option=com_supportplans"], .sidebar-wrapper a[href*="option=com_supportplans"], #menu a[href*="option=com_supportplans"], .quickicons-for-components a[href*="option=com_supportplans"]');
     for (var i = 0; i < links.length; i++) {
@@ -72,14 +72,14 @@ final class PlgSystemSupportplanslauncher extends CMSPlugin
     a.target = '_blank';
     a.rel = 'noopener';
     a.className = 'no-dropdown';
-    a.setAttribute('aria-label', 'Back Office');
+    a.setAttribute('aria-label', 'Dashboard');
     a.innerHTML =
       '<span class="icon-fw supportplans-launcher-icon" aria-hidden="true">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
           '<path d="M6 2.75h9l3 3V21.25H6z"></path>' +
           '<path d="M15 2.75v3h3M9 10h6M9 14h6M9 18h4"></path>' +
         '</svg>' +
-      '</span><span class="sidebar-item-title">Back Office</span>';
+      '</span><span class="sidebar-item-title">Dashboard</span>';
     wrap.appendChild(a);
 
     // Put it near the top, after Joomla's home/dashboard item.

@@ -80,7 +80,7 @@ final class Dispatcher extends ComponentDispatcher
         if ($needsAuth) {
             if ((int) $session->get('supportplans.auth.user_id', 0) < 1 || !(bool) $session->get('supportplans.otp.verified', false)) {
                 $itemid = max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));
-                $app->enqueueMessage('Συνδέσου για πρόσβαση στο Back Office.', 'warning');
+                $app->enqueueMessage('Συνδέσου για πρόσβαση στο Dashboard.', 'warning');
                 $app->redirect(Route::_('index.php?option=com_supportplans&view=app&tmpl=component&Itemid=' . $itemid, false));
                 return;
             }
@@ -91,7 +91,7 @@ final class Dispatcher extends ComponentDispatcher
         // keep their own title, which the browser uses as the Pdf file name.
         $document = $app->getDocument();
         if ($document && method_exists($document, 'setTitle') && !in_array($view, ['report', 'offerdoc', 'structuredoc'], true)) {
-            $document->setTitle(trim((string) ComponentHelper::getParams('com_supportplans')->get('page_title', '')) ?: 'Back Office');
+            $document->setTitle(trim((string) ComponentHelper::getParams('com_supportplans')->get('page_title', '')) ?: 'Dashboard');
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Back Office: tree editor of the structure proposals. */
+/* Dashboard: tree editor of the structure proposals. */
 .sp-st{display:flex;flex-direction:column;gap:6px;margin:14px 0 10px}
 .sp-st-row{--l:0;position:relative;margin-left:calc(var(--l) * 30px);border:1px solid #e4e7ec;border-radius:10px;background:#fff;transition:margin-left .15s ease,box-shadow .15s ease}
 .sp-st-row[data-level="0"]{border-color:#d0d5dd;background:#fcfcfd}

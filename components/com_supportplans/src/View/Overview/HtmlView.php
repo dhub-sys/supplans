@@ -10,7 +10,7 @@ use Support\Component\Supportplans\Site\Helper\Notify;
 use Support\Component\Supportplans\Site\Helper\OfferHelper;
 use Support\Component\Supportplans\Site\Helper\Year;
 
-/** Overview (home page) of the Back Office for the working year. */
+/** Overview (home page) of the Dashboard for the working year. */
 class HtmlView extends BaseHtmlView
 {
     public $params;
