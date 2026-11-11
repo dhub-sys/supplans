@@ -83,6 +83,10 @@ class HtmlView extends BaseHtmlView
             if ($this->mode === 'new') {
                 $this->nextNumber = OfferHelper::nextNumber($db);
             }
+            if ($this->mode === 'list') {
+                // Offers of the selected working year (Χρήση).
+                $this->offers = array_values(array_filter($this->offers, static fn($o) => \Support\Component\Supportplans\Site\Helper\Year::inYear((string) $o->offer_date)));
+            }
         }
         if ($this->mode === 'edit' && !$this->selected) {
             $app->enqueueMessage('Η εγγραφή δεν βρέθηκε.', 'warning');

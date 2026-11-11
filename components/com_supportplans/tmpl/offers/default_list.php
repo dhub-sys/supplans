@@ -13,7 +13,7 @@ $acceptedValue = array_sum(array_map(static fn($o) => $o->status === 'accepted' 
   <?php if ($this->templates): ?><a class="sp-primary-action" href="<?php echo OfferHelper::url('view=offers&mode=new'); ?>">＋ Νέα προσφορά</a><?php endif; ?>
 </section>
 <section class="sp-kpis">
-  <article><span>Σύνολο προσφορών</span><strong><?php echo $total; ?></strong><small>όλες οι εγγραφές</small></article>
+  <article><span>Σύνολο προσφορών</span><strong><?php echo $total; ?></strong><small>έτος <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></small></article>
   <article><span>Σε εκκρεμότητα</span><strong><?php echo $pending; ?></strong><small>πρόχειρες &amp; απεσταλμένες</small></article>
   <article><span>Αποδεκτές (προ Φ.Π.Α.)</span><strong><?php echo OfferHelper::money($acceptedValue); ?> €</strong><small>αξία αποδεκτών προσφορών</small></article>
 </section>
@@ -25,7 +25,7 @@ $acceptedValue = array_sum(array_map(static fn($o) => $o->status === 'accepted' 
 </div>
 <?php endif; ?>
 <div class="sp-card">
-  <h2>Προσφορές</h2>
+  <h2>Προσφορές <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h2>
   <div class="table-responsive"><table class="table sp-offer-table">
     <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Έργο</th><th class="sp-num">Αξία προ Φ.Π.Α.</th><th class="sp-num">Σύνολο</th><th>Κατάσταση</th><th></th></tr></thead>
     <tbody>
@@ -41,7 +41,7 @@ $acceptedValue = array_sum(array_map(static fn($o) => $o->status === 'accepted' 
         <td class="sp-num"><a class="btn btn-sm btn-outline-primary" href="<?php echo OfferHelper::url('view=offers&id=' . (int) $o->id); ?>">Άνοιγμα</a></td>
       </tr>
     <?php endforeach; ?>
-    <?php if (!$this->offers): ?><tr><td colspan="8" class="text-muted">Δεν υπάρχουν προσφορές ακόμα.</td></tr><?php endif; ?>
+    <?php if (!$this->offers): ?><tr><td colspan="8" class="text-muted">Δεν υπάρχουν προσφορές για το <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?>.</td></tr><?php endif; ?>
     </tbody>
   </table></div>
 </div>

@@ -33,8 +33,14 @@ class HtmlView extends BaseHtmlView
 
     public static function filters($in): array
     {
+        // Without dates: the whole selected working year (Χρήση).
+        $from = trim((string) $in->getString('from', ''));
+        $to = trim((string) $in->getString('to', ''));
+        if ($from === '' && $to === '') {
+            [$from, $to] = \Support\Component\Supportplans\Site\Helper\Year::range();
+        }
         return [
-            'from' => trim((string) $in->getString('from', '')), 'to' => trim((string) $in->getString('to', '')),
+            'from' => $from, 'to' => $to,
             'area' => trim((string) $in->getString('area', '')), 'user' => trim((string) $in->getString('user', '')),
             'result' => $in->getCmd('result', ''), 'q' => trim((string) $in->getString('q', '')),
         ];

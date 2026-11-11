@@ -718,6 +718,7 @@ class NotifyController extends BaseController
             'notify_greeting' => rtrim($this->str('notify_greeting'), ' ,'),
             'notify_paid_notice' => mb_substr(trim($this->text('notify_paid_notice')), 0, 2000),
             'notify_paid_notice_multi' => mb_substr(trim($this->text('notify_paid_notice_multi')), 0, 2000),
+            'notify_paid_notice_after' => mb_substr(trim($this->text('notify_paid_notice_after')), 0, 2000),
             'doc_offer_from_name' => $this->str('doc_offer_from_name'), 'doc_offer_from_email' => $this->email('doc_offer_from_email'),
             'doc_offer_reply_to' => $this->email('doc_offer_reply_to'), 'doc_offer_bcc' => $this->email('doc_offer_bcc'),
             'doc_structure_from_name' => $this->str('doc_structure_from_name'), 'doc_structure_from_email' => $this->email('doc_structure_from_email'),

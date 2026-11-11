@@ -21,7 +21,7 @@ foreach ($this->catalog as $k) $catalogOptions[$k->id] = $k->name;
       <input type="hidden" name="tmpl" value="component"><input type="hidden" name="spapp" value="1"><input type="hidden" name="Itemid" value="<?php echo OfferHelper::itemid(); ?>">
       <?php foreach (['q' => $this->filters['search'], 'catalog_id' => $this->filters['catalog_id'] ?: '', 'status' => $this->filters['status'], 'expiring' => $this->filters['expiring']] as $hk => $hv): if ((string) $hv === '') continue; ?><input type="hidden" name="<?php echo $hk; ?>" value="<?php echo $e($hv); ?>"><?php endforeach; ?>
       <select name="sp" onchange="this.form.querySelector('.sp-n-sumdates').hidden=this.value!=='custom';if(this.value!=='custom')this.form.submit();" aria-label="Περίοδος">
-        <?php foreach (Notify::SUMMARY_PERIODS as $pk => $pl): ?><option value="<?php echo $pk; ?>"<?php echo $this->summaryPeriod === $pk ? ' selected' : ''; ?>><?php echo $e($pl); ?></option><?php endforeach; ?>
+        <?php foreach (Notify::SUMMARY_PERIODS as $pk => $pl): if ($pk === 'year') $pl = \Support\Component\Supportplans\Site\Helper\Year::isCurrent() ? 'Τρέχον έτος' : 'Όλο το ' . \Support\Component\Supportplans\Site\Helper\Year::get(); ?><option value="<?php echo $pk; ?>"<?php echo $this->summaryPeriod === $pk ? ' selected' : ''; ?>><?php echo $e($pl); ?></option><?php endforeach; ?>
       </select>
       <span class="sp-n-sumdates"<?php echo $this->summaryPeriod === 'custom' ? '' : ' hidden'; ?>>
         <input type="date" name="sf" value="<?php echo $e($this->summaryFrom); ?>" aria-label="Από"> – <input type="date" name="st" value="<?php echo $e($this->summaryTo); ?>" aria-label="Έως">

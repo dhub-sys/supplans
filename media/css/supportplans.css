@@ -603,3 +603,13 @@ html body .sp-report,html body .sp-report *{font-family:'Geom',Arial,Helvetica,s
 .sp-sb-collapsed .sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left-color:transparent}
 @media (max-width:900px){.sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left:0}}
 @media (max-width:620px){.sp-sidebar .sp-side-sub{display:contents}}
+/* Working year (v1.28.0) */
+.sp-sidebar .sp-year{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 6px 12px}
+.sp-sidebar .sp-year label{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:600;color:#cbd8f5}
+.sp-saas-root .sp-sidebar .sp-year select{background:#fff!important;color:#101828!important;border:1px solid rgba(203,216,245,.5)!important;border-radius:8px!important;padding:5px 26px 5px 10px!important;font-size:13px!important;font-weight:700!important;cursor:pointer;height:auto!important;min-height:0!important;width:auto!important;box-shadow:none!important}
+.sp-sidebar .sp-year select option{color:#101828}
+.sp-sidebar .sp-year-past{font-size:11px;font-weight:700;color:#1d2939;background:#fde68a;border-radius:999px;padding:2px 8px}
+.sp-sb-collapsed .sp-sidebar .sp-year-label,.sp-sb-collapsed .sp-sidebar .sp-year-past{display:none}
+.sp-sb-collapsed .sp-sidebar .sp-year{margin:4px 0 12px;justify-content:center}
+.sp-sb-collapsed .sp-saas-root .sp-sidebar .sp-year select{padding:4px 2px!important;font-size:11px!important;width:58px!important;max-width:58px!important}
+@media (max-width:900px){.sp-sidebar .sp-year-label,.sp-sidebar .sp-year-past{display:none}.sp-sidebar .sp-year{justify-content:center;margin:4px 0 10px}.sp-saas-root .sp-sidebar .sp-year select{width:58px!important;max-width:58px!important;padding:4px 2px!important;font-size:11px!important}}

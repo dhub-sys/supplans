@@ -129,11 +129,17 @@ class HtmlView extends BaseHtmlView
                     ];
                     $this->rows = Notify::services($this->filters);
                     $this->schedule = Notify::schedule();
-                    $period = $in->getCmd('sp', 'month');
+                    // Past working year: the whole year by default; "Τρέχον έτος" = the selected year.
+                    $period = $in->getCmd('sp', \Support\Component\Supportplans\Site\Helper\Year::isCurrent() ? 'month' : 'year');
                     $this->summaryPeriod = isset(Notify::SUMMARY_PERIODS[$period]) ? $period : 'month';
                     $this->summaryFrom = Notify::parseDate($in->getString('sf', ''));
                     $this->summaryTo = Notify::parseDate($in->getString('st', ''));
-                    $this->summary = Notify::summary($this->summaryPeriod, $this->summaryFrom, $this->summaryTo);
+                    if ($this->summaryPeriod === 'year' && !\Support\Component\Supportplans\Site\Helper\Year::isCurrent()) {
+                        [$yf, $yt] = \Support\Component\Supportplans\Site\Helper\Year::range();
+                        $this->summary = Notify::summary('custom', $yf, $yt);
+                    } else {
+                        $this->summary = Notify::summary($this->summaryPeriod, $this->summaryFrom, $this->summaryTo);
+                    }
                 } else {
                     $this->clients = Notify::clients();
                     $this->selected = $id ? Notify::service($id) : null;
@@ -184,7 +190,8 @@ class HtmlView extends BaseHtmlView
                 if ($id) {
                     $this->selected = Notify::message($id);
                 } else {
-                    $this->filters = ['kind' => $in->getCmd('kind', ''), 'status' => $in->getCmd('status', ''), 'campaign_id' => $in->getInt('campaign_id', 0)];
+                    $this->filters = ['kind' => $in->getCmd('kind', ''), 'status' => $in->getCmd('status', ''), 'campaign_id' => $in->getInt('campaign_id', 0),
+                        'year' => \Support\Component\Supportplans\Site\Helper\Year::get()];
                     $this->page = max(1, $in->getInt('p', 1));
                     [$this->rows, $this->total] = Notify::messages($this->filters, $this->page, 50);
                 }

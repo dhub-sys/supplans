@@ -87,6 +87,7 @@ final class Sidebar
         return '<script>(function(){var r=document.documentElement;r.classList.add("sp-sb-layout");try{if(localStorage.getItem("spSidebar")==="collapsed")r.classList.add("sp-sb-collapsed");}catch(e){}})();</script>'
             . '<div class="sp-sb-head"><span class="sp-sb-brand">' . $logo . '</span>'
             . '<button type="button" class="sp-sb-toggle" aria-label="Σύμπτυξη μενού" title="Σύμπτυξη / ανάπτυξη μενού" aria-expanded="true"><span></span><span></span><span></span></button></div>'
+            . Year::picker()
             . '<div class="sp-sidebar-section-label sp-sb-label">Διαχείριση</div>'
             . '<script>(function(){'
             . 'var root=document.documentElement,btn=document.currentScript.parentNode.querySelector(".sp-sb-toggle");'

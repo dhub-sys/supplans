@@ -35,7 +35,7 @@ $filterUrl = static fn(string $type) => OfferHelper::url('view=documents' . ($ty
 </aside>
 <section class="sp-workspace sp-offers-workspace">
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Έγγραφα</span><h1>Όλα τα έγγραφα</h1><p>Πακέτα, προσφορές και προτάσεις δομής με κοινή αρίθμηση. Κάθε νέο έγγραφο παίρνει τον επόμενο αριθμό μετά τον τελευταίο (<b><?php echo $e($this->nextNumber); ?></b>), που μπορείτε να αλλάξετε πριν την αποθήκευση.</p></div>
+  <div><span class="sp-eyebrow">Έγγραφα</span><h1>Έγγραφα <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h1><p>Πακέτα, προσφορές και προτάσεις δομής με κοινή αρίθμηση. Κάθε νέο έγγραφο παίρνει τον επόμενο αριθμό μετά τον τελευταίο (<b><?php echo $e($this->nextNumber); ?></b>), που μπορείτε να αλλάξετε πριν την αποθήκευση.</p></div>
   <div class="sp-doc-new">
    <a class="sp-primary-action" href="<?php echo OfferHelper::url('view=offers&mode=new'); ?>">＋ Προσφορά</a>
    <a class="sp-doc-btn is-lg" href="<?php echo OfferHelper::url('view=structures&mode=new'); ?>">＋ Πρόταση δομής</a>
@@ -73,7 +73,7 @@ $filterUrl = static fn(string $type) => OfferHelper::url('view=documents' . ($ty
         </td>
       </tr>
     <?php endforeach; ?>
-    <?php if (!$this->rows): ?><tr><td colspan="7" class="text-muted"><?php echo $this->q !== '' || $this->type !== '' ? 'Δεν βρέθηκαν έγγραφα με αυτά τα κριτήρια.' : 'Δεν υπάρχουν έγγραφα ακόμα.'; ?></td></tr><?php endif; ?>
+    <?php if (!$this->rows): ?><tr><td colspan="7" class="text-muted"><?php echo $this->q !== '' || $this->type !== '' ? 'Δεν βρέθηκαν έγγραφα με αυτά τα κριτήρια.' : 'Δεν υπάρχουν έγγραφα για το ' . \Support\Component\Supportplans\Site\Helper\Year::get() . '.'; ?></td></tr><?php endif; ?>
     </tbody>
   </table></div>
 </div>

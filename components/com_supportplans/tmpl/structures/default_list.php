@@ -10,7 +10,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
   <a class="sp-primary-action" href="<?php echo OfferHelper::url('view=structures&mode=new'); ?>">＋ Νέα πρόταση δομής</a>
 </section>
 <div class="sp-card">
-  <h2>Προτάσεις δομής</h2>
+  <h2>Προτάσεις δομής <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h2>
   <div class="table-responsive"><table class="table sp-offer-table">
     <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Έργο</th><th class="sp-num">Ενότητες</th><th class="sp-num">Σελίδες</th><th>Κατάσταση</th><th></th></tr></thead>
     <tbody>
@@ -26,7 +26,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         <td class="sp-num"><a class="btn btn-sm btn-outline-primary" href="<?php echo OfferHelper::url('view=structures&id=' . (int) $r->id); ?>">Άνοιγμα</a></td>
       </tr>
     <?php endforeach; ?>
-    <?php if (!$this->rows): ?><tr><td colspan="8" class="text-muted">Δεν υπάρχουν προτάσεις δομής ακόμα.</td></tr><?php endif; ?>
+    <?php if (!$this->rows): ?><tr><td colspan="8" class="text-muted">Δεν υπάρχουν προτάσεις δομής για το <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?>.</td></tr><?php endif; ?>
     </tbody>
   </table></div>
 </div>

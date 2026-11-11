@@ -52,6 +52,8 @@ final class Notify
             // Added to the renewal reminders after the first one of the same expiry.
             'notify_paid_notice'     => 'Αν η υπηρεσία έχει ήδη εξοφληθεί, παρακαλούμε αγνοήστε το παρόν μήνυμα.',
             'notify_paid_notice_multi' => 'Αν οι υπηρεσίες έχουν ήδη εξοφληθεί, παρακαλούμε αγνοήστε το παρόν μήνυμα.',
+            // Reminders after the expiry: the payment may not have been recorded yet.
+            'notify_paid_notice_after' => 'Αν έχετε ήδη πραγματοποιήσει την πληρωμή, παρακαλούμε επικοινωνήστε μαζί μας.',
             // Sender per document type (offer / structure / plan); empty = the sender above.
             'doc_offer_from_name' => '', 'doc_offer_from_email' => '', 'doc_offer_reply_to' => '', 'doc_offer_bcc' => '',
             'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
@@ -402,6 +404,7 @@ final class Notify
         if (!empty($f['status']) && isset(self::MESSAGE_STATUSES[$f['status']])) $q->where('m.status=' . $db->quote($f['status']));
         if (!empty($f['client_id'])) $q->where('m.client_id=' . (int) $f['client_id']);
         if (!empty($f['campaign_id'])) $q->where('m.campaign_id=' . (int) $f['campaign_id']);
+        if (!empty($f['year'])) $q->where('YEAR(m.created)=' . (int) $f['year']);
         $count = clone $q;
         $total = (int) $db->setQuery($count->select('COUNT(*)'))->loadResult();
         $q->select('m.id, m.client_id, m.kind, m.to_email, m.subject, m.status, m.attempts, m.last_error, m.created, m.scheduled, m.sent, c.name AS client_name')
@@ -1146,8 +1149,12 @@ final class Notify
             'price_table'     => self::priceTable($services),
             'banks'           => self::banksTable(),
             'expired_notice'  => self::expiredNotice($services),
-            'paid_notice'     => self::alreadyReminded($services)
-                ? OfferHelper::render((string) self::setting(count($services) > 1 ? 'notify_paid_notice_multi' : 'notify_paid_notice'), $vars) : '',
+            // After the expiry: "if you have paid, contact us"; before / on the day, from the 2nd
+            // reminder of the same expiry: "if it is already paid, ignore this message"; 1st: nothing.
+            'paid_notice'     => in_array('after', $states, true)
+                ? OfferHelper::render((string) self::setting('notify_paid_notice_after'), $vars)
+                : (self::alreadyReminded($services)
+                    ? OfferHelper::render((string) self::setting(count($services) > 1 ? 'notify_paid_notice_multi' : 'notify_paid_notice'), $vars) : ''),
         ];
         // Texts saved before v1.27.0 have no {paid_notice}: it goes after the banks (else at the end).
         $body = (string) self::setting('notify_renewal_body');

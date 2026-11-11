@@ -149,7 +149,7 @@ $completedPlans=max(0,$totalPlans-$activePlans);
   <a class="sp-primary-action" href="<?php echo Route::_('index.php?option=com_supportplans&tmpl=component&spapp=1&view=plans&mode=new&Itemid='.(int)$spItemid.''); ?>">＋ Νέο πακέτο</a>
 </section>
 <section class="sp-kpis">
-  <article><span>Σύνολο πακέτων</span><strong><?php echo $totalPlans; ?></strong><small>όλες οι εγγραφές</small></article>
+  <article><span>Σύνολο πακέτων</span><strong><?php echo $totalPlans; ?></strong><small>έτος <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></small></article>
   <article><span>Ενεργά</span><strong><?php echo $activePlans; ?></strong><small>σε εξέλιξη</small></article>
   <article><span>Ολοκληρωμένα</span><strong><?php echo $completedPlans; ?></strong><small>κλειστά πακέτα</small></article>
 </section>

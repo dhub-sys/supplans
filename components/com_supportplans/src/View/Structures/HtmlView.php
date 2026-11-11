@@ -28,7 +28,7 @@ class HtmlView extends BaseHtmlView
             $this->mode = 'new';
             $this->nextNumber = Structure::nextNumber();
         } else {
-            $this->rows = Structure::all();
+            $this->rows = array_values(array_filter(Structure::all(), static fn($r) => \Support\Component\Supportplans\Site\Helper\Year::inYear((string) $r->proposal_date)));
         }
         parent::display($tpl);
     }

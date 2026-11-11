@@ -24,7 +24,8 @@ class HtmlView extends BaseHtmlView
         $in = Factory::getApplication()->input;
         $this->type = isset(Documents::TYPES[$in->getCmd('type', '')]) ? $in->getCmd('type', '') : '';
         $this->q = trim((string) $in->getString('q', ''));
-        $all = Documents::all();
+        // Documents of the selected working year (Χρήση).
+        $all = array_values(array_filter(Documents::all(), static fn($r) => \Support\Component\Supportplans\Site\Helper\Year::inYear($r['date'])));
         $this->counts = array_fill_keys(array_keys(Documents::TYPES), 0);
         foreach ($all as $r) $this->counts[$r['type']]++;
         $needle = mb_strtolower($this->q);
