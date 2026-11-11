@@ -219,6 +219,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.26.1</div><div><ul>
+<li>Outlook: το κουμπί «Προβολή…» των email δεν κολλάει πλέον στο κείμενο από πάνω (σταθερή απόσταση πάνω και κάτω από το κουμπί).</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.26.0</div><div><ul>
 <li><b>Προστασία συνδέσμου εγγράφου</b>: στην αποστολή με email, ο σύνδεσμος προβολής μπορεί να ζητά <b>κωδικό μίας χρήσης</b> που στέλνεται στο email του παραλήπτη (ισχύει 10 λεπτά, 5 προσπάθειες, ξεκλειδώνει το έγγραφο για 12 ώρες σε εκείνον τον browser) και να έχει <b>λήξη</b> (7–90 ημέρες). Προεπιλογή: με κωδικό, λήξη σε 30 ημέρες.</li>
 <li><b>Αποστολείς εγγράφων</b> (Client Management → Ρυθμίσεις email): διαφορετικό όνομα, email, Reply-To και κρυφή κοινοποίηση για προσφορές, προτάσεις δομής και πακέτα. Το παράθυρο αποστολής δείχνει από ποιον θα σταλεί.</li>

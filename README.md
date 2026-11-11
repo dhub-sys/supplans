@@ -868,3 +868,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Αποστολείς ανά είδος: `doc_{offer|structure|plan}_{from_name|from_email|reply_to|bcc}`, `Notify::senderMailer($type)` / `Notify::senderOf($type)` (κενά → γενικός αποστολέας).
 - Κουμπί email «bulletproof»: VML `v:roundrect` για Outlook Windows, padding στο κελί για τους υπόλοιπους.
 
+## v1.26.1
+- Κουμπί email: η απόσταση πάνω/κάτω από το κουμπί δίνεται με γραμμές πίνακα σταθερού ύψους (`mso-line-height-rule:exactly`), επειδή το Outlook αγνοεί το margin του `div` και το VML κολλούσε στο κείμενο.
+

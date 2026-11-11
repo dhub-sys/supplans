@@ -146,13 +146,15 @@ final class DocMail
             $width = max(200, (int) ceil(mb_strlen($c['button']) * 9.5) + 48);
             // Outlook for Windows ignores padding on links: rounded VML button there, a padded
             // table cell everywhere else (the whole cell is clickable through the link).
-            $inner .= '<div style="margin:22px 0 10px;">'
+            // Outlook ignores margins: the spacing comes from empty table rows of a fixed height.
+            $spacer = static fn(int $h) => '<tr><td height="' . $h . '" style="height:' . $h . 'px;line-height:' . $h . 'px;font-size:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
+            $inner .= '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">' . $spacer(22) . '<tr><td align="left">'
                 . '<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . $esc($link) . '" style="height:44px;v-text-anchor:middle;width:' . $width . 'px;" arcsize="18%" stroke="f" fillcolor="' . $bg . '"><w:anchorlock/>'
                 . '<center style="color:' . $fg . ';font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">' . $label . '</center></v:roundrect><![endif]-->'
                 . '<!--[if !mso]><!--><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>'
                 . '<td align="center" bgcolor="' . $bg . '" style="background:' . $bg . ';border-radius:8px;padding:12px 24px;">'
                 . '<a href="' . $esc($link) . '" style="color:' . $fg . ';text-decoration:none;font-weight:bold;font-size:15px;line-height:20px;display:inline-block;">' . $label . '</a>'
-                . '</td></tr></table><!--<![endif]--></div>'
+                . '</td></tr></table><!--<![endif]--></td></tr>' . $spacer(14) . '</table>'
                 . '<p style="margin:0 0 6px;font-size:13px;color:#6b7280;">Από τη σελίδα μπορείτε να το εκτυπώσετε ή να το αποθηκεύσετε σε Pdf. Ο σύνδεσμος είναι προσωπικός'
                 . ($otp ? '· για την προβολή θα σας ζητηθεί κωδικός, που θα σταλεί σε αυτό το email' : '')
                 . ($expires ? '· ισχύει έως ' . $esc(Notify::datetimeGr($expires)) : '') . '.</p>';
