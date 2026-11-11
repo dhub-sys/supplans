@@ -129,6 +129,7 @@ class NotifyController extends BaseController
         $status = $this->input->post->getCmd('status', 'active');
         $id = $this->store(Notify::T_CLIENTS, [
             'name' => $this->str('name'), 'company' => $this->str('company'), 'email' => $email,
+            'salutation' => rtrim($this->str('salutation'), ' ,'),
             'notes' => mb_substr(trim((string) $this->input->post->getString('notes', '')), 0, 5000),
             'status' => isset(Notify::CLIENT_STATUSES[$status]) ? $status : 'active',
         ], $id);
@@ -165,9 +166,10 @@ class NotifyController extends BaseController
         'expiry_date'     => ['expiry_date', 'ληξη', 'ημερομηνια ληξης', 'ημ/νια ληξης'],
         'price'           => ['price', 'τιμη', 'τιμη (προ φπα)', 'τιμη προ φπα', 'τιμη (€ προ φπα)'],
         'duration_months' => ['duration_months', 'διαρκεια', 'διαρκεια (μηνες)', 'μηνες'],
+        'salutation'      => ['salutation', 'greeting', 'προσφωνηση'],
     ];
     /** Headers of the template and of the export, in this order. */
-    private const SHEET_HEADERS = ['Email *', 'Ονοματεπώνυμο', 'Εταιρεία', 'Υπηρεσία', 'Domain / περιγραφή', 'Ημερομηνία λήξης', 'Τιμή (προ ΦΠΑ)', 'Διάρκεια (μήνες)'];
+    private const SHEET_HEADERS = ['Email *', 'Ονοματεπώνυμο', 'Εταιρεία', 'Υπηρεσία', 'Domain / περιγραφή', 'Ημερομηνία λήξης', 'Τιμή (προ ΦΠΑ)', 'Διάρκεια (μήνες)', 'Προσφώνηση'];
 
     private static function normaliseHeader(string $h): string
     {
@@ -276,6 +278,7 @@ class NotifyController extends BaseController
             foreach (['name', 'company'] as $k) {
                 if ($get($k) !== '') $fields[$k] = mb_substr($get($k), 0, 190);
             }
+            if ($get('salutation') !== '') $fields['salutation'] = mb_substr(rtrim($get('salutation'), ' ,'), 0, 190);
             if ($client) {
                 $clientId = $this->store(Notify::T_CLIENTS, $fields, (int) $client->id);
                 if (!isset($seenClients[$clientId])) $r['cu']++;
@@ -330,10 +333,10 @@ class NotifyController extends BaseController
         foreach (Notify::services() as $s) {
             $withService[(int) $s->client_id] = true;
             $rows[] = [$s->client_email, $s->client_name, $s->client_company, (string) $s->service_name, $s->label, (string) $s->expiry_date,
-                $s->price === null ? '' : (float) $s->price, (int) $s->duration_months];
+                $s->price === null ? '' : (float) $s->price, (int) $s->duration_months, (string) ($s->client_salutation ?? '')];
         }
         foreach (Notify::clients() as $c) {
-            if (!isset($withService[(int) $c->id])) $rows[] = [$c->email, $c->name, $c->company, '', '', '', '', ''];
+            if (!isset($withService[(int) $c->id])) $rows[] = [$c->email, $c->name, $c->company, '', '', '', '', '', (string) ($c->salutation ?? '')];
         }
         $this->sendWorkbook('pelates-' . Notify::today() . '.xlsx', $rows);
     }
@@ -360,13 +363,14 @@ class NotifyController extends BaseController
             ['Domain / περιγραφή: π.χ. example.gr. Ίδιος πελάτης + υπηρεσία + domain = ενημέρωση της υπάρχουσας, όχι νέα.'],
             ['Ημερομηνία λήξης: π.χ. 25/02/2027. Από αυτήν προγραμματίζονται οι υπενθυμίσεις.'],
             ['Τιμή (προ ΦΠΑ) και Διάρκεια (μήνες): αν μείνουν κενά, χρησιμοποιούνται του καταλόγου.'],
+            ['Προσφώνηση (προαιρετικό): π.χ. «Αγαπητέ κύριε Δημητρίου», χωρίς κόμμα. Κενό = η γενική προσφώνηση των ρυθμίσεων email (π.χ. «Αγαπητέ/ή πελάτη»).'],
             [''],
             ['Παράδειγμα (ένας πελάτης με δύο υπηρεσίες):'],
             ['info@example.gr | Γιώργος Παπαδόπουλος | Example ΑΕ | ' . ($catalog[0]->name ?? 'Web Hosting') . ' | example.gr | 25/02/2027 | 120 | 12'],
             ['info@example.gr |  |  | ' . ($catalog[1]->name ?? ($catalog[0]->name ?? 'Ανανέωση Domain .gr')) . ' | example.gr | 24/02/2027 |  | '],
         ];
         $sheets = [
-            ['name' => 'Πελάτες', 'rows' => $clientRows, 'widths' => [30, 26, 24, 30, 24, 17, 15, 15], 'dateCols' => [5],
+            ['name' => 'Πελάτες', 'rows' => $clientRows, 'widths' => [30, 26, 24, 30, 24, 17, 15, 15, 30], 'dateCols' => [5],
                 // Grows with the "Κατάλογος" sheet: services added there later are in the drop-down too.
                 'list' => $catalog ? ['col' => 3, 'source' => "OFFSET('Κατάλογος'!\$A\$2,0,0,MAX(1,COUNTA('Κατάλογος'!\$A:\$A)-1),1)"] : null],
             ['name' => 'Κατάλογος', 'rows' => $catalogRows, 'widths' => [36, 16, 17, 10]],
@@ -711,6 +715,9 @@ class NotifyController extends BaseController
             'notify_from_email' => $this->email('notify_from_email'),
             'notify_reply_to' => $this->email('notify_reply_to'),
             'notify_bcc' => $this->email('notify_bcc'),
+            'notify_greeting' => rtrim($this->str('notify_greeting'), ' ,'),
+            'notify_paid_notice' => mb_substr(trim($this->text('notify_paid_notice')), 0, 2000),
+            'notify_paid_notice_multi' => mb_substr(trim($this->text('notify_paid_notice_multi')), 0, 2000),
             'doc_offer_from_name' => $this->str('doc_offer_from_name'), 'doc_offer_from_email' => $this->email('doc_offer_from_email'),
             'doc_offer_reply_to' => $this->email('doc_offer_reply_to'), 'doc_offer_bcc' => $this->email('doc_offer_bcc'),
             'doc_structure_from_name' => $this->str('doc_structure_from_name'), 'doc_structure_from_email' => $this->email('doc_structure_from_email'),

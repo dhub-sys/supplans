@@ -49,7 +49,7 @@ $templates = [
   <?php endforeach; ?>
  </nav>
  <script>function spSubmit(task){var f=document.getElementById('adminForm');if(!f)return;if(!f.reportValidity||f.reportValidity()){f.querySelector('input[name="task"]').value=task;f.submit();}}</script>
- <script>window.spCustomVariables=function(){return <?php echo json_encode([['{client_name}','Όνομα πελάτη'],['{client_company}','Εταιρεία πελάτη'],['{service}','Υπηρεσία'],['{label}','Domain / περιγραφή'],['{expiry_date}','Ημ/νία λήξης'],['{expiry_phrase}','«λήγει σε 7 ημέρες»'],['{price}','Τιμή'],['{duration}','Διάρκεια'],['{period}','Περίοδος αναφοράς'],['{services_list}','Λίστα υπηρεσιών πελάτη']], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP); ?>;};</script>
+ <script>window.spCustomVariables=function(){return <?php echo json_encode([['{greeting}','Προσφώνηση (π.χ. Αγαπητέ/ή πελάτη)'],['{client_name}','Όνομα πελάτη'],['{client_company}','Εταιρεία πελάτη'],['{service}','Υπηρεσία'],['{label}','Domain / περιγραφή'],['{expiry_date}','Ημ/νία λήξης'],['{expiry_phrase}','«λήγει σε 7 ημέρες»'],['{price}','Τιμή'],['{duration}','Διάρκεια'],['{period}','Περίοδος αναφοράς'],['{services_list}','Λίστα υπηρεσιών πελάτη']], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP); ?>;};</script>
 <?php echo $this->loadTemplate($templates[$this->section]); ?>
 </section></div></div></main>
 </div>

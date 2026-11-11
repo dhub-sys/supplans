@@ -46,3 +46,22 @@
 
 .sp-doc-sender-title{font-size:15px!important;margin:18px 0 8px!important;padding-top:14px;border-top:1px solid #eef0f3}
 #sp-doc-senders .sp-doc-sender-title:first-of-type{border-top:0;padding-top:0}
+/* Renewals summary (v1.27.0) */
+.sp-n-summary .sp-title-row{flex-wrap:wrap;gap:10px}
+.sp-n-summary h2{margin:0}
+.sp-n-sumform{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sp-n-sumform select,.sp-n-sumform input[type=date]{padding:7px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;background:#fff}
+.sp-n-sumdates{display:inline-flex;align-items:center;gap:6px}
+.sp-n-sumdates[hidden]{display:none}
+.sp-n-sumgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.sp-n-sum{border:1px solid #e4e7ec;border-radius:12px;padding:14px 16px;display:grid;gap:4px;background:#fff}
+.sp-n-sum span{font-size:13px;font-weight:600;color:#475467}
+.sp-n-sum strong{font-size:24px;font-weight:700;color:#101828;line-height:1.2}
+.sp-n-sum small{font-size:12.5px;color:#667085}
+.sp-n-sum.is-paid{border-top:4px solid #16a34a}
+.sp-n-sum.is-due{border-top:4px solid #2563eb}
+.sp-n-sum.is-overdue{border-top:4px solid #dc2626}
+.sp-n-sumby{margin-top:12px}
+.sp-n-sumby summary{cursor:pointer;font-size:14px;font-weight:600;color:#344054}
+.sp-n-sumby table{margin-top:8px}
+@media (max-width:860px){.sp-n-sumgrid{grid-template-columns:1fr}}

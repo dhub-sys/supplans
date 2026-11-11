@@ -10,7 +10,7 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 $e = [NotifyUi::class, 'e'];
 $v = static fn($k) => (string) Notify::setting($k);
 $me = (string) Factory::getApplication()->getSession()->get('supportplans.auth.email', '');
-$vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company}</code> <code>{service}</code> <code>{label}</code> <code>{expiry_date}</code> <code>{days_left}</code> <code>{expiry_phrase}</code> <code>{price}</code> <code>{duration}</code> <code>{price_line}</code>';
+$vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code> <code>{service}</code> <code>{label}</code> <code>{expiry_date}</code> <code>{days_left}</code> <code>{expiry_phrase}</code> <code>{price}</code> <code>{duration}</code> <code>{price_line}</code>';
 ?>
 <div class="sp-standalone-actions sp-offer-actions"><button type="button" class="btn btn-primary" onclick="spSubmit('notify.saveSettings')">Αποθήκευση ρυθμίσεων</button></div>
 <form action="<?php echo $e(OfferHelper::url('task=notify.saveSettings', false)); ?>" method="post" id="adminForm" enctype="multipart/form-data">
@@ -20,6 +20,7 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
    <label>Όνομα αποστολέα<input name="notify_from_name" value="<?php echo $e($v('notify_from_name')); ?>" placeholder="<?php echo $e(Notify::brandName()); ?>"></label>
    <label>Email αποστολέα<input type="email" name="notify_from_email" value="<?php echo $e($v('notify_from_email')); ?>" placeholder="<?php echo $e(Factory::getApplication()->get('mailfrom')); ?>"></label>
    <label>Reply-To<input type="email" name="notify_reply_to" value="<?php echo $e($v('notify_reply_to')); ?>"></label>
+   <label>Γενική προσφώνηση <code>{greeting}</code><input name="notify_greeting" value="<?php echo $e($v('notify_greeting')); ?>" placeholder="Αγαπητέ/ή πελάτη"></label>
    <label>Κρυφή κοινοποίηση υπενθυμίσεων<input type="email" name="notify_bcc" value="<?php echo $e($v('notify_bcc')); ?>" placeholder="αντίγραφο σε εσάς"></label>
   </div>
   <p class="sp-n-help">Κενά πεδία = οι ρυθμίσεις email του Joomla (Καθολική ρύθμιση → Διακομιστής → Ταχυδρομείο). Χρησιμοποιήστε SMTP και διεύθυνση στο domain σας, με σωστά SPF, DKIM και DMARC, ώστε τα μηνύματα να μην πηγαίνουν στα spam.</p>
@@ -107,12 +108,15 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
    <label class="sp-wide">Εισαγωγή – μία υπηρεσία<input name="notify_intro_single" value="<?php echo $e($v('notify_intro_single')); ?>"></label>
    <label class="sp-wide">Εισαγωγή – πολλές υπηρεσίες (ακολουθεί λίστα)<input name="notify_intro_multi" value="<?php echo $e($v('notify_intro_multi')); ?>"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο μετά τη λήξη (γενικό)</span><textarea name="notify_expired_text" rows="5" data-sp-editor><?php echo $e($v('notify_expired_text')); ?></textarea></div>
+   <label class="sp-wide">Φράση από τη 2η υπενθύμιση (μία υπηρεσία) <code>{paid_notice}</code><input name="notify_paid_notice" value="<?php echo $e($v('notify_paid_notice')); ?>"></label>
+   <label class="sp-wide">Φράση από τη 2η υπενθύμιση (πολλές υπηρεσίες)<input name="notify_paid_notice_multi" value="<?php echo $e($v('notify_paid_notice_multi')); ?>"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο email</span><textarea name="notify_renewal_body" rows="14" data-sp-editor><?php echo $e($v('notify_renewal_body')); ?></textarea></div>
   </div>
   <?php if (strpos($v('notify_renewal_body'), '{services_status}') === false): ?><p class="sp-n-warning">Το κείμενο δεν περιέχει <code>{services_status}</code>: στις συνδυαστικές υπενθυμίσεις δεν θα φαίνονται όλες οι υπηρεσίες.</p><?php endif; ?>
   <p class="sp-n-help"><b>Διατυπώσεις:</b> επιλέγονται αυτόματα για κάθε υπηρεσία ανάλογα με την ημερομηνία: πριν, την ημέρα ή μετά τη λήξη. Μεταβλητές <code>{date}</code> (ημερομηνία λήξης) και <code>{days}</code>. Το θέμα ακολουθεί την πιο επείγουσα υπηρεσία του μηνύματος (<code>{services}</code> = οι υπηρεσίες, <code>{date}</code> = η πρώτη λήξη).</p>
   <p class="sp-n-help"><b>Εισαγωγή:</b> <code>{service_full}</code> (υπηρεσία και domain) <code>{phrase}</code> (η διατύπωση). Με πολλές υπηρεσίες ακολουθεί λίστα «υπηρεσία: διατύπωση».</p>
   <p class="sp-n-help"><b>Κείμενο μετά τη λήξη:</b> μπαίνει μόνο για υπηρεσίες που έχουν λήξει. Κάθε υπηρεσία του καταλόγου μπορεί να έχει δικό της κείμενο (π.χ. τι παθαίνει το project αν λήξει το domain ή το hosting)· αλλιώς χρησιμοποιείται αυτό.</p>
+  <p class="sp-n-help"><b>Προσφώνηση:</b> <code>{greeting}</code> = η προσφώνηση του πελάτη (καρτέλα πελάτη) ή, αν δεν έχει, η γενική (π.χ. «Αγαπητέ/ή πελάτη»). <b>{paid_notice}</b>: μπαίνει μόνο όταν έχει ήδη σταλεί υπενθύμιση για την ίδια λήξη (από τη 2η και μετά)· αν λείπει από το κείμενο, προστίθεται μετά τους λογαριασμούς.</p>
   <p class="sp-n-help"><b>Κείμενο email</b>, σε δική τους γραμμή: <code>{services_status}</code> (εισαγωγή και υπηρεσίες), <code>{expired_notice}</code> (κείμενα μετά τη λήξη), <code>{price_table}</code> (οικονομική σύνοψη: αξία, ΦΠΑ, σύνολο, όπως στις προσφορές), <code>{banks}</code> (τραπεζικοί λογαριασμοί από τις Ρυθμίσεις). Επίσης <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>.</p>
  </div>
  <div class="sp-card">

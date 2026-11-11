@@ -47,6 +47,11 @@ final class Notify
             'notify_from_email'      => '',
             'notify_reply_to'        => '',
             'notify_bcc'             => '',
+            // Salutation of the emails when the client has none of their own ("Αγαπητέ κύριε …").
+            'notify_greeting'        => 'Αγαπητέ/ή πελάτη',
+            // Added to the renewal reminders after the first one of the same expiry.
+            'notify_paid_notice'     => 'Αν η υπηρεσία έχει ήδη εξοφληθεί, παρακαλούμε αγνοήστε το παρόν μήνυμα.',
+            'notify_paid_notice_multi' => 'Αν οι υπηρεσίες έχουν ήδη εξοφληθεί, παρακαλούμε αγνοήστε το παρόν μήνυμα.',
             // Sender per document type (offer / structure / plan); empty = the sender above.
             'doc_offer_from_name' => '', 'doc_offer_from_email' => '', 'doc_offer_reply_to' => '', 'doc_offer_bcc' => '',
             'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
@@ -68,9 +73,9 @@ final class Notify
             'notify_phrase_today'    => 'λήγει **σήμερα, {date}**',
             'notify_phrase_after'    => 'έληξε στις **{date}**',
             'notify_expired_text'    => 'Η υπηρεσία **{service_full}** έχει λήξει. Αν δεν ανανεωθεί άμεσα, θα διακοπεί και η διακοπή θα επηρεάσει τη λειτουργία του project σας.',
-            'notify_renewal_body'    => "Αγαπητέ/ή {client_name},\n\n{services_status}\n\n{expired_notice}\n\n{price_table}\n\n{banks}\n\nΓια να προχωρήσουμε στην ανανέωση, απαντήστε σε αυτό το email ή επικοινωνήστε μαζί μας.\n\nΜε εκτίμηση,\n{company}",
+            'notify_renewal_body'    => "{greeting},\n\n{services_status}\n\n{expired_notice}\n\n{price_table}\n\n{banks}\n\n{paid_notice}\n\nΓια να προχωρήσουμε στην ανανέωση, απαντήστε σε αυτό το email ή επικοινωνήστε μαζί μας.\n\nΜε εκτίμηση,\n{company}",
             'notify_report_subject'  => 'Αναφορά συντήρησης {label} – {period}',
-            'notify_report_body'     => "Αγαπητέ/ή {client_name},\n\nΣας αποστέλλουμε την αναφορά συντήρησης για το **{label}** για την περίοδο **{period}**.\n\n{summary}\n\n{updates}\n\nΓια οποιαδήποτε απορία είμαστε στη διάθεσή σας.\n\nΜε εκτίμηση,\n{company}",
+            'notify_report_body'     => "{greeting},\n\nΣας αποστέλλουμε την αναφορά συντήρησης για το **{label}** για την περίοδο **{period}**.\n\n{summary}\n\n{updates}\n\nΓια οποιαδήποτε απορία είμαστε στη διάθεσή σας.\n\nΜε εκτίμηση,\n{company}",
         ];
     }
 
@@ -288,7 +293,7 @@ final class Notify
     {
         $db = self::db();
         return $db->getQuery(true)
-            ->select('s.*, k.name AS service_name, k.reminder_days AS catalog_reminder_days, k.expired_text AS catalog_expired_text, c.name AS client_name, c.company AS client_company, c.email AS client_email, c.status AS client_status')
+            ->select('s.*, k.name AS service_name, k.reminder_days AS catalog_reminder_days, k.expired_text AS catalog_expired_text, c.name AS client_name, c.company AS client_company, c.email AS client_email, c.status AS client_status, c.salutation AS client_salutation')
             // Last "Πληρώθηκε" of the service, so the lists can show that the expiry was moved by a payment.
             ->select('(SELECT r.paid_on FROM ' . $db->quoteName(self::T_RENEWALS) . ' r WHERE r.service_id=s.id ORDER BY r.id DESC LIMIT 1) AS last_paid_on')
             ->select('(SELECT r.old_expiry FROM ' . $db->quoteName(self::T_RENEWALS) . ' r WHERE r.service_id=s.id ORDER BY r.id DESC LIMIT 1) AS last_old_expiry')
@@ -434,6 +439,79 @@ final class Notify
     public static function nextExpiry(object $s): string
     {
         return self::addMonths($s->expiry_date ?: self::today(), max(1, (int) $s->duration_months));
+    }
+
+    public const SUMMARY_PERIODS = ['month' => 'Τρέχων μήνας', '30' => '30 ημέρες', '60' => '60 ημέρες', '90' => '90 ημέρες', 'year' => 'Τρέχον έτος', 'custom' => 'Επιλογή ημερομηνιών'];
+
+    /**
+     * Summary of the renewals for a period:
+     *  - paid:    payments recorded ("Πληρώθηκε") in the period up to today (amount with VAT; an
+     *             empty amount counts as the service price with VAT);
+     *  - due:     active services expiring from today to the end of the period (to be paid);
+     *  - overdue: active services already expired (not paid), whatever the period.
+     * Month / year: from the 1st to the end; N days: the last N days (paid) and the next N days (due).
+     */
+    public static function summary(string $period, string $from = '', string $to = ''): array
+    {
+        $today = self::today();
+        $tz = self::tz();
+        $now = new \DateTimeImmutable($today, $tz);
+        if ($period === 'custom' && self::parseDate($from) !== '' && self::parseDate($to) !== '') {
+            [$a, $b] = [self::parseDate($from), self::parseDate($to)];
+            if ($a > $b) [$a, $b] = [$b, $a];
+            $paid = [$a, min($b, $today)];
+            $due = [max($a, $today), $b];
+        } elseif (ctype_digit($period)) {
+            $n = max(1, min(365, (int) $period));
+            $paid = [$now->modify('-' . ($n - 1) . ' days')->format('Y-m-d'), $today];
+            $due = [$today, $now->modify('+' . $n . ' days')->format('Y-m-d')];
+        } elseif ($period === 'year') {
+            $paid = [$now->format('Y') . '-01-01', $today];
+            $due = [$today, $now->format('Y') . '-12-31'];
+        } else {
+            $paid = [$now->format('Y-m-01'), $today];
+            $due = [$today, $now->format('Y-m-t')];
+        }
+        $db = self::db();
+        $vat = 1 + self::vatRate() / 100;
+        $out = ['paid' => ['from' => $paid[0], 'to' => $paid[1], 'count' => 0, 'gross' => 0.0],
+            'due' => ['from' => $due[0], 'to' => $due[1], 'count' => 0, 'net' => 0.0, 'gross' => 0.0, 'by' => []],
+            'overdue' => ['count' => 0, 'net' => 0.0, 'gross' => 0.0]];
+        if ($paid[0] <= $paid[1]) {
+            $q = $db->getQuery(true)->select('r.amount, COALESCE(s.price, k.price) AS price')
+                ->from($db->quoteName(self::T_RENEWALS, 'r'))
+                ->leftJoin($db->quoteName(self::T_SERVICES, 's') . ' ON s.id = r.service_id')
+                ->leftJoin($db->quoteName(self::T_CATALOG, 'k') . ' ON k.id = s.catalog_id')
+                ->where('r.paid_on >= ' . $db->quote($paid[0]))->where('r.paid_on <= ' . $db->quote($paid[1]));
+            foreach ($db->setQuery($q)->loadObjectList() as $r) {
+                $out['paid']['count']++;
+                $out['paid']['gross'] += $r->amount !== null ? (float) $r->amount : round((float) $r->price * $vat, 2);
+            }
+        }
+        $q = $db->getQuery(true)->select('s.expiry_date, COALESCE(s.price, k.price) AS price, k.name AS service_name')
+            ->from($db->quoteName(self::T_SERVICES, 's'))
+            ->leftJoin($db->quoteName(self::T_CATALOG, 'k') . ' ON k.id = s.catalog_id')
+            ->leftJoin($db->quoteName(self::T_CLIENTS, 'c') . ' ON c.id = s.client_id')
+            ->where("s.status = 'active'")->where("(c.status IS NULL OR c.status = 'active')")->where('s.expiry_date IS NOT NULL')
+            ->where('s.expiry_date <= ' . $db->quote(max($due[1], $today)));
+        foreach ($db->setQuery($q)->loadObjectList() as $r) {
+            $net = (float) $r->price;
+            if ((string) $r->expiry_date < $today) {
+                $out['overdue']['count']++;
+                $out['overdue']['net'] += $net;
+            } elseif ((string) $r->expiry_date >= $due[0] && (string) $r->expiry_date <= $due[1]) {
+                $out['due']['count']++;
+                $out['due']['net'] += $net;
+                $name = (string) ($r->service_name ?: '—');
+                $out['due']['by'][$name] = ($out['due']['by'][$name] ?? [0, 0.0]);
+                $out['due']['by'][$name][0]++;
+                $out['due']['by'][$name][1] += $net;
+            }
+        }
+        $out['due']['gross'] = round($out['due']['net'] * $vat, 2);
+        $out['overdue']['gross'] = round($out['overdue']['net'] * $vat, 2);
+        uasort($out['due']['by'], static fn($a, $b) => $b[1] <=> $a[1]);
+        return $out;
     }
 
     /**
@@ -626,6 +704,8 @@ final class Notify
         return [
             'client_name'  => trim((string) $client->name) ?: (trim((string) ($client->company ?? '')) ?: (string) $client->email),
             'client_company' => (string) ($client->company ?? ''),
+            // The client's own salutation, else the general one ("Αγαπητέ/ή πελάτη").
+            'greeting'     => trim((string) ($client->salutation ?? '')) ?: trim((string) self::setting('notify_greeting')),
             'client_email' => (string) $client->email,
             'company'      => self::brandName(),
         ];
@@ -1066,12 +1146,37 @@ final class Notify
             'price_table'     => self::priceTable($services),
             'banks'           => self::banksTable(),
             'expired_notice'  => self::expiredNotice($services),
+            'paid_notice'     => self::alreadyReminded($services)
+                ? OfferHelper::render((string) self::setting(count($services) > 1 ? 'notify_paid_notice_multi' : 'notify_paid_notice'), $vars) : '',
         ];
+        // Texts saved before v1.27.0 have no {paid_notice}: it goes after the banks (else at the end).
+        $body = (string) self::setting('notify_renewal_body');
+        if (strpos($body, '{paid_notice}') === false) {
+            $body = strpos($body, '{banks}') !== false ? str_replace('{banks}', "{banks}\n\n{paid_notice}", $body) : rtrim($body) . "\n\n{paid_notice}";
+        }
         $subjectKey = in_array('after', $states, true) ? 'notify_subject_after' : (in_array('today', $states, true) ? 'notify_subject_today' : 'notify_renewal_subject');
         return [
             self::subject((string) self::setting($subjectKey), $vars),
-            self::wrap(self::renderText((string) self::setting('notify_renewal_body'), $vars, $blocks)),
+            self::wrap(self::renderText($body, $vars, $blocks)),
         ];
+    }
+
+    /**
+     * True when a renewal reminder for the same services and expiry date has already gone out
+     * (or is waiting to): the next ones say "if it is already paid, ignore this message".
+     */
+    public static function alreadyReminded(array $services): bool
+    {
+        $db = self::db();
+        $or = [];
+        foreach ($services as $x) {
+            if (!$x->expiry_date) continue;
+            $or[] = "CONCAT(',', m.service_ids, ',') LIKE " . $db->quote('%,' . (int) $x->id . ':' . $x->expiry_date . ',%');
+        }
+        if (!$or) return false;
+        $q = $db->getQuery(true)->select('COUNT(*)')->from($db->quoteName(self::T_MESSAGES, 'm'))
+            ->where("m.kind = 'renewal'")->where("m.status IN ('sent','sending','queued')")->where('(' . implode(' OR ', $or) . ')');
+        return (int) $db->setQuery($q)->loadResult() > 0;
     }
 
     /** Compact card tables in the colours of the offer documents (readable on phones too). */

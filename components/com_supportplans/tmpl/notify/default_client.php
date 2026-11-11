@@ -22,6 +22,7 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
    <label>Εταιρεία<input name="company" value="<?php echo $e($v('company')); ?>"></label>
    <label>Email *<input type="email" name="email" required value="<?php echo $e($v('email')); ?>"></label>
    <label>Κατάσταση<?php echo NotifyUi::select('status', Notify::CLIENT_STATUSES, $v('status', 'active')); ?></label>
+   <label class="sp-wide">Προσφώνηση στα email<input name="salutation" maxlength="190" value="<?php echo $e($v('salutation')); ?>" placeholder="<?php echo $e(Notify::setting('notify_greeting')); ?> — π.χ. Αγαπητέ κύριε Δημητρίου"><small class="sp-n-help">Χωρίς κόμμα. Αν μείνει κενό, χρησιμοποιείται η γενική προσφώνηση των ρυθμίσεων email.</small></label>
    <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($v('notes')); ?></textarea></label>
   </div>
   <p class="sp-foot">Σε ανενεργούς πελάτες δεν αποστέλλεται κανένα μήνυμα.</p>

@@ -38,6 +38,11 @@ class HtmlView extends BaseHtmlView
     public array $preview = [];
     /** service id => ['date' => next reminder, 'size' => services in its group] */
     public array $schedule = [];
+    /** Renewals summary of the services page (Notify::summary). */
+    public array $summary = [];
+    public string $summaryPeriod = 'month';
+    public string $summaryFrom = '';
+    public string $summaryTo = '';
     /** Reminder groups of the selected client. */
     public array $groups = [];
     /** Payments / renewals of the selected client service. */
@@ -124,6 +129,11 @@ class HtmlView extends BaseHtmlView
                     ];
                     $this->rows = Notify::services($this->filters);
                     $this->schedule = Notify::schedule();
+                    $period = $in->getCmd('sp', 'month');
+                    $this->summaryPeriod = isset(Notify::SUMMARY_PERIODS[$period]) ? $period : 'month';
+                    $this->summaryFrom = Notify::parseDate($in->getString('sf', ''));
+                    $this->summaryTo = Notify::parseDate($in->getString('st', ''));
+                    $this->summary = Notify::summary($this->summaryPeriod, $this->summaryFrom, $this->summaryTo);
                 } else {
                     $this->clients = Notify::clients();
                     $this->selected = $id ? Notify::service($id) : null;

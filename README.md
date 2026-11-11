@@ -874,3 +874,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.26.2
 - Πρότυπο Excel: η επικύρωση λίστας της στήλης «Υπηρεσία» είναι δυναμική (`OFFSET(...,COUNTA('Κατάλογος'!$A:$A)-1)`), ώστε να περιλαμβάνει γραμμές που προστίθενται στο φύλλο «Κατάλογος» μετά τη λήψη.
 
+## v1.27.0 — Σύνοψη ανανεώσεων, {paid_notice}, {greeting}
+- `Notify::summary($period, $from, $to)`: πληρωμές (`renewals.paid_on`, ποσό με ΦΠΑ ή τιμή υπηρεσίας × ΦΠΑ), προς πληρωμή (ενεργές υπηρεσίες ενεργών πελατών που λήγουν από σήμερα έως το τέλος της περιόδου), ληγμένες απλήρωτες· κάρτα στη σελίδα «Υπηρεσίες πελατών» (`sp`, `sf`, `st`).
+- `Notify::alreadyReminded()`: υπάρχει ήδη μήνυμα ανανέωσης (sent/sending/queued) με το ίδιο `id:expiry` στο `service_ids` → block `{paid_notice}` (`notify_paid_notice` / `_multi`). Κείμενα χωρίς `{paid_notice}` το παίρνουν μετά το `{banks}`.
+- `clients.salutation`, μεταβλητή `{greeting}` (του πελάτη ή `notify_greeting`), πεδίο στη φόρμα πελάτη και στήλη «Προσφώνηση» στο Excel. Μετάπτωση `Αγαπητέ/ή {client_name}` → `{greeting}` στα αποθηκευμένα κείμενα και στις πρόχειρες αποστολές.
+

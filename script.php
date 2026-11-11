@@ -91,6 +91,7 @@ class Com_SupportplansInstallerScript
     'content_break'=>'tinyint NOT NULL DEFAULT 1','content_space'=>'smallint NOT NULL DEFAULT 8','outro_break'=>'tinyint NOT NULL DEFAULT 0','outro_space'=>'smallint NOT NULL DEFAULT 8',
    ],
    '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
+   '#__supportplans_clients'=>['salutation'=>"varchar(190) NOT NULL DEFAULT ''"],
    '#__supportplans_offer_sends'=>['doc_type'=>"varchar(20) NOT NULL DEFAULT 'offer'",'link_otp'=>'tinyint NOT NULL DEFAULT 0','link_expires'=>'datetime NULL'],
    '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
    '#__supportplans_renewals'=>['old_status'=>"varchar(20) NOT NULL DEFAULT 'active'"],
@@ -134,6 +135,7 @@ class Com_SupportplansInstallerScript
           CAST(SUBSTRING_INDEX(`ref`,':',-1) AS SIGNED), `id`, `created`
    FROM `#__supportplans_notify_messages` WHERE `ref` LIKE 'renewal:%' AND `status` IN ('queued','sending','sent')")->execute();
   $this->resetOldRenewalTexts($db);
+  $this->migrateGreeting($db);
   // v1.14.0: clients no longer have a phone number.
   if(isset($db->getTableColumns('#__supportplans_clients',false)['phone'])) $db->setQuery('ALTER TABLE `#__supportplans_clients` DROP COLUMN `phone`')->execute();
 
@@ -226,6 +228,27 @@ class Com_SupportplansInstallerScript
    try{ Factory::getContainer()->get('DatabaseDriver')->transactionRollback(); }catch(\Throwable $ignored){}
    Factory::getApplication()->enqueueMessage('Back Office: οι όροι και οι τιμές των προσφορών δεν μεταφέρθηκαν στη βιβλιοθήκη ('.$e->getMessage().').','warning');
   }
+ }
+ // v1.27.0: "Αγαπητέ/ή {client_name}," becomes "{greeting}," (general "Αγαπητέ/ή πελάτη" or the
+ // client's own salutation) in the saved email texts and in draft campaigns.
+ private function migrateGreeting($db): void
+ {
+  try{
+   $q=$db->getQuery(true)->select($db->quoteName(['extension_id','params']))->from($db->quoteName('#__extensions'))
+    ->where($db->quoteName('type').'='.$db->quote('component'))->where($db->quoteName('element').'='.$db->quote('com_supportplans'));
+   $ext=$db->setQuery($q)->loadObject();
+   if($ext){
+    $params=json_decode((string)$ext->params,true);
+    if(is_array($params)){
+     $changed=false;
+     foreach(['notify_renewal_body','notify_report_body'] as $k){
+      if(isset($params[$k]) && strpos((string)$params[$k],'Αγαπητέ/ή {client_name}')!==false){ $params[$k]=str_replace('Αγαπητέ/ή {client_name}','{greeting}',(string)$params[$k]); $changed=true; }
+     }
+     if($changed) $db->setQuery('UPDATE '.$db->quoteName('#__extensions').' SET `params`='.$db->quote(json_encode($params,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)).' WHERE `extension_id`='.(int)$ext->extension_id)->execute();
+    }
+   }
+   $db->setQuery("UPDATE ".$db->quoteName('#__supportplans_notify_campaigns')." SET `body`=REPLACE(`body`,'Αγαπητέ/ή {client_name}','{greeting}') WHERE `status`='draft'")->execute();
+  }catch(\Throwable $e){}
  }
  // v1.13.0: the v1.12.0 default renewal texts are replaced by the new defaults (grouped services,
  // net prices with VAT, wording before/on/after expiry). Texts the user changed are kept.
