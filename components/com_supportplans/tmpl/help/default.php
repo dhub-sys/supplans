@@ -219,6 +219,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <section class="sp-help-card">
   <h2>Changelog</h2>
 
+  <div class="sp-change"><div class="sp-version">v1.26.2</div><div><ul>
+<li>Πρότυπο Excel: η λίστα «Υπηρεσία» περιλαμβάνει και υπηρεσίες που προστίθενται αργότερα στο φύλλο «Κατάλογος» (πριν, η λίστα σταματούσε στις υπηρεσίες που υπήρχαν όταν κατεβάσατε το πρότυπο).</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.26.1</div><div><ul>
 <li>Outlook: το κουμπί «Προβολή…» των email δεν κολλάει πλέον στο κείμενο από πάνω (σταθερή απόσταση πάνω και κάτω από το κουμπί).</li>
 </ul></div></div>

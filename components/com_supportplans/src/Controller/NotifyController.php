@@ -365,10 +365,10 @@ class NotifyController extends BaseController
             ['info@example.gr | Γιώργος Παπαδόπουλος | Example ΑΕ | ' . ($catalog[0]->name ?? 'Web Hosting') . ' | example.gr | 25/02/2027 | 120 | 12'],
             ['info@example.gr |  |  | ' . ($catalog[1]->name ?? ($catalog[0]->name ?? 'Ανανέωση Domain .gr')) . ' | example.gr | 24/02/2027 |  | '],
         ];
-        $last = max(2, count($catalogRows));
         $sheets = [
             ['name' => 'Πελάτες', 'rows' => $clientRows, 'widths' => [30, 26, 24, 30, 24, 17, 15, 15], 'dateCols' => [5],
-                'list' => $catalog ? ['col' => 3, 'source' => "'Κατάλογος'!\$A\$2:\$A\$" . $last] : null],
+                // Grows with the "Κατάλογος" sheet: services added there later are in the drop-down too.
+                'list' => $catalog ? ['col' => 3, 'source' => "OFFSET('Κατάλογος'!\$A\$2,0,0,MAX(1,COUNTA('Κατάλογος'!\$A:\$A)-1),1)"] : null],
             ['name' => 'Κατάλογος', 'rows' => $catalogRows, 'widths' => [36, 16, 17, 10]],
             ['name' => 'Οδηγίες', 'rows' => $help, 'widths' => [120]],
         ];
