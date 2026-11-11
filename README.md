@@ -833,3 +833,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `html body .sp-saas-root *` → Geom με !important (υψηλότερη εξειδίκευση από κανόνες template όπως `h2{font-family}` ακόμα και με !important)· σταθερά μεγέθη h1 29px, h2 20px, h3 16px, h4–h6 14px. Geom και στο `.sp-report`.
 - Login/OTP: το URL `family=Geom:opsz,wght@9..72,300..800` επέστρεφε 400 από το Google Fonts (το Geom δεν έχει άξονα opsz), οπότε το Geom δεν φόρτωνε ποτέ· τώρα `ital,wght@0,300..900;1,300..900`. Το OTP δεν είχε καθόλου link για τη γραμματοσειρά.
 - Έλεγχος με Playwright σε 13 σελίδες με «εχθρικό» CSS template (Times New Roman και 44px με !important σε h1–h6/κείμενα): όλα τα ορατά κείμενα Geom, το αρχείο Geom φορτωμένο (`FontFace.status === 'loaded'`, όχι `document.fonts.check`, που επιστρέφει true και για άγνωστη γραμματοσειρά).
+
+## v1.22.0 — Ώρα αποστολής
+- `notify_send_time` (HH:MM, προεπιλογή 09:30, κενό = οποιαδήποτε ώρα). `Notify::run($force)`: οι υπενθυμίσεις ανανέωσης ουρώνονται μόνο όταν `sendTimeReached()` (ώρα site ≥ ώρα αποστολής)· οι markers κρατούν μία ουρά ανά ημέρα/όριο. Η ουρά (αναφορές, αποστολές, retries) τρέχει πάντα. Το «Έλεγχος λήξεων & αποστολή τώρα» καλεί `run(true)`.
+- Διόρθωση CLI: `cardStyles()`/`accent()` χρησιμοποιούσαν `OfferHelper::brand()`, που υπολογίζει το logo URL με `Uri::root()`· σε cron μέσω `cli/joomla.php` αυτό μπορεί να πετάξει «Could not parse the requested URI» και η εργασία τερμάτιζε με κωδικό 5. Νέο `Notify::brandColors()` μόνο από τα params· το `siteRoot()` πιάνει εξαίρεση του `Uri::root()`.
+- Έλεγχος με τον Joomla scheduler (CLI): ώρα στο μέλλον → 0 υπενθυμίσεις, ώρα που πέρασε → 1, δεύτερη εκτέλεση ίδιας μέρας → 0, κενό → 1· κουμπί πριν την ώρα → αποστολή.

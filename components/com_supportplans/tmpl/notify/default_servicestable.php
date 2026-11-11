@@ -22,7 +22,7 @@ $back = $this->section === 'clients' ? 'section=clients&id=' . (int) $this->sele
       <td><?php $sch = $this->schedule[(int) $s->id] ?? null; ?>
         <?php if (!(int) $s->auto_remind || !$s->expiry_date): ?><span class="text-muted">—</span>
         <?php elseif (!$sch || !$sch['date']): ?><span class="text-muted">καμία</span>
-        <?php else: ?><?php echo $e($sch['date'] === Notify::today() ? 'σήμερα' : Notify::dateGr($sch['date'])); ?><?php if ($sch['size'] > 1): ?><br><small class="text-muted">μαζί με <?php echo $sch['size'] - 1; ?> ακόμα</small><?php endif; ?><?php endif; ?>
+        <?php else: ?><?php echo $e(($sch['date'] === Notify::today() ? 'σήμερα' : Notify::dateGr($sch['date'])) . (Notify::sendTimeLabel() !== '' ? ' ' . Notify::sendTimeLabel() : '')); ?><?php if ($sch['size'] > 1): ?><br><small class="text-muted">μαζί με <?php echo $sch['size'] - 1; ?> ακόμα</small><?php endif; ?><?php endif; ?>
         <br><small class="text-muted" title="Ημέρες υπενθύμισης"><?php echo (int) $s->auto_remind && $s->expiry_date ? $e(implode(', ', Notify::reminderDays($s))) : ''; ?></small></td>
       <td class="sp-num sp-row-actions">
         <?php if ($s->expiry_date): ?>

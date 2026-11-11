@@ -51,6 +51,7 @@ final class Notify
             'notify_batch_size'      => 20,
             'notify_footer'          => '',
             'notify_vat_rate'        => 24,
+            'notify_send_time'       => '09:30',
             'notify_font'            => 'geom',
             'notify_font_outlook'    => 'aptos',
             'notify_group_days'      => 7,
@@ -577,7 +578,14 @@ final class Notify
         $app = Factory::getApplication();
         $cli = method_exists($app, 'isClient') && $app->isClient('cli');
         $saved = (string) ComponentHelper::getParams('com_supportplans')->get('notify_site_root', '');
-        return rtrim($cli && $saved !== '' ? $saved : Uri::root(), '/') . '/';
+        if ($cli && $saved !== '') {
+            return rtrim($saved, '/') . '/';
+        }
+        try {
+            return rtrim(Uri::root(), '/') . '/';
+        } catch (\Throwable $e) {
+            return $saved !== '' ? rtrim($saved, '/') . '/' : '/';
+        }
     }
 
     public static function rememberSiteRoot(): void
@@ -750,9 +758,25 @@ final class Notify
         return $html . '</table>';
     }
 
+    /**
+     * Accent and text colours of the business (Settings), read directly from the parameters.
+     * Not OfferHelper::brand(): that also builds the logo URL from the site address, which a
+     * command-line cron run (Scheduled Tasks via cli/joomla.php) may not be able to resolve.
+     */
+    public static function brandColors(): array
+    {
+        $params = ComponentHelper::getParams('com_supportplans');
+        $accent = trim((string) $params->get('accent_color', '#367d22'));
+        $secondary = trim((string) $params->get('secondary_color', '#ffffff'));
+        return [
+            'accent' => preg_match('/^#[0-9a-fA-F]{6}$/', $accent) ? $accent : '#367d22',
+            'secondary' => preg_match('/^#[0-9a-fA-F]{6}$/', $secondary) ? $secondary : '#ffffff',
+        ];
+    }
+
     private static function accent(): string
     {
-        return OfferHelper::brand()['accent'];
+        return self::brandColors()['accent'];
     }
 
     /**
@@ -1049,7 +1073,7 @@ final class Notify
     /** Compact card tables in the colours of the offer documents (readable on phones too). */
     private static function cardStyles(): array
     {
-        $b = OfferHelper::brand();
+        $b = self::brandColors();
         $cell = 'padding:6px 10px;font-size:13px;line-height:18px;mso-line-height-rule:exactly;';
         return [
             'table' => 'style="width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;"',
@@ -1514,10 +1538,45 @@ final class Notify
         return $queued;
     }
 
-    /** Scheduled run: reminders, then the queue. */
-    public static function run(): array
+    /**
+     * Time of day (site time zone) from which the automatic renewal reminders are prepared, as
+     * [hour, minute]; null = any time. Default 09:30.
+     */
+    public static function sendTime(): ?array
     {
-        $queued = self::queueRenewals();
+        $raw = trim((string) self::setting('notify_send_time'));
+        $saved = ComponentHelper::getParams('com_supportplans')->get('notify_send_time', null);
+        if ($saved !== null && trim((string) $saved) === '') {
+            return null; // explicitly cleared: send whenever the task runs
+        }
+        return preg_match('/^([01]?\d|2[0-3]):([0-5]\d)$/', $raw, $m) ? [(int) $m[1], (int) $m[2]] : [9, 30];
+    }
+
+    public static function sendTimeLabel(): string
+    {
+        $t = self::sendTime();
+        return $t ? sprintf('%02d:%02d', $t[0], $t[1]) : '';
+    }
+
+    /** True from the send time of today until midnight (always true when no time is set). */
+    public static function sendTimeReached(): bool
+    {
+        $t = self::sendTime();
+        if (!$t) {
+            return true;
+        }
+        $now = new \DateTimeImmutable('now', self::tz());
+        return (int) $now->format('G') * 60 + (int) $now->format('i') >= $t[0] * 60 + $t[1];
+    }
+
+    /**
+     * Scheduled run: the renewal reminders that are due (from the send time of the day on; each
+     * reminder is queued once, so later runs of the same day add nothing), then the queue, which
+     * also sends reports and campaigns at any time. $force (the "now" button) ignores the time.
+     */
+    public static function run(bool $force = false): array
+    {
+        $queued = $force || self::sendTimeReached() ? self::queueRenewals() : 0;
         [$sent, $failed] = self::processQueue();
         try {
             OfferHelper::saveParam('notify_last_run', self::now());

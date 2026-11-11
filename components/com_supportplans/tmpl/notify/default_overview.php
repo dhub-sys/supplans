@@ -29,7 +29,8 @@ $expired = count(array_filter($this->rows, static fn($s) => Notify::daysUntil($s
   <article><span>Ληγμένες</span><strong><?php echo $expired; ?></strong><small>χωρίς ανανέωση</small></article>
   <article><span>Σε αναμονή / Απέτυχαν</span><strong><?php echo (int) $this->counts['queued']; ?> / <?php echo (int) $this->counts['failed']; ?></strong><small>τελευταία εκτέλεση: <?php echo $e(Notify::datetimeGr($lastRun)); ?></small></article>
 </section>
-<div class="sp-n-actions"><?php echo NotifyUi::button('runNow', ['back' => 'section=overview'], 'Έλεγχος λήξεων & αποστολή τώρα', '', 'btn btn-outline-primary'); ?></div>
+<div class="sp-n-actions"><?php echo NotifyUi::button('runNow', ['back' => 'section=overview'], 'Έλεγχος λήξεων & αποστολή τώρα', '', 'btn btn-outline-primary'); ?>
+<?php if (Notify::sendTimeLabel() !== ''): ?><span class="sp-n-help" style="align-self:center">Αυτόματες υπενθυμίσεις καθημερινά από τις <b><?php echo $e(Notify::sendTimeLabel()); ?></b> · <?php echo Notify::sendTimeReached() ? 'οι σημερινές έχουν προγραμματιστεί' : 'σήμερα στις ' . $e(Notify::sendTimeLabel()); ?></span><?php endif; ?></div>
 <div class="sp-card">
   <h2>Λήγουν τις επόμενες 60 ημέρες ή έχουν λήξει</h2>
   <?php echo $this->loadTemplate('servicestable'); ?>

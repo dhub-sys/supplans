@@ -696,7 +696,7 @@ class NotifyController extends BaseController
     public function runNow(): void
     {
         $this->guard();
-        $r = Notify::run();
+        $r = Notify::run(true);
         $this->msg(sprintf('Νέες υπενθυμίσεις: %d · Εστάλησαν: %d · Απέτυχαν: %d', $r['queued'], $r['sent'], $r['failed']), $r['failed'] ? 'warning' : 'message');
         $this->go($this->back());
     }
@@ -715,6 +715,7 @@ class NotifyController extends BaseController
             'notify_batch_size' => max(1, min(200, $this->input->post->getInt('notify_batch_size', 20))),
             'notify_vat_rate' => max(0, min(100, round((float) str_replace(',', '.', (string) $this->input->post->getString('notify_vat_rate', '24')), 2))),
             'notify_group_days' => max(0, min(60, $this->input->post->getInt('notify_group_days', 7))),
+            'notify_send_time' => preg_match('/^([01]?\d|2[0-3]):([0-5]\d)$/', trim((string) $this->input->post->getString('notify_send_time', '')), $tm) ? sprintf('%02d:%02d', (int) $tm[1], (int) $tm[2]) : '',
             'notify_font' => isset(Notify::FONTS[$this->input->post->getCmd('notify_font', '')]) ? $this->input->post->getCmd('notify_font') : 'geom',
             'notify_font_outlook' => isset(Notify::OUTLOOK_FONTS[$this->input->post->getCmd('notify_font_outlook', '')]) ? $this->input->post->getCmd('notify_font_outlook') : 'aptos',
             'notify_subject_today' => $this->str('notify_subject_today', 255),

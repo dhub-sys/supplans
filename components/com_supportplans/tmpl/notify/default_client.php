@@ -51,7 +51,7 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
   <?php if (!$this->groups): ?><p class="text-muted">Δεν υπάρχουν υπηρεσίες με αυτόματες υπενθυμίσεις στο επόμενο διάστημα.</p><?php endif; ?>
   <?php foreach ($this->groups as $i => $g): ?><?php $next = Notify::nextReminderDate($g); ?>
   <div class="sp-n-group">
-    <div><strong><?php echo count($g) > 1 ? 'Συνδυαστική υπενθύμιση' : 'Υπενθύμιση'; ?></strong> · επόμενη αποστολή: <strong><?php echo $e($next === null ? 'καμία' : ($next === Notify::today() ? 'σήμερα' : Notify::dateGr($next))); ?></strong>
+    <div><strong><?php echo count($g) > 1 ? 'Συνδυαστική υπενθύμιση' : 'Υπενθύμιση'; ?></strong> · επόμενη αποστολή: <strong><?php echo $e($next === null ? 'καμία' : (($next === Notify::today() ? 'σήμερα' : Notify::dateGr($next)) . (Notify::sendTimeLabel() !== '' ? ' ' . Notify::sendTimeLabel() : ''))); ?></strong>
       <ul><?php foreach ($g as $x): ?><li><?php echo $e(Notify::serviceFull($x)); ?> — <?php echo NotifyUi::expiry($x->expiry_date, $x->status); ?></li><?php endforeach; ?></ul></div>
     <div class="sp-row-actions"><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id . '&preview=' . ($i + 1)); ?>#sp-n-preview">Προεπισκόπηση</a>
       <?php echo NotifyUi::button('remindNow', ['id' => $g[0]->id, 'back' => 'section=clients&id=' . (int) $c->id], 'Αποστολή τώρα', 'Αποστολή της υπενθύμισης στο ' . $c->email . ' τώρα;', 'btn btn-sm btn-outline-secondary'); ?>

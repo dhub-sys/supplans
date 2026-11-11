@@ -72,12 +72,14 @@ $vars = '<code>{client_name}</code> <code>{client_company}</code> <code>{company
   <h2>Υπενθυμίσεις &amp; ουρά</h2>
   <div class="sp-grid">
    <label>Ημέρες υπενθύμισης (προεπιλογή)<input name="notify_reminder_days" value="<?php echo $e($v('notify_reminder_days')); ?>"></label>
+   <label>Ώρα αποστολής αυτόματων υπενθυμίσεων<input type="time" name="notify_send_time" value="<?php echo $e(Notify::sendTimeLabel()); ?>"></label>
    <label>Μηνύματα ανά εκτέλεση<input type="number" min="1" max="200" name="notify_batch_size" value="<?php echo (int) $v('notify_batch_size'); ?>"></label>
    <label>Συνδυασμός λήξεων έως (ημέρες)<input type="number" min="0" max="60" name="notify_group_days" value="<?php echo (int) $v('notify_group_days'); ?>"></label>
    <label>Φ.Π.Α. (%)<input name="notify_vat_rate" inputmode="decimal" value="<?php echo $e(str_replace('.', ',', $v('notify_vat_rate'))); ?>"></label>
    <label class="sp-wide">Υποσέλιδο email<textarea name="notify_footer" rows="3" placeholder="Κενό = τα στοιχεία επιχείρησης από τις Ρυθμίσεις"><?php echo $e($v('notify_footer')); ?></textarea></label>
   </div>
   <p class="sp-n-help">Ημέρες χωρισμένες με κόμμα: <code>0</code> = την ημέρα λήξης, αρνητικό = μετά τη λήξη. Κάθε υπηρεσία του καταλόγου ή του πελάτη μπορεί να έχει δικές της. Κάθε υπενθύμιση στέλνεται μία φορά· αν η εργασία δεν τρέξει για μέρες, στέλνεται μόνο η πιο πρόσφατη.</p>
+  <p class="sp-n-help"><b>Ώρα αποστολής:</b> οι αυτόματες υπενθυμίσεις ανανέωσης ετοιμάζονται από αυτή την ώρα και μετά (ώρα site: <?php echo $e(\Joomla\CMS\Factory::getApplication()->get('offset', 'UTC')); ?>), μία φορά την ημέρα, και φεύγουν στις επόμενες εκτελέσεις της εργασίας (κάθε 5 λεπτά, <?php echo (int) $v('notify_batch_size'); ?> μηνύματα τη φορά). Αν η εργασία δεν τρέξει ακριβώς τότε, στέλνονται στην πρώτη εκτέλεση μετά. Κενό = οποιαδήποτε ώρα. Χειροκίνητες υπενθυμίσεις, αναφορές και αποστολές φεύγουν αμέσως.</p>
   <p class="sp-n-help"><b>Συνδυασμός:</b> υπηρεσίες του ίδιου πελάτη που λήγουν σε απόσταση έως τόσες ημέρες μεταξύ τους (π.χ. domain 24/2 και hosting 25/2) στέλνονται σε ένα μήνυμα. Οι ημέρες υπενθύμισης μετρούν από την πρώτη λήξη της ομάδας. <code>0</code> = μόνο ίδια ημερομηνία. Οι τιμές των υπηρεσιών είναι προ ΦΠΑ· το email δείχνει αξία, ΦΠΑ και σύνολο.</p>
  </div>
  <div class="sp-card">
