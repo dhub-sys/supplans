@@ -187,6 +187,8 @@
   form.addEventListener('change', function () { dirty = true; });
   form.addEventListener('submit', function () { serialize(); dirty = false; });
   window.spBeforeSubmit = function () { serialize(); dirty = false; };
+  window.spDocDirty = function () { return dirty; };
+  window.spDocClean = function () { dirty = false; };
   window.addEventListener('beforeunload', function (ev) { if (dirty) { ev.preventDefault(); ev.returnValue = ''; } });
 
   function printFrame(frame) {

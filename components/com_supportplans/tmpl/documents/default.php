@@ -68,6 +68,7 @@ $filterUrl = static fn(string $type) => OfferHelper::url('view=documents' . ($ty
         <td><span class="sp-offer-status is-<?php echo $e($r['status']); ?>"><?php echo $e($r['statusLabel']); ?></span></td>
         <td class="sp-num sp-n-nowrap">
           <a class="sp-doc-btn" href="<?php echo OfferHelper::url($r['pdf']); ?>" target="_blank" rel="noopener" title="Άνοιγμα του εγγράφου για εκτύπωση / Pdf">Pdf</a>
+          <a class="sp-doc-btn" href="<?php echo OfferHelper::url($r['open'] . '&send=1'); ?>" title="Αποστολή με email">✉ Email</a>
           <a class="sp-doc-btn is-primary" href="<?php echo OfferHelper::url($r['open']); ?>">Άνοιγμα</a>
         </td>
       </tr>

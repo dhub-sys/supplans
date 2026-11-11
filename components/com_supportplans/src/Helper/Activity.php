@@ -22,7 +22,7 @@ final class Activity
         'plan' => 'Πακέτα', 'entry' => 'Εργασίες πακέτων', 'serviceplan' => 'Πλάνα',
         'offer' => 'Προσφορές', 'offerservice' => 'Προσφορές', 'offertemplate' => 'Προσφορές', 'offerfield' => 'Προσφορές',
         'settings' => 'Ρυθμίσεις', 'share' => 'Σύνδεσμοι πελάτη', 'auth' => 'Σύνδεση', 'otp' => 'Σύνδεση',
-        'unsubscribe' => 'Client Management', 'activity' => 'Ιστορικό ενεργειών', 'structure' => 'Προτάσεις δομής',
+        'unsubscribe' => 'Client Management', 'activity' => 'Ιστορικό ενεργειών', 'structure' => 'Προτάσεις δομής', 'docmail' => 'Αποστολές εγγράφων',
     ];
 
     private const NOTIFY_AREAS = [
@@ -46,7 +46,6 @@ final class Activity
         'serviceplan.delete' => 'Διαγραφή πλάνου', 'serviceplan.cancel' => 'Κλείσιμο πλάνου',
         'offer.create' => 'Νέα προσφορά', 'offer.apply' => 'Αποθήκευση προσφοράς', 'offer.save' => 'Αποθήκευση προσφοράς', 'offer.preview' => 'Προεπισκόπηση προσφοράς',
         'offer.duplicate' => 'Αντίγραφο προσφοράς', 'offer.delete' => 'Διαγραφή προσφοράς',
-        'offer.send' => 'Αποστολή προσφοράς με email', 'offer.revokelink' => 'Απενεργοποίηση συνδέσμου προσφοράς',
         'offerservice.apply' => 'Αποθήκευση υπηρεσίας προσφορών', 'offerservice.save' => 'Αποθήκευση υπηρεσίας προσφορών', 'offerservice.delete' => 'Διαγραφή υπηρεσίας προσφορών',
         'offertemplate.apply' => 'Αποθήκευση template', 'offertemplate.save' => 'Αποθήκευση template', 'offertemplate.duplicate' => 'Αντίγραφο template',
         'offertemplate.delete' => 'Διαγραφή template', 'offertemplate.sample' => 'Δημιουργία παραδείγματος template',
@@ -57,6 +56,7 @@ final class Activity
         'share.create' => 'Δημιουργία συνδέσμου πελάτη', 'share.revoke' => 'Ακύρωση συνδέσμου πελάτη', 'share.send' => 'Αποστολή συνδέσμου πελάτη',
         'auth.authenticate' => 'Σύνδεση (κωδικός)', 'auth.logout' => 'Αποσύνδεση', 'otp.send' => 'Αποστολή κωδικού OTP', 'otp.verify' => 'Επιβεβαίωση OTP',
         'unsubscribe.run' => 'Διαγραφή από ενημερώσεις (σύνδεσμος email)',
+        'docmail.send' => 'Αποστολή εγγράφου με email', 'docmail.revoke' => 'Απενεργοποίηση συνδέσμου εγγράφου',
         'activity.export' => 'Εξαγωγή ιστορικού ενεργειών σε Excel',
         'notify.saveclient' => 'Αποθήκευση πελάτη', 'notify.deleteclient' => 'Διαγραφή πελάτη', 'notify.unsubscribe' => 'Αλλαγή προτίμησης ενημερώσεων',
         'notify.importsheet' => 'Εισαγωγή από Excel', 'notify.template' => 'Λήψη προτύπου Excel', 'notify.export' => 'Εξαγωγή πελατών σε Excel',

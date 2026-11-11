@@ -43,6 +43,25 @@ final class ShareLink
         return rtrim(Uri::root(), '/') . '/index.php?option=com_supportplans&view=offerdoc&tmpl=component&spapp=1&Itemid=' . $itemid . '&t=' . $token;
     }
 
+    /** Private link to a structure proposal document. */
+    public static function structureUrl(string $token): string
+    {
+        return str_replace('view=offerdoc', 'view=structuredoc', self::offerUrl($token));
+    }
+
+    /** Structure proposal for a token, or null. */
+    public static function structure(string $token): ?object
+    {
+        if (!self::isToken($token)) {
+            return null;
+        }
+        $db = Factory::getContainer()->get('DatabaseDriver');
+        $q = $db->getQuery(true)->select('*')->from($db->quoteName('#__supportplans_structures'))
+            ->where($db->quoteName('share_token') . ' = :token')->bind(':token', $token);
+        $row = $db->setQuery($q)->loadObject();
+        return $row && hash_equals((string) $row->share_token, $token) ? $row : null;
+    }
+
     /** Offer for a token, or null. */
     public static function offer(string $token): ?object
     {

@@ -26,8 +26,10 @@ $layoutPick = static function (string $key) use ($s, $e): string {
  <button type="button" class="btn btn-outline-secondary" onclick="spSubmit('structure.save')">Αποθήκευση &amp; κλείσιμο</button>
  <button type="button" class="btn btn-secondary" onclick="spPrintDoc()" title="Αποθηκεύστε πρώτα τις αλλαγές">Εκτύπωση / Pdf</button>
  <button type="button" class="btn btn-outline-secondary" onclick="spPreviewDoc()" title="Προβολή του εγγράφου με τις τρέχουσες αλλαγές, χωρίς αποθήκευση">Προεπισκόπηση</button>
+ <button type="button" class="btn btn-outline-primary" onclick="spOpenSend()" title="Αποστολή της πρότασης στον πελάτη με email">✉ Αποστολή με email</button>
  <a class="btn btn-outline-secondary" href="<?php echo OfferHelper::url('view=structures'); ?>">Κλείσιμο</a>
 </div>
+<?php echo \Support\Component\Supportplans\Site\Helper\DocMail::dialog('structure', $s); ?>
 <iframe id="sp-doc-print-frame" title="Πρόταση δομής" src="<?php echo $docUrl; ?>" style="position:fixed;width:1px;height:1px;right:0;bottom:0;border:0;opacity:0;pointer-events:none;" aria-hidden="true"></iframe>
 <dialog class="sp-preview" id="sp-preview" aria-label="Προεπισκόπηση πρότασης δομής">
  <div class="sp-preview-bar">
@@ -87,6 +89,7 @@ $layoutPick = static function (string $key) use ($s, $e): string {
  <input type="hidden" name="task" value="">
  <?php echo HTMLHelper::_('form.token'); ?>
 </form>
+<?php echo \Support\Component\Supportplans\Site\Helper\DocMail::history('structure', $s); ?>
 <div class="sp-card sp-offer-danger">
  <form method="post" action="<?php echo $e(OfferHelper::url('task=structure.duplicate', false)); ?>"><input type="hidden" name="id" value="<?php echo (int) $s->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-primary">Αντίγραφο ως νέα πρόταση</button></form>
  <form method="post" action="<?php echo $e(OfferHelper::url('task=structure.delete', false)); ?>" onsubmit="return confirm('Να διαγραφεί οριστικά η πρόταση δομής;');"><input type="hidden" name="id" value="<?php echo (int) $s->id; ?>"><?php echo HTMLHelper::_('form.token'); ?><button class="btn btn-outline-danger">Διαγραφή πρότασης</button></form>

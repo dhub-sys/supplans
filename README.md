@@ -859,3 +859,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Sidebar::nav()` με ομάδες: Πλάνα, Έγγραφα (Πακέτα, Προσφορές, Προτάσεις δομής), Client Management, Ρυθμίσεις, Ιστορικό, Οδηγίες· όλες οι σελίδες χρησιμοποιούν πλέον το ίδιο μενού (αφαιρέθηκαν τα στατικά).
 - Αποστολή προσφοράς: `offer.send` (έως 10 παραλήπτες + cc, μήνυμα με markup/μεταβλητές μέσα στο `Notify::wrap`, σύνδεσμος `view=offerdoc&t=<96 hex>` και/ή συνημμένο Pdf έως 15 MB με έλεγχο `%PDF-`), `offer.revokelink`, πίνακας `#__supportplans_offer_sends`, στήλη `share_token` στις προσφορές. `Notify::senderMailer()` (αποστολέας/reply-to των ρυθμίσεων email). Ο σύνδεσμος είναι δημόσιος μόνο με έγκυρο token, με noindex/no-referrer/no-store.
 
+## v1.25.0 — Αποστολή όλων των εγγράφων
+- `Helper\DocMail`: κοινή αποστολή για `offer`, `structure`, `plan` (διάλογος, ιστορικό, σύνδεσμος, αποστολή), `DocmailController` (`docmail.send`, `docmail.revoke`)· αντικαθιστά τα `offer.send` / `offer.revokelink`. Στήλη `doc_type` στο `#__supportplans_offer_sends`, `share_token` στις προτάσεις δομής, δημόσιο `view=structuredoc&t=…`. Στα πακέτα ο σύνδεσμος είναι ο υπάρχων σύνδεσμος αναφοράς (`share.*`), η φόρμα email της κάρτας συνδέσμου αντικαταστάθηκε από τον κοινό διάλογο. `&send=1` ανοίγει τον διάλογο (κουμπί «✉ Email» στα Έγγραφα).
+

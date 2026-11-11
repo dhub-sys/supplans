@@ -50,7 +50,7 @@ class Com_SupportplansInstallerScript
   // Website structure proposals (v1.23.0): sitemap tree + content suggestions per section.
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_structures` (`id` int unsigned NOT NULL AUTO_INCREMENT,`number` varchar(40) NOT NULL DEFAULT '',`proposal_date` date NOT NULL,`customer_name` varchar(190) NOT NULL DEFAULT '',`project_name` varchar(190) NOT NULL DEFAULT '',`doc_title` varchar(255) NOT NULL DEFAULT '',`doc_subtitle` varchar(255) NOT NULL DEFAULT '',`intro_title` varchar(255) NOT NULL DEFAULT '',`intro_body` mediumtext NULL,`sitemap_title` varchar(255) NOT NULL DEFAULT '',`content_title` varchar(255) NOT NULL DEFAULT '',`outro_title` varchar(255) NOT NULL DEFAULT '',`outro_body` mediumtext NULL,`tree` mediumtext NULL,`status` varchar(20) NOT NULL DEFAULT 'draft',`notes` text NULL,`created` datetime NOT NULL,`modified` datetime NULL,PRIMARY KEY (`id`),KEY `idx_status` (`status`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Offers sent by email from the Back Office (v1.24.0).
-  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_sends` (`id` int unsigned NOT NULL AUTO_INCREMENT,`offer_id` int unsigned NOT NULL DEFAULT 0,`to_email` varchar(255) NOT NULL DEFAULT '',`cc` varchar(500) NOT NULL DEFAULT '',`subject` varchar(255) NOT NULL DEFAULT '',`attachment` varchar(255) NOT NULL DEFAULT '',`with_link` tinyint NOT NULL DEFAULT 0,`username` varchar(150) NOT NULL DEFAULT '',`sent` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_offer` (`offer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
+  $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_offer_sends` (`id` int unsigned NOT NULL AUTO_INCREMENT,`doc_type` varchar(20) NOT NULL DEFAULT 'offer',`offer_id` int unsigned NOT NULL DEFAULT 0,`to_email` varchar(255) NOT NULL DEFAULT '',`cc` varchar(500) NOT NULL DEFAULT '',`subject` varchar(255) NOT NULL DEFAULT '',`attachment` varchar(255) NOT NULL DEFAULT '',`with_link` tinyint NOT NULL DEFAULT 0,`username` varchar(150) NOT NULL DEFAULT '',`sent` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_offer` (`offer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
   // Failed Service Hub logins, per IP and username (v1.12.0).
   $db->setQuery("CREATE TABLE IF NOT EXISTS `#__supportplans_login_attempts` (`id` int unsigned NOT NULL AUTO_INCREMENT,`ip` varchar(45) NOT NULL DEFAULT '',`username` varchar(150) NOT NULL DEFAULT '',`attempted` datetime NOT NULL,PRIMARY KEY (`id`),KEY `idx_ip` (`ip`,`attempted`),KEY `idx_username` (`username`,`attempted`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")->execute();
 
@@ -85,9 +85,11 @@ class Com_SupportplansInstallerScript
    // v1.23.1: page layout of the document sections of the structure proposals.
    '#__supportplans_structures'=>[
     'intro_break'=>'tinyint NOT NULL DEFAULT 0','intro_space'=>'smallint NOT NULL DEFAULT 5','sitemap_break'=>'tinyint NOT NULL DEFAULT 0','sitemap_space'=>'smallint NOT NULL DEFAULT 8',
+    'share_token'=>"varchar(100) NOT NULL DEFAULT ''",
     'content_break'=>'tinyint NOT NULL DEFAULT 1','content_space'=>'smallint NOT NULL DEFAULT 8','outro_break'=>'tinyint NOT NULL DEFAULT 0','outro_space'=>'smallint NOT NULL DEFAULT 8',
    ],
    '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
+   '#__supportplans_offer_sends'=>['doc_type'=>"varchar(20) NOT NULL DEFAULT 'offer'"],
    '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
    '#__supportplans_renewals'=>['old_status'=>"varchar(20) NOT NULL DEFAULT 'active'"],
    '#__supportplans_offers'=>[
