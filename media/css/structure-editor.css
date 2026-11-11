@@ -37,3 +37,8 @@
   .sp-st-tools{width:100%;justify-content:flex-end}
   .sp-st-details{padding-left:14px}
 }
+/* section title + its page layout on one row */
+.sp-grid .sp-st-pair{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:16px!important;align-items:end}
+.sp-grid .sp-st-pair>label{margin:0}
+.sp-grid .sp-st-pair>.sp-section-layout{grid-column:auto!important}
+@media (max-width:760px){.sp-grid .sp-st-pair{grid-template-columns:1fr!important}}

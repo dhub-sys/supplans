@@ -62,7 +62,11 @@ final class Structure
             $content = str_replace("\r\n", "\n", trim((string) ($n['content'] ?? '')));
             if ($title === '' && $purpose === '' && $content === '') continue;
             $level = max(0, min(self::MAX_LEVEL, (int) ($n['level'] ?? 0), $prev + 1));
-            $out[] = ['title' => mb_substr($title, 0, 190), 'level' => $level, 'purpose' => mb_substr($purpose, 0, 1000), 'content' => mb_substr($content, 0, 20000)];
+            // Layout of the section in the content suggestions: new page, or a spacing in mm
+            // ("" = automatic spacing by level).
+            $space = trim((string) ($n['space'] ?? ''));
+            $out[] = ['title' => mb_substr($title, 0, 190), 'level' => $level, 'purpose' => mb_substr($purpose, 0, 1000), 'content' => mb_substr($content, 0, 20000),
+                'break' => (int) !empty($n['break']), 'space' => $space === '' || !is_numeric($space) ? '' : max(0, min(80, (int) $space))];
             $prev = $level;
         }
         return $out;
@@ -146,6 +150,16 @@ final class Structure
             $path[] = $n['title'];
         }
         return $nodes;
+    }
+
+    /** Document sections with a page layout (column prefix => label). */
+    public const SECTIONS = ['intro' => 'Εισαγωγή', 'sitemap' => 'Sitemap', 'content' => 'Προτάσεις περιεχομένου', 'outro' => 'Κλείσιμο'];
+
+    /** Class and style of a heading: ' sp-o-break' or a margin-top in mm (the first block of a page ignores it). */
+    public static function layout($break, $space): array
+    {
+        if ((int) $break) return [' sp-o-break', ''];
+        return $space === '' || $space === null ? ['', ''] : ['', 'margin-top:' . max(0, min(80, (int) $space)) . 'mm'];
     }
 
     public static function label(object $s, string $field): string

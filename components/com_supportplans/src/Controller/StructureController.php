@@ -127,7 +127,7 @@ class StructureController extends BaseController
         // Rich text from the editor: raw (it is escaped when rendered), CRLF normalised.
         $raw = fn(string $k) => mb_substr(str_replace("\r\n", "\n", trim((string) $in->get($k, '', 'raw'))), 0, 60000);
         $status = $in->getCmd('status', 'draft');
-        return (object) [
+        return (object) ([
             'number' => $text('number', 40),
             'proposal_date' => $this->date($in->getString('proposal_date')),
             'customer_name' => $text('customer_name', 190),
@@ -143,7 +143,17 @@ class StructureController extends BaseController
             'tree' => json_encode(Structure::nodes((string) $in->get('tree', '[]', 'raw')), JSON_UNESCAPED_UNICODE),
             'status' => isset(OfferHelper::STATUSES[$status]) ? $status : 'draft',
             'notes' => mb_substr(trim((string) $in->get('notes', '', 'raw')), 0, 5000),
-        ];
+        ] + $this->layouts());
+    }
+
+    private function layouts(): array
+    {
+        $out = [];
+        foreach (array_keys(Structure::SECTIONS) as $k) {
+            $out[$k . '_break'] = $this->input->getInt($k . '_break', $k === 'content' ? 1 : 0) ? 1 : 0;
+            $out[$k . '_space'] = max(0, min(80, $this->input->getInt($k . '_space', $k === 'intro' ? 5 : 8)));
+        }
+        return $out;
     }
 
     private function date(string $v): string

@@ -26,9 +26,11 @@ Factory::getApplication()->getDocument()->setTitle($fileTitle);
 $withContent = array_values(array_filter($nodes, static fn($n) => $n['purpose'] !== '' || $n['content'] !== ''));
 $section = 0;
 $root = $project !== '' ? $project : ($d->customer_name ?: 'Ιστοσελίδα');
-$h2 = static function (string $title, string $extra = '') use (&$section, $e): string {
+// Heading of a document section, with its page layout (new page or spacing in mm).
+$h2 = static function (string $title, string $key) use (&$section, $e, $d): string {
     $section++;
-    return '<h2 class="sp-od-h sp-o-keep' . $extra . '"><span class="sp-od-h-no">' . $section . '.</span><span class="sp-od-h-text">' . $e($title) . '</span></h2>';
+    [$cls, $style] = Structure::layout($d->{$key . '_break'} ?? ($key === 'content' ? 1 : 0), $d->{$key . '_space'} ?? '');
+    return '<h2 class="sp-od-h sp-o-keep' . $cls . '"' . ($style !== '' ? ' style="' . $style . '"' : '') . '><span class="sp-od-h-no">' . $section . '.</span><span class="sp-od-h-text">' . $e($title) . '</span></h2>';
 };
 ?>
 <div class="sp-od sp-sd<?php echo $this->preview ? ' is-preview' : ''; ?>" style="--od-accent:<?php echo $e($brand['accent']); ?>;--od-on-accent:<?php echo $e($brand['secondary']); ?><?php echo $headerVars; ?>">
@@ -63,12 +65,12 @@ $h2 = static function (string $title, string $extra = '') use (&$section, $e): s
  <!-- Flowing content: moved into A4 pages by the paginator. -->
  <div class="sp-od-flow" id="sp-od-flow">
   <?php if (trim((string) $d->intro_body) !== ''): ?>
-  <?php echo $h2($v(Structure::label($d, 'intro_title'))); ?>
+  <?php echo $h2($v(Structure::label($d, 'intro_title')), 'intro'); ?>
   <?php echo OfferHelper::render((string) $d->intro_body, $vars); ?>
   <?php endif; ?>
 
   <?php if ($nodes): ?>
-  <?php echo $h2($v(Structure::label($d, 'sitemap_title')), $section ? ' sp-sd-gap' : ''); ?>
+  <?php echo $h2($v(Structure::label($d, 'sitemap_title')), 'sitemap'); ?>
   <div class="sp-sm-stats sp-o-keep">
    <div><b><?php echo $counts['sections']; ?></b><span><?php echo $counts['sections'] === 1 ? 'κύρια ενότητα' : 'κύριες ενότητες'; ?></span></div>
    <div><b><?php echo $counts['pages']; ?></b><span><?php echo $counts['pages'] === 1 ? 'σελίδα συνολικά' : 'σελίδες συνολικά'; ?></span></div>
@@ -87,11 +89,11 @@ $h2 = static function (string $title, string $extra = '') use (&$section, $e): s
   <?php endif; ?>
 
   <?php if ($withContent): ?>
-  <?php echo $h2($v(Structure::label($d, 'content_title')), ' sp-o-break'); ?>
-  <?php foreach ($withContent as $n): ?>
-  <div class="sp-sd-node sp-o-keep is-l<?php echo min($n['level'], 2); ?>">
+  <?php echo $h2($v(Structure::label($d, 'content_title')), 'content'); $contentNo = $section; ?>
+  <?php foreach ($withContent as $n): [$cls, $style] = Structure::layout($n['break'], $n['space']); ?>
+  <div class="sp-sd-node sp-o-keep is-l<?php echo min($n['level'], 2) . $cls; ?>"<?php echo $style !== '' ? ' style="' . $style . '"' : ''; ?>>
    <?php if ($n['trail']): ?><div class="sp-sd-trail"><?php echo $e(implode(' › ', $n['trail'])); ?></div><?php endif; ?>
-   <h3 class="sp-sd-title"><span class="sp-sd-no"><?php echo $e($n['number']); ?></span><span><?php echo $e($n['title'] !== '' ? $n['title'] : '—'); ?></span></h3>
+   <h3 class="sp-sd-title"><span class="sp-sd-no"><?php echo $e($contentNo . '.' . $n['number']); ?></span><span><?php echo $e($n['title'] !== '' ? $n['title'] : '—'); ?></span></h3>
   </div>
   <?php if ($n['purpose'] !== ''): ?><div class="sp-sd-purpose<?php echo $n['content'] !== '' ? ' sp-o-keep' : ''; ?>"><span>ΣΤΟΧΟΣ</span><?php echo $e($v($n['purpose'])); ?></div><?php endif; ?>
   <?php echo OfferHelper::render($n['content'], $vars); ?>
@@ -99,7 +101,7 @@ $h2 = static function (string $title, string $extra = '') use (&$section, $e): s
   <?php endif; ?>
 
   <?php if (trim((string) $d->outro_body) !== ''): ?>
-  <?php echo $h2($v(Structure::label($d, 'outro_title')), ' sp-sd-gap'); ?>
+  <?php echo $h2($v(Structure::label($d, 'outro_title')), 'outro'); ?>
   <?php echo OfferHelper::render((string) $d->outro_body, $vars); ?>
   <?php endif; ?>
 

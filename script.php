@@ -80,6 +80,11 @@ class Com_SupportplansInstallerScript
     'variables'=>'mediumtext NULL','show_header'=>'tinyint NOT NULL DEFAULT 1','header_text'=>"varchar(255) NOT NULL DEFAULT ''",'header_logo'=>'smallint NOT NULL DEFAULT 28','header_gap'=>'smallint NOT NULL DEFAULT 6',
     'pricing_break'=>'tinyint NOT NULL DEFAULT 0','pricing_space'=>'smallint NOT NULL DEFAULT 5','terms_break'=>'tinyint NOT NULL DEFAULT 0','terms_space'=>'smallint NOT NULL DEFAULT 5','intro_title'=>"varchar(255) NOT NULL DEFAULT ''",'intro_body'=>'mediumtext NULL','intro_lists'=>'mediumtext NULL',
    ],
+   // v1.23.1: page layout of the document sections of the structure proposals.
+   '#__supportplans_structures'=>[
+    'intro_break'=>'tinyint NOT NULL DEFAULT 0','intro_space'=>'smallint NOT NULL DEFAULT 5','sitemap_break'=>'tinyint NOT NULL DEFAULT 0','sitemap_space'=>'smallint NOT NULL DEFAULT 8',
+    'content_break'=>'tinyint NOT NULL DEFAULT 1','content_space'=>'smallint NOT NULL DEFAULT 8','outro_break'=>'tinyint NOT NULL DEFAULT 0','outro_space'=>'smallint NOT NULL DEFAULT 8',
+   ],
    '#__supportplans_catalog'=>['expired_text'=>'mediumtext NULL'],
    '#__supportplans_notify_messages'=>['service_ids'=>"varchar(1000) NOT NULL DEFAULT ''"],
    '#__supportplans_renewals'=>['old_status'=>"varchar(20) NOT NULL DEFAULT 'active'"],

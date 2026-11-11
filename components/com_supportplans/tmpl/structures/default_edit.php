@@ -11,6 +11,15 @@ $fileTitle = trim($s->number . ' - Πρόταση δομής - ' . ($s->project_
 $nodes = Structure::nodes($s->tree);
 $label = static fn(string $f) => $e(trim((string) $s->$f));
 $ph = static fn(string $f) => $e(Structure::DEFAULTS[$f]);
+// "Continue on the same page, N mm after the previous section" or "Start on a new page".
+$layoutPick = static function (string $key) use ($s, $e): string {
+    $break = (int) ($s->{$key . '_break'} ?? ($key === 'content' ? 1 : 0));
+    $space = (int) ($s->{$key . '_space'} ?? ($key === 'intro' ? 5 : 8));
+    $label = Structure::SECTIONS[$key];
+    return '<div class="sp-section-layout" data-layout-pick><span class="sp-field-label">' . $e($label) . ' στο Pdf</span><div class="sp-oi-layout">'
+        . '<select name="' . $key . '_break" aria-label="' . $e($label) . ': θέση στο Pdf"><option value="0"' . ($break ? '' : ' selected') . '>Συνέχεια στην ίδια σελίδα</option><option value="1"' . ($break ? ' selected' : '') . '>Ξεκινά σε νέα σελίδα</option></select>'
+        . '<label class="sp-oi-space" data-space' . ($break ? ' hidden' : '') . '>απόσταση <input type="number" min="0" max="80" step="1" name="' . $key . '_space" value="' . $space . '" aria-label="Απόσταση από την προηγούμενη ενότητα σε mm"> mm</label></div></div>';
+};
 ?>
 <div class="sp-standalone-actions sp-offer-actions">
  <button type="button" class="btn btn-primary" onclick="spSubmit('structure.apply')">Αποθήκευση</button>
@@ -61,12 +70,12 @@ $ph = static fn(string $f) => $e(Structure::DEFAULTS[$f]);
   <h3>Κείμενα εγγράφου</h3>
   <div class="sp-grid">
    <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Έργο προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2" placeholder="<?php echo $ph('doc_title'); ?>"><?php echo $label('doc_title'); ?></textarea></label>
-   <label>Υπότιτλος εξωφύλλου<input name="doc_subtitle" value="<?php echo $label('doc_subtitle'); ?>" placeholder="π.χ. SITEMAP &amp; ΠΡΟΤΑΣΕΙΣ ΠΕΡΙΕΧΟΜΕΝΟΥ"></label>
-   <label>Τίτλος εισαγωγής<input name="intro_title" value="<?php echo $label('intro_title'); ?>" placeholder="<?php echo $ph('intro_title'); ?>"></label>
+   <label class="sp-wide">Υπότιτλος εξωφύλλου<input name="doc_subtitle" value="<?php echo $label('doc_subtitle'); ?>" placeholder="π.χ. SITEMAP &amp; ΠΡΟΤΑΣΕΙΣ ΠΕΡΙΕΧΟΜΕΝΟΥ"></label>
+   <div class="sp-wide sp-st-pair"><label>Τίτλος εισαγωγής<input name="intro_title" value="<?php echo $label('intro_title'); ?>" placeholder="<?php echo $ph('intro_title'); ?>"></label> <?php echo $layoutPick('intro'); ?></div>
    <div class="sp-wide sp-field"><span class="sp-field-label">Εισαγωγή (πρώτη ενότητα μετά το εξώφυλλο — αν μείνει κενή δεν εμφανίζεται)</span><textarea name="intro_body" rows="5" data-sp-editor><?php echo $e($s->intro_body); ?></textarea></div>
-   <label>Τίτλος sitemap<input name="sitemap_title" value="<?php echo $label('sitemap_title'); ?>" placeholder="<?php echo $ph('sitemap_title'); ?>"></label>
-   <label>Τίτλος προτάσεων περιεχομένου<input name="content_title" value="<?php echo $label('content_title'); ?>" placeholder="<?php echo $ph('content_title'); ?>"></label>
-   <label class="sp-wide">Τίτλος κλεισίματος<input name="outro_title" value="<?php echo $label('outro_title'); ?>" placeholder="<?php echo $ph('outro_title'); ?>"></label>
+   <div class="sp-wide sp-st-pair"><label>Τίτλος sitemap<input name="sitemap_title" value="<?php echo $label('sitemap_title'); ?>" placeholder="<?php echo $ph('sitemap_title'); ?>"></label> <?php echo $layoutPick('sitemap'); ?></div>
+   <div class="sp-wide sp-st-pair"><label>Τίτλος προτάσεων περιεχομένου<input name="content_title" value="<?php echo $label('content_title'); ?>" placeholder="<?php echo $ph('content_title'); ?>"></label> <?php echo $layoutPick('content'); ?></div>
+   <div class="sp-wide sp-st-pair"><label>Τίτλος κλεισίματος<input name="outro_title" value="<?php echo $label('outro_title'); ?>" placeholder="<?php echo $ph('outro_title'); ?>"></label> <?php echo $layoutPick('outro'); ?></div>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κλείσιμο (τελευταία ενότητα, π.χ. επόμενα βήματα, υλικό που χρειαζόμαστε — αν μείνει κενό δεν εμφανίζεται)</span><textarea name="outro_body" rows="5" data-sp-editor><?php echo $e($s->outro_body); ?></textarea></div>
   </div>
  </div>

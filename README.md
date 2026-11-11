@@ -847,3 +847,9 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Editor δέντρου `media/js/structure-editor.js`: μετακίνηση/εσοχή μαζί με τις υποενότητες, Enter/Tab/Shift+Tab/Alt+↑↓, SpEditor ανά ενότητα (φορτώνει όταν ανοίγει), προεπισκόπηση με μη αποθηκευμένες αλλαγές.
 - Pdf: ίδιο εξώφυλλο/header/footer με τις προσφορές, ο paginator σε `media/js/doc-paginate.js`· sitemap ως επίπεδη λίστα γραμμών με «ράγες» ανά επίπεδο, ώστε να σπάει σε οποιαδήποτε γραμμή μεταξύ σελίδων χωρίς να χάνονται οι γραμμές σύνδεσης (`media/css/structure.css`).
 - Sidebar «Προτάσεις δομής», Ιστορικό ενεργειών (`structure.*`), Οδηγίες §10.
+
+## v1.23.1
+- Στήλες `intro|sitemap|content|outro` `_break` / `_space` στον πίνακα structures (μέσω `ensureSchema`, προεπιλογή: προτάσεις περιεχομένου σε νέα σελίδα). Κάθε κόμβος του δέντρου έχει `break` και `space` (κενό = αυτόματη απόσταση ανά επίπεδο). `Structure::layout()` δίνει `sp-o-break` ή `margin-top`.
+- Τίτλοι προτάσεων περιεχομένου: αριθμός = αριθμός ενότητας εγγράφου + αριθμός κόμβου (3.1, 3.2.1), μεγέθη 11.6 / 10.8 / 10.3pt κάτω από το h2 (13pt).
+- Διόρθωση: `(object) [...] + array` στο `collect()`.
+

@@ -42,10 +42,17 @@
       '<div class="sp-st-details" hidden>' +
         '<label class="sp-st-field">Στόχος της ενότητας <small>(μία πρόταση — στο Pdf πάνω από τις προτάσεις περιεχομένου)</small><input data-f="purpose" maxlength="1000" placeholder="π.χ. Να πείσει τον επισκέπτη να ζητήσει προσφορά"></label>' +
         '<div class="sp-st-field"><span>Προτάσεις περιεχομένου</span><textarea data-f="content" rows="6"></textarea></div>' +
+        '<div class="sp-st-field sp-st-layout" data-layout-pick><span>Θέση στο Pdf <small>(στις προτάσεις περιεχομένου)</small></span><div class="sp-oi-layout">' +
+          '<select data-f="break"><option value="0">Συνέχεια στην ίδια σελίδα</option><option value="1">Ξεκινά σε νέα σελίδα</option></select>' +
+          '<label class="sp-oi-space" data-space>απόσταση <input type="number" min="0" max="80" step="1" data-f="space" placeholder="αυτόματη" aria-label="Απόσταση από την προηγούμενη ενότητα σε mm"> mm</label>' +
+        '</div></div>' +
       '</div>';
     row.querySelector('[data-f="title"]').value = n.title || '';
     row.querySelector('[data-f="purpose"]').value = n.purpose || '';
     row.querySelector('[data-f="content"]').value = n.content || '';
+    row.querySelector('[data-f="break"]').value = n['break'] ? '1' : '0';
+    row.querySelector('[data-f="space"]').value = n.space === undefined || n.space === null ? '' : n.space;
+    row.querySelector('[data-space]').hidden = !!n['break'];
     setLevel(row, n.level || 0);
     return row;
   }
@@ -98,7 +105,7 @@
   }
   function serialize() {
     hidden.value = JSON.stringify(rows().map(function (row) {
-      return { title: row.querySelector('[data-f="title"]').value, level: level(row), purpose: row.querySelector('[data-f="purpose"]').value, content: row.querySelector('[data-f="content"]').value };
+      return { title: row.querySelector('[data-f="title"]').value, level: level(row), purpose: row.querySelector('[data-f="purpose"]').value, content: row.querySelector('[data-f="content"]').value, 'break': row.querySelector('[data-f="break"]').value === '1' ? 1 : 0, space: row.querySelector('[data-f="space"]').value };
     }));
   }
   function open(row, on) {
@@ -171,6 +178,11 @@
   document.querySelector('[data-st-expand]').addEventListener('click', function () { rows().forEach(function (r) { open(r, true); }); });
   document.querySelector('[data-st-collapse]').addEventListener('click', function () { rows().forEach(function (r) { open(r, false); }); });
 
+  // Page layout pickers: the spacing only applies when the section continues on the same page.
+  form.addEventListener('change', function (e) {
+    var pick = e.target.closest && e.target.closest('[data-layout-pick]');
+    if (pick && e.target.tagName === 'SELECT') pick.querySelector('[data-space]').hidden = e.target.value === '1';
+  });
   form.addEventListener('input', function () { dirty = true; });
   form.addEventListener('change', function () { dirty = true; });
   form.addEventListener('submit', function () { serialize(); dirty = false; });
