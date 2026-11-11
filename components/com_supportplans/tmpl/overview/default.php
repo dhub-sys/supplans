@@ -91,5 +91,6 @@ $current = Year::isCurrent();
   </div>
   <?php endif; ?>
 </div>
+<?php echo Year::links(); ?>
 </section></div></div></main>
 </div>

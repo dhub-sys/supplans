@@ -55,7 +55,7 @@ final class Sidebar
                 $html .= '</div>';
             }
         }
-        return $html . '</nav>' . Year::links();
+        return $html . '</nav>';
     }
 
     /**

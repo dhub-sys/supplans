@@ -72,22 +72,21 @@ final class Year
         return array_keys($years);
     }
 
-    /** Links to the previous years at the bottom of the menu (and back to the current year). */
+    /** Card of the overview with links to the previous years (and back to the current one). */
     public static function links(): string
     {
         $sel = self::get();
         $cur = self::current();
         $years = array_values(array_filter(self::all(), static fn($y) => $y !== $cur));
-        if (!$years && $sel === $cur) {
+        if (!$years) {
             return '';
         }
         $url = static fn(int $y) => htmlspecialchars(OfferHelper::url('view=overview&year=' . $y, false), ENT_QUOTES, 'UTF-8');
-        $html = '<div class="sp-side-years"><span class="sp-side-years-label">Προηγούμενες χρονιές</span><div>';
-        if ($sel !== $cur) {
-            $html .= '<a class="is-back" href="' . $url($cur) . '" title="Επιστροφή στο τρέχον έτος">← ' . $cur . '</a>';
-        }
+        $html = '<div class="sp-card sp-ov-years"><div class="sp-title-row"><h2>Προηγούμενες χρονιές</h2>'
+            . ($sel !== $cur ? '<a class="sp-doc-btn is-primary" href="' . $url($cur) . '">← Επιστροφή στο ' . $cur . '</a>' : '') . '</div>'
+            . '<p class="sp-foot">Έγγραφα, προσφορές, ιστορικό ενεργειών, email και συνόψεις κάθε χρονιάς. Πελάτες, υπηρεσίες και κατάλογος είναι κοινά για όλα τα έτη.</p><div class="sp-ov-years-list">';
         foreach ($years as $y) {
-            $html .= '<a' . ($y === $sel ? ' class="is-active"' : '') . ' href="' . $url($y) . '" title="Αρχείο ' . $y . '">' . $y . '</a>';
+            $html .= '<a class="sp-ov-year' . ($y === $sel ? ' is-active' : '') . '" href="' . $url($y) . '"><strong>' . $y . '</strong><span>Αρχείο</span></a>';
         }
         return $html . '</div></div>';
     }
