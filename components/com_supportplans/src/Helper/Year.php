@@ -72,16 +72,34 @@ final class Year
         return array_keys($years);
     }
 
-    /** Year picker of the sidebar: reloads the current page with ?year=. */
-    public static function picker(): string
+    /** Links to the previous years at the bottom of the menu (and back to the current year). */
+    public static function links(): string
     {
         $sel = self::get();
-        $html = '<div class="sp-year"><label><span class="sp-year-label">Χρήση</span><select onchange="spSetYear(this.value)" aria-label="Έτος χρήσης">';
-        foreach (self::all() as $y) {
-            $html .= '<option value="' . $y . '"' . ($y === $sel ? ' selected' : '') . '>' . $y . '</option>';
+        $cur = self::current();
+        $years = array_values(array_filter(self::all(), static fn($y) => $y !== $cur));
+        if (!$years && $sel === $cur) {
+            return '';
         }
-        $html .= '</select></label>' . (self::isCurrent() ? '' : '<span class="sp-year-past" title="Βλέπετε έγγραφα και στοιχεία προηγούμενου έτους">Αρχείο ' . $sel . '</span>') . '</div>'
-            . '<script>function spSetYear(y){var u=new URL(location.href);u.searchParams.set("year",y);["p","id","plan_id","mode"].forEach(function(k){u.searchParams.delete(k);});location.href=u.toString();}</script>';
-        return $html;
+        $url = static fn(int $y) => htmlspecialchars(OfferHelper::url('view=overview&year=' . $y, false), ENT_QUOTES, 'UTF-8');
+        $html = '<div class="sp-side-years"><span class="sp-side-years-label">Προηγούμενες χρονιές</span><div>';
+        if ($sel !== $cur) {
+            $html .= '<a class="is-back" href="' . $url($cur) . '" title="Επιστροφή στο τρέχον έτος">← ' . $cur . '</a>';
+        }
+        foreach ($years as $y) {
+            $html .= '<a' . ($y === $sel ? ' class="is-active"' : '') . ' href="' . $url($y) . '" title="Αρχείο ' . $y . '">' . $y . '</a>';
+        }
+        return $html . '</div></div>';
+    }
+
+    /** Notice at the top of the page while a previous year is shown. */
+    public static function banner(): string
+    {
+        if (self::isCurrent()) {
+            return '';
+        }
+        $y = self::get();
+        return '<div class="sp-archive-banner">Αρχείο ' . $y . ' — βλέπετε τα έγγραφα και τα στοιχεία του ' . $y . '. <a href="'
+            . htmlspecialchars(OfferHelper::url('view=overview&year=' . self::current(), false), ENT_QUOTES, 'UTF-8') . '">Επιστροφή στο ' . self::current() . '</a></div>';
     }
 }

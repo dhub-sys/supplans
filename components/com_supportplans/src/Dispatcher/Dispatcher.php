@@ -74,7 +74,7 @@ final class Dispatcher extends ComponentDispatcher
         // Already signed in (session or "stay signed in" cookie): skip the login / OTP screens.
         if ($signedIn && $task === '' && in_array($view, $publicViews, true)) {
             $itemid = max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));
-            $app->redirect(Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid=' . $itemid, false));
+            $app->redirect(Route::_('index.php?option=com_supportplans&view=overview&tmpl=component&spapp=1&Itemid=' . $itemid, false));
             return;
         }
         if ($needsAuth) {

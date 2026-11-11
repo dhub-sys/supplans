@@ -62,3 +62,13 @@
 .sp-saas-root .sp-doc-btn.is-lg{padding:10px 16px;font-size:14px;border-radius:10px}
 .sp-doc-table td .sp-doc-btn+.sp-doc-btn{margin-left:4px}
 @media (max-width:760px){.sp-doc-search{margin-left:0;width:100%}.sp-doc-search input{width:100%;min-width:0}}
+/* Overview (v1.28.1) */
+.sp-ov-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.sp-ov-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.sp-ov-cols>.sp-card{min-width:0;overflow-x:auto}
+@media (max-width:1180px){.sp-ov-cols{grid-template-columns:minmax(0,1fr)}}
+.sp-ov-cols .sp-card{margin:0}
+.sp-ov-cols .sp-title-row{margin-bottom:10px}
+.sp-ov-cols h2,.sp-n-summary h2{margin:0}
+@media (max-width:1100px){.sp-ov-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:620px){.sp-ov-kpis{grid-template-columns:1fr!important}.sp-ov-cols{grid-template-columns:1fr}}

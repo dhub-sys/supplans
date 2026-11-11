@@ -48,6 +48,12 @@ final class NotifyUi
         if ($d < 0) {
             return '<span class="sp-offer-status is-rejected">' . $date . ' · έληξε πριν ' . abs($d) . ' ημ.</span>';
         }
+        if ($d === 0) {
+            return '<span class="sp-offer-status sp-n-warn">' . $date . ' · σήμερα</span>';
+        }
+        if ($d === 1) {
+            return '<span class="sp-offer-status sp-n-warn">' . $date . ' · αύριο</span>';
+        }
         return '<span class="sp-offer-status ' . ($d <= 30 ? 'sp-n-warn' : 'is-accepted') . '">' . $date . ' · σε ' . $d . ' ημ.</span>';
     }
 

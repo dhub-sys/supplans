@@ -127,7 +127,7 @@ final class OtpController extends BaseController
         $session->clear('supportplans.otp.expires');
         $session->clear('supportplans.otp.attempts');
 
-        $app->redirect(Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&spapp=1&Itemid=' . max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785)) . '', false));
+        $app->redirect(Route::_('index.php?option=com_supportplans&view=overview&tmpl=component&spapp=1&Itemid=' . max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785)) . '', false));
     }
 
     private function clearPending(): void

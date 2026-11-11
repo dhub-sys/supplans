@@ -546,9 +546,9 @@ tr[data-sort-item].is-dragging td{background:#fff!important}
 .sp-sb-toggle:hover,.sp-sb-toggle:focus-visible{color:#fff;outline:none}
 .sp-sb-toggle span{position:absolute;left:9px;height:1.5px;border-radius:2px;background:currentColor;transition:width .28s ease,transform .28s ease}
 /* Expanded: lines aligned to the right (middle one shorter). */
-.sp-sb-toggle span:nth-child(1){top:11px;width:20px}
+.sp-sb-toggle span:nth-child(1){top:10.5px;width:20px}
 .sp-sb-toggle span:nth-child(2){top:16.5px;width:12px;transform:translateX(8px)}
-.sp-sb-toggle span:nth-child(3){top:22px;width:20px}
+.sp-sb-toggle span:nth-child(3){top:22.5px;width:20px}
 /* Collapsed: lines aligned to the left, staggered. */
 .sp-sb-collapsed .sp-sb-toggle span:nth-child(1){width:14px}
 .sp-sb-collapsed .sp-sb-toggle span:nth-child(2){width:20px;transform:translateX(0)}
@@ -603,13 +603,22 @@ html body .sp-report,html body .sp-report *{font-family:'Geom',Arial,Helvetica,s
 .sp-sb-collapsed .sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left-color:transparent}
 @media (max-width:900px){.sp-sidebar .sp-side-sub{margin-left:0;padding-left:0;border-left:0}}
 @media (max-width:620px){.sp-sidebar .sp-side-sub{display:contents}}
-/* Working year (v1.28.0) */
-.sp-sidebar .sp-year{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 6px 12px}
-.sp-sidebar .sp-year label{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:600;color:#cbd8f5}
-.sp-saas-root .sp-sidebar .sp-year select{background:#fff!important;color:#101828!important;border:1px solid rgba(203,216,245,.5)!important;border-radius:8px!important;padding:5px 26px 5px 10px!important;font-size:13px!important;font-weight:700!important;cursor:pointer;height:auto!important;min-height:0!important;width:auto!important;box-shadow:none!important}
-.sp-sidebar .sp-year select option{color:#101828}
-.sp-sidebar .sp-year-past{font-size:11px;font-weight:700;color:#1d2939;background:#fde68a;border-radius:999px;padding:2px 8px}
-.sp-sb-collapsed .sp-sidebar .sp-year-label,.sp-sb-collapsed .sp-sidebar .sp-year-past{display:none}
-.sp-sb-collapsed .sp-sidebar .sp-year{margin:4px 0 12px;justify-content:center}
-.sp-sb-collapsed .sp-saas-root .sp-sidebar .sp-year select{padding:4px 2px!important;font-size:11px!important;width:58px!important;max-width:58px!important}
-@media (max-width:900px){.sp-sidebar .sp-year-label,.sp-sidebar .sp-year-past{display:none}.sp-sidebar .sp-year{justify-content:center;margin:4px 0 10px}.sp-saas-root .sp-sidebar .sp-year select{width:58px!important;max-width:58px!important;padding:4px 2px!important;font-size:11px!important}}
+/* Previous years (v1.28.1): links at the bottom of the menu, notice while one is shown */
+.sp-sidebar .sp-side-years{margin-top:auto;padding:14px 6px 12px;display:grid;gap:7px}
+.sp-sidebar .sp-side-years ~ .sp-sidebar-bottom{margin-top:0!important}
+.sp-sidebar .sp-side-years-label{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#8ea2cf}
+.sp-sidebar .sp-side-years div{display:flex;flex-wrap:wrap;gap:6px}
+.sp-sidebar .sp-side-years a{display:inline-block;padding:3px 10px;border-radius:999px;border:1px solid rgba(203,216,245,.3);color:#cbd8f5!important;font-size:12.5px;font-weight:600;text-decoration:none!important}
+.sp-sidebar .sp-side-years a:hover{background:rgba(255,255,255,.08);color:#fff!important}
+.sp-sidebar .sp-side-years a.is-active{background:#fde68a;border-color:#fde68a;color:#1d2939!important}
+.sp-sidebar .sp-side-years a.is-back{border-color:#93b4f5;color:#fff!important}
+.sp-sb-collapsed .sp-sidebar .sp-side-years-label{display:none}
+.sp-sb-collapsed .sp-sidebar .sp-side-years{padding:10px 0;justify-content:center}
+.sp-sb-collapsed .sp-sidebar .sp-side-years div{flex-direction:column;align-items:center}
+.sp-sb-collapsed .sp-sidebar .sp-side-years a{padding:2px 6px;font-size:11px}
+@media (max-width:900px){.sp-sidebar .sp-side-years-label{display:none}.sp-sidebar .sp-side-years div{flex-direction:column;align-items:center}.sp-sidebar .sp-side-years a{padding:2px 6px;font-size:11px}}
+@media (max-width:620px){.sp-sidebar .sp-side-years{display:none}}
+.sp-archive-banner{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fde68a;color:#1d2939;font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(16,24,40,.18);max-width:calc(100vw - 32px);text-align:center}
+.sp-archive-banner a{color:#1d4ed8;text-decoration:underline;margin-left:6px}
+/* Cards are width:100% with padding: count the padding inside the width (no overflow, no overlap). */
+.sp-saas-root .sp-card,.sp-saas-root .sp-panel,.sp-saas-root .sp-list-card,.sp-saas-root .sp-kpis>article{box-sizing:border-box}
