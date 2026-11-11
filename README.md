@@ -841,3 +841,9 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 
 ## v1.22.1
 - `OfferHelper::upperGr()`: κεφαλαία χωρίς τόνους (Ά→Α, Έ→Ε, Ή→Η, Ί→Ι, Ό→Ο, Ύ→Υ, Ώ→Ω, ΐ→Ϊ, ΰ→Ϋ, και αποσυντεθειμένοι τόνοι), αντί για `mb_strtoupper()` που κρατά τους τόνους. Χρησιμοποιείται στο «Πελάτης» του εγγράφου προσφοράς, στα ονόματα τραπεζών (προσφορά, email) και στα αρχικά του λογοτύπου.
+
+## v1.23.0 — Προτάσεις δομής
+- Νέος πίνακας `#__supportplans_structures` (στοιχεία εγγράφου, κείμενα, `tree` ως JSON: επίπεδη λίστα `{title, level, purpose, content}`). Helper `Structure` (κανονικοποίηση επιπέδων: κάθε κόμβος έως ένα επίπεδο βαθύτερα από τον προηγούμενο, μέγιστο 5 επίπεδα· αρίθμηση, διαδρομές, γραμμές σύνδεσης δέντρου), `StructureController` (create/apply/save/preview/duplicate/delete με token), views `structures` (λίστα/νέα/επεξεργασία) και `structuredoc` (εκτυπώσιμο, μόνο για συνδεδεμένους).
+- Editor δέντρου `media/js/structure-editor.js`: μετακίνηση/εσοχή μαζί με τις υποενότητες, Enter/Tab/Shift+Tab/Alt+↑↓, SpEditor ανά ενότητα (φορτώνει όταν ανοίγει), προεπισκόπηση με μη αποθηκευμένες αλλαγές.
+- Pdf: ίδιο εξώφυλλο/header/footer με τις προσφορές, ο paginator σε `media/js/doc-paginate.js`· sitemap ως επίπεδη λίστα γραμμών με «ράγες» ανά επίπεδο, ώστε να σπάει σε οποιαδήποτε γραμμή μεταξύ σελίδων χωρίς να χάνονται οι γραμμές σύνδεσης (`media/css/structure.css`).
+- Sidebar «Προτάσεις δομής», Ιστορικό ενεργειών (`structure.*`), Οδηγίες §10.

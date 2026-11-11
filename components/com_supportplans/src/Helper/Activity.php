@@ -22,7 +22,7 @@ final class Activity
         'plan' => 'Πακέτα', 'entry' => 'Εργασίες πακέτων', 'serviceplan' => 'Πλάνα',
         'offer' => 'Προσφορές', 'offerservice' => 'Προσφορές', 'offertemplate' => 'Προσφορές', 'offerfield' => 'Προσφορές',
         'settings' => 'Ρυθμίσεις', 'share' => 'Σύνδεσμοι πελάτη', 'auth' => 'Σύνδεση', 'otp' => 'Σύνδεση',
-        'unsubscribe' => 'Client Management', 'activity' => 'Ιστορικό ενεργειών',
+        'unsubscribe' => 'Client Management', 'activity' => 'Ιστορικό ενεργειών', 'structure' => 'Προτάσεις δομής',
     ];
 
     private const NOTIFY_AREAS = [
@@ -50,6 +50,8 @@ final class Activity
         'offertemplate.apply' => 'Αποθήκευση template', 'offertemplate.save' => 'Αποθήκευση template', 'offertemplate.duplicate' => 'Αντίγραφο template',
         'offertemplate.delete' => 'Διαγραφή template', 'offertemplate.sample' => 'Δημιουργία παραδείγματος template',
         'offerfield.save' => 'Αποθήκευση μεταβλητών προσφορών',
+        'structure.create' => 'Νέα πρόταση δομής', 'structure.apply' => 'Αποθήκευση πρότασης δομής', 'structure.save' => 'Αποθήκευση πρότασης δομής',
+        'structure.preview' => 'Προεπισκόπηση πρότασης δομής', 'structure.duplicate' => 'Αντίγραφο πρότασης δομής', 'structure.delete' => 'Διαγραφή πρότασης δομής',
         'settings.apply' => 'Αποθήκευση ρυθμίσεων', 'settings.save' => 'Αποθήκευση ρυθμίσεων', 'settings.cancel' => 'Κλείσιμο ρυθμίσεων',
         'share.create' => 'Δημιουργία συνδέσμου πελάτη', 'share.revoke' => 'Ακύρωση συνδέσμου πελάτη', 'share.send' => 'Αποστολή συνδέσμου πελάτη',
         'auth.authenticate' => 'Σύνδεση (κωδικός)', 'auth.logout' => 'Αποσύνδεση', 'otp.send' => 'Αποστολή κωδικού OTP', 'otp.verify' => 'Επιβεβαίωση OTP',
@@ -74,6 +76,7 @@ final class Activity
         'offer' => ['#__supportplans_offers', "CONCAT(offer_number, ' – ', customer_name)"],
         'offerservice' => ['#__supportplans_offer_services', 'name'],
         'offertemplate' => ['#__supportplans_offer_templates', 'name'],
+        'structure' => ['#__supportplans_structures', "CONCAT(number, ' – ', customer_name)"],
         'share' => ['#__supportplans_plans', 'customer_name'],
         'notify.client' => ['#__supportplans_clients', "CONCAT(IF(name<>'', name, company), ' <', email, '>')"],
         'notify.catalog' => ['#__supportplans_catalog', 'name'],
@@ -85,7 +88,7 @@ final class Activity
 
     /** Input fields that may be recorded (as details); everything else is ignored. */
     private const SAFE_FIELDS = ['id', 'plan_id', 'client_id', 'catalog_id', 'service_plan_id', 'client_service_id', 'do', 'status', 'name', 'company',
-        'email', 'username', 'label', 'customer_name', 'project_name', 'offer_number', 'plan_type', 'work_type', 'period', 'subject', 'expiry_date',
+        'email', 'username', 'label', 'customer_name', 'project_name', 'offer_number', 'number', 'plan_type', 'work_type', 'period', 'subject', 'expiry_date',
         'new_expiry', 'paid_on', 'amount', 'price', 'duration_months', 'value', 'template', 'aud_mode', 'to'];
 
     private static ?array $pending = null;
