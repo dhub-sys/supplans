@@ -13,7 +13,7 @@ $spParams = $this->params;
 $spCompany = trim((string) $spParams->get('brand_name', '')) ?: Factory::getApplication()->get('sitename', 'Back Office');
 $spLogoUrl = OfferHelper::assetUrl((string) $spParams->get('brand_logo', ''));
 $spInitials = '';
-foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= mb_strtoupper(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
+foreach (preg_split('/\s+/u', $spCompany, -1, PREG_SPLIT_NO_EMPTY) as $word) { $spInitials .= \Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr($word, 0, 1)); if (mb_strlen($spInitials) >= 2) break; }
 if ($spInitials === '') $spInitials = 'SP';
 $e = [NotifyUi::class, 'e'];
 $templates = [

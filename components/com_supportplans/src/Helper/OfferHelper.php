@@ -21,6 +21,19 @@ final class OfferHelper
         'rejected' => 'Απορρίφθηκε',
     ];
 
+    /**
+     * Upper case for Greek text the way Greek is written in capitals: without accents
+     * ("Ελένη Παπαδοπούλου" -> "ΕΛΕΝΗ ΠΑΠΑΔΟΠΟΥΛΟΥ"), keeping the diaeresis ("Πρωτεΐνη" -> "ΠΡΩΤΕΪΝΗ").
+     * mb_strtoupper() alone keeps the accents (Ά, Έ, Ή, Ί, Ό, Ύ, Ώ), which is wrong in Greek.
+     */
+    public static function upperGr(string $text): string
+    {
+        $text = mb_strtoupper($text, 'UTF-8');
+        $text = strtr($text, ['Ά' => 'Α', 'Έ' => 'Ε', 'Ή' => 'Η', 'Ί' => 'Ι', 'Ό' => 'Ο', 'Ύ' => 'Υ', 'Ώ' => 'Ω', 'Ϊ́' => 'Ϊ', 'Ϋ́' => 'Ϋ', 'ΐ' => 'Ϊ', 'ΰ' => 'Ϋ']);
+        // Decomposed accents (letter + combining acute / tonos).
+        return preg_replace('/[\x{0301}\x{0384}]/u', '', $text);
+    }
+
     public static function itemid(): int
     {
         return max(1, (int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid', 785));

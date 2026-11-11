@@ -11,7 +11,7 @@ $spItemid=max(1,(int)$spParams->get('standalone_itemid',785));
 $spCompany=trim((string)$spParams->get('brand_name','')) ?: Factory::getApplication()->get('sitename','Back Office');
 $spLogo=trim((string)$spParams->get('brand_logo',''));
 $spInitials='';
-foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=mb_strtoupper(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
+foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=\Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
 if($spInitials==='')$spInitials='SP';
 $spLogoUrl=$spLogo!==''?(preg_match('#^https?://#i',$spLogo)?$spLogo:Uri::root().ltrim($spLogo,'/')):'';
 $app=Factory::getApplication();
@@ -200,6 +200,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  <?php else: ?>
  <section class="sp-help-card">
   <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.22.1</div><div><ul>
+<li>Προσφορές: στο «Πελάτης» το όνομα γράφεται με κεφαλαία <b>χωρίς τόνους</b>, όπως γράφονται τα ελληνικά κεφαλαία (π.χ. «ΕΛΕΝΗ ΠΑΠΑΔΟΠΟΥΛΟΥ», με διαλυτικά όπου χρειάζεται: «ΠΡΩΤΕΪΝΗ»). Ο τίτλος της προσφοράς μένει όπως το γράψατε. Το ίδιο και στα ονόματα των τραπεζών (προσφορές και email).</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.22.0</div><div><ul>
 <li><b>Ώρα αποστολής αυτόματων υπενθυμίσεων</b> (Ρυθμίσεις email, προεπιλογή 09:30, ώρα site): οι αυτόματες υπενθυμίσεις ανανέωσης ετοιμάζονται από αυτή την ώρα και μετά, μία φορά την ημέρα. Χειροκίνητες υπενθυμίσεις, αναφορές, αποστολές και το κουμπί «Έλεγχος λήξεων & αποστολή τώρα» λειτουργούν αμέσως.</li>

@@ -1132,7 +1132,7 @@ final class Notify
             . '<tr><td colspan="3" ' . $c['title'] . '>Τραπεζικοί λογαριασμοί</td></tr>';
         foreach ($banks as $b) {
             $html .= '<tr>'
-                . '<td class="sp-n-bank-name" style="' . $cell . 'font-weight:700;">' . self::e(mb_strtoupper($b['name'])) . '</td>'
+                . '<td class="sp-n-bank-name" style="' . $cell . 'font-weight:700;">' . self::e(OfferHelper::upperGr((string) $b['name'])) . '</td>'
                 . '<td class="sp-n-bank-iban" style="' . $cell . 'white-space:nowrap;font-family:Consolas,Menlo,monospace;">' . self::ibanHtml($b['iban']) . '</td>'
                 . '<td class="sp-n-bank-ben" style="' . $cell . 'color:#475467;">' . self::e($b['beneficiary']) . '</td>'
                 . '</tr>';

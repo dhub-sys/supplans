@@ -11,7 +11,7 @@ $spSecondary=trim((string)$spParams->get('secondary_color','#245719'));
 if(!preg_match('/^#[0-9a-fA-F]{6}$/',$spAccent))$spAccent='#367d22';
 if(!preg_match('/^#[0-9a-fA-F]{6}$/',$spSecondary))$spSecondary='#245719';
 $spInitials='';
-foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=mb_strtoupper(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
+foreach(preg_split('/\s+/u',$spCompany,-1,PREG_SPLIT_NO_EMPTY) as $word){$spInitials.=\Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr($word,0,1));if(mb_strlen($spInitials)>=2)break;}
 if($spInitials==='')$spInitials='SP';
 $spLogoUrl='';
 if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\CMS\Uri\Uri::root().ltrim($spLogo,'/');}

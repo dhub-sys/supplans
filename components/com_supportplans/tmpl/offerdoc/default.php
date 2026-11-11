@@ -57,7 +57,7 @@ $section = 0;
    <div class="sp-od-meta">
     <div><span>Αρ. Προσφοράς</span><b><?php echo $e($o->offer_number); ?></b></div>
     <div><span>Ημερομηνία Προσφοράς</span><b><?php echo $e(OfferHelper::dateGr($o->offer_date)); ?></b></div>
-    <div><span>Πελάτης</span><b><?php echo $e(mb_strtoupper($o->customer_name)); ?></b></div>
+    <div><span>Πελάτης</span><b><?php echo $e(OfferHelper::upperGr((string) $o->customer_name)); ?></b></div>
    </div>
    <div class="sp-od-company">
     <b><?php echo $e($brand['name']); ?></b>
@@ -112,7 +112,7 @@ $section = 0;
     <tr class="sp-od-card-title"><th colspan="3">Τράπεζες / Λογαριασμοί</th></tr>
     <tr class="sp-od-card-head"><th>Τράπεζα</th><th>IBAN</th><th>Όνομα δικαιούχου</th></tr>
    </thead>
-   <tbody><?php foreach ($banks as $b): ?><tr><td><?php echo $e(mb_strtoupper($b['name'])); ?></td><td><?php echo $e($b['iban']); ?></td><td><?php echo $e($b['beneficiary']); ?></td></tr><?php endforeach; ?></tbody>
+   <tbody><?php foreach ($banks as $b): ?><tr><td><?php echo $e(OfferHelper::upperGr((string) $b['name'])); ?></td><td><?php echo $e($b['iban']); ?></td><td><?php echo $e($b['beneficiary']); ?></td></tr><?php endforeach; ?></tbody>
   </table>
   <?php return ob_get_clean();
   };
