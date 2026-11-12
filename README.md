@@ -905,3 +905,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.29.2
 - `default_servicestable.php`: το «Πληρώθηκε…» ανοίγει διάλογο (`#sp-n-paydlg`, ένας ανά σελίδα) με τα στοιχεία της γραμμής (`data-pay`) και στέλνει στο `notify.renew` με `back` = η τρέχουσα σελίδα και τα φίλτρα της.
 
+## v1.29.3
+- Ιστορικό ενεργειών: συμπαγής πίνακας μίας γραμμής (ellipsis στο στοιχείο), κουκκίδα αποτελέσματος, κουμπί ⓘ → `<dialog>` με όλα τα πεδία (ελληνικές ετικέτες για τα `details`, ημερομηνίες σε dd/mm/yyyy). Η εξαγωγή Excel δεν άλλαξε.
+
