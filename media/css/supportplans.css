@@ -655,3 +655,6 @@ html body .sp-saas-root .sp-logout{display:flex;align-items:center;gap:10px}
 .sp-my-account-form{display:inline-flex;gap:8px;margin:6px 8px 0 0}
 .sp-my-account-form input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .sp-my-account-form label.btn{cursor:pointer;margin:0}
+/* Secondary main action ("＋ Νέος πελάτης"): white with blue text; blue with white text on hover. */
+html body .sp-saas-root .sp-primary-action.is-secondary{background:#fff!important;color:#1d4ed8!important;border:1px solid #c7d4f5!important;box-shadow:none!important}
+html body .sp-saas-root .sp-primary-action.is-secondary:hover,html body .sp-saas-root .sp-primary-action.is-secondary:focus-visible{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}

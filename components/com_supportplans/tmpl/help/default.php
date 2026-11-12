@@ -35,7 +35,7 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 .sp-docs{display:grid;grid-template-columns:230px minmax(0,1fr);gap:30px;align-items:start}
 .sp-docs-nav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid #e4e7ec;margin:-8px 0 0}
 .sp-docs-nav-inner{display:flex;flex-direction:column;gap:2px;padding:22px 14px 30px 0}
-.sp-docs-nav strong{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#98a2b3;margin:0 0 8px 10px}
+.sp-docs-nav strong{position:sticky;top:0;z-index:1;display:block;background:#f7f8fa;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#98a2b3;margin:-22px 0 6px;padding:22px 10px 8px}
 .sp-docs-nav a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;font-size:14px;color:#475467;text-decoration:none;border-left:2px solid transparent;transition:background .15s,color .15s}
 .sp-docs-nav a span{min-width:18px;font-size:12px;font-weight:700;color:#98a2b3;font-variant-numeric:tabular-nums}
 .sp-docs-nav a:hover{background:#f2f4f7;color:#101828}
@@ -262,27 +262,42 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 
  <script>
  (function () {
+   // Active section of the sticky menu: the last section whose top has passed the top of the
+   // window (+ offset). A clicked item stays active when the page cannot scroll that far (the
+   // last, short sections at the end of the page).
    var links = Array.prototype.slice.call(document.querySelectorAll('.sp-docs-nav a'));
-   if (!links.length || !('IntersectionObserver' in window)) return;
-   var byId = {};
-   links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
-   var visible = {};
-   var mark = function () {
-     var ids = Object.keys(visible).filter(function (k) { return visible[k]; });
-     var first = links.map(function (a) { return a.getAttribute('href').slice(1); }).filter(function (id) { return ids.indexOf(id) !== -1; })[0];
-     if (!first) return;
-     links.forEach(function (a) { a.classList.toggle('is-active', a === byId[first]); });
+   if (!links.length) return;
+   var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+   var clicked = null, ticking = false, OFFSET = 120;
+   var set = function (i) { links.forEach(function (a, k) { a.classList.toggle('is-active', k === i); }); };
+   var update = function () {
+     ticking = false;
+     var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+     if (clicked !== null && atBottom) { set(clicked); return; }
+     var current = 0;
+     sections.forEach(function (sec, i) { if (sec && sec.getBoundingClientRect().top <= OFFSET) current = i; });
+     if (atBottom) current = Math.max(current, clicked !== null ? clicked : current);
+     set(current);
    };
-   var io = new IntersectionObserver(function (entries) {
-     entries.forEach(function (en) { visible[en.target.id] = en.isIntersecting; });
-     mark();
-   }, {rootMargin: '0px 0px -55% 0px', threshold: 0});
-   Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
-   links[0].classList.add('is-active');
+   window.addEventListener('scroll', function () {
+     if (!ticking) { ticking = true; requestAnimationFrame(update); }
+   }, {passive: true});
+   links.forEach(function (a, i) {
+     a.addEventListener('click', function () { clicked = i; set(i); setTimeout(function () { clicked = i; update(); }, 400); });
+   });
+   window.addEventListener('wheel', function () { clicked = null; }, {passive: true});
+   window.addEventListener('touchmove', function () { clicked = null; }, {passive: true});
+   window.addEventListener('keydown', function () { clicked = null; });
+   update();
  })();
  </script>
 <?php else: ?>
  <section class="sp-help-card">
+
+  <div class="sp-change"><div class="sp-version">v1.30.1</div><div><ul>
+<li>Documentation: ο τίτλος «Ενότητες» του πλευρικού μενού μένει σταθερός· όταν πατάτε μια ενότητα, ενεργή γίνεται αυτή (και όχι η προηγούμενη), και κατά την κύλιση φωτίζεται η ενότητα που έχει φτάσει στο πάνω μέρος της σελίδας.</li>
+<li>Το κουμπί «＋ Νέος πελάτης» (Ανανεώσεις) είναι λευκό με μπλε γράμματα και στο hover μπλε με λευκά γράμματα.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.30.0</div><div><ul>
 <li>Το «Client Management» λέγεται πλέον <b>Ανανεώσεις</b>.</li>

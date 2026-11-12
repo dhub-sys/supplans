@@ -914,3 +914,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Notify::summaryRanges()` / `summaryRows()`, `OverviewController::export` (Excel: Σύνοψη, Πληρωμές, Λήγουν, Ληγμένες) και view `renewalsreport` (εκτυπώσιμη Α4), με φίλτρα περιόδου και περιεχομένου από την Επισκόπηση.
 - Οδηγίες: χωριστές σελίδες Documentation (`view=help`, sticky πλευρικό μενού ενοτήτων με scrollspy, αρίθμηση με CSS counter) και Changelog (`view=help&section=changelog`).
 
+## v1.30.1
+- Documentation: scrollspy με θέση (ενεργή = η τελευταία ενότητα που πέρασε το πάνω μέρος + 120px· η επιλεγμένη μένει ενεργή όταν η σελίδα δεν κυλά άλλο), sticky τίτλος «Ενότητες» μέσα στο μενού.
+- `.sp-primary-action.is-secondary`: χρώματα με μεγαλύτερη εξειδίκευση (το μπλε φόντο του κύριου κουμπιού υπερίσχυε, με μπλε γράμματα).
+
