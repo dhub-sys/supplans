@@ -75,7 +75,8 @@ final class Documents
         $db = Factory::getContainer()->get('DatabaseDriver');
         $rows = [];
         foreach ($db->setQuery($db->getQuery(true)->select('id, sequence_no, form_number, purchase_date, customer_name, plan_type, supported_websites, status')->from($db->quoteName('#__supportplans_plans')))->loadObjectList() as $p) {
-            $rows[] = ['type' => 'plan', 'id' => (int) $p->id, 'number' => trim((string) $p->form_number), 'date' => (string) $p->purchase_date,
+            // Packages created before the shared numbering may have no number: their sequence then.
+            $rows[] = ['type' => 'plan', 'id' => (int) $p->id, 'number' => trim((string) $p->form_number) ?: (string) $p->sequence_no, 'date' => (string) $p->purchase_date,
                 'customer' => (string) $p->customer_name, 'title' => trim((string) $p->plan_type . ((string) $p->supported_websites !== '' ? ' · ' . $p->supported_websites : ''), ' ·'),
                 'status' => $p->status === 'completed' ? 'accepted' : 'sent', 'statusLabel' => $p->status === 'completed' ? 'Ολοκληρωμένο' : 'Ενεργό',
                 'open' => 'view=plans&plan_id=' . (int) $p->id, 'pdf' => 'view=report&plan_id=' . (int) $p->id];

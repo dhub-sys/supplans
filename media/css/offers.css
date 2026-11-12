@@ -387,31 +387,3 @@
 .sp-od-fin.has-discount .sp-od-card-head th{font-size:8.4pt}
 .sp-od-fin.has-discount .sp-od-card-total td{font-size:10.2pt}
 .sp-od-fin.has-discount tbody td:first-child{min-width:52mm}
-/* Send offer by email (v1.24.0) */
-.sp-send{width:min(680px,96vw);max-height:94vh;padding:0;border:0;border-radius:14px;box-shadow:0 30px 80px rgba(16,24,40,.35)}
-.sp-send::backdrop{background:rgba(16,24,40,.55)}
-.sp-send form{display:flex;flex-direction:column;max-height:94vh}
-.sp-send-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 22px 12px;border-bottom:1px solid #eef0f3}
-.sp-send-head strong{display:block;font-size:17px;color:#101828}
-.sp-send-head span{font-size:13px;color:#667085}
-.sp-send-body{padding:16px 22px;overflow:auto;display:grid;gap:13px}
-.sp-send-body>label{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:13px;color:#344054}
-.sp-send-body input[type=text],.sp-send-body input:not([type]),.sp-send-body textarea{padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-weight:400;font-size:14px}
-.sp-send-body small{font-weight:400;color:#667085;font-size:12px}
-.sp-send-what{display:grid;gap:10px;padding:12px 14px;border:1px solid #e4e7ec;border-radius:10px;background:#f9fafb}
-.sp-send-what .sp-check{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;font-weight:600;color:#344054}
-.sp-send-file{display:grid;gap:5px;font-size:13.5px;font-weight:600;color:#344054}
-.sp-send-file>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.sp-send-file input[type=file]{font-size:13px;font-weight:400}
-.sp-send-foot{display:flex;align-items:center;gap:8px;padding:12px 22px 16px;border-top:1px solid #eef0f3}
-.sp-send-foot>span{margin-right:auto;font-size:12px;color:#667085}
-.sp-send-link{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed #e4e7ec}
-.sp-send-link>span{font-size:13px;font-weight:600;color:#067647}
-.sp-send-link input{flex:1;min-width:220px;padding:6px 9px;border:1px solid #d0d5dd;border-radius:7px;font-size:12px;color:#475467}
-.sp-send-link form{margin:0}
-.sp-send-protect{display:grid;gap:8px;margin:-2px 0 4px 26px;padding:10px 12px;border-radius:9px;background:#fff;border:1px solid #e4e7ec}
-.sp-send-protect[hidden]{display:none}
-.sp-send-days{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#344054}
-.sp-send-days select{padding:6px 8px;border:1px solid #d0d5dd;border-radius:7px;font-size:13px}
-.sp-send-prot{font-size:12px;color:#475467}
-.sp-send-from{font-size:13px;color:#475467}.sp-send-from a{margin-left:6px;font-size:12.5px}

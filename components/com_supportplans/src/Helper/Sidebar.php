@@ -49,8 +49,10 @@ final class Sidebar
             $html .= $link($view, $label, $icon, ($view === $active ? ' is-active' : '') . ($inGroup ? ' is-parent-active' : ''));
             if ($children) {
                 $html .= '<div class="sp-side-sub">';
+                // Πακέτα / Προσφορές / Προτάσεις δομής: the documents page of that type.
+                $types = ['plans' => 'plan', 'offers' => 'offer', 'structures' => 'structure'];
                 foreach ($children as $cv => [$cl, $ci]) {
-                    $html .= $link($cv, $cl, $ci, ' is-sub' . ($cv === $active ? ' is-active' : ''));
+                    $html .= $link('documents&type=' . $types[$cv], $cl, $ci, ' is-sub' . ($cv === $active ? ' is-active' : ''));
                 }
                 $html .= '</div>';
             }

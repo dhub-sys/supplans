@@ -33,6 +33,11 @@ class HtmlView extends BaseHtmlView
         $this->section = in_array($section, ['offers', 'templates', 'services', 'variables'], true) ? $section : 'offers';
         $id = $app->input->getInt('id');
         $this->mode = $app->input->getCmd('mode', $id ? 'edit' : 'list') === 'new' ? 'new' : ($id ? 'edit' : 'list');
+        if ($this->section === 'offers' && $this->mode === 'list') {
+            // The list of offers is the documents page (same look, by number).
+            $app->redirect(\Support\Component\Supportplans\Site\Helper\OfferHelper::url('view=documents&type=offer', false));
+            return;
+        }
 
         $q = $db->getQuery(true)->select('*')->from($db->quoteName('#__supportplans_offer_services'))->order('ordering ASC, name ASC');
         $this->services = $db->setQuery($q)->loadObjectList();

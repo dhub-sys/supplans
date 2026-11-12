@@ -36,7 +36,7 @@ $tabs = ['offers' => 'Προσφορές', 'templates' => 'Templates', 'services
 <section class="sp-workspace sp-offers-workspace">
  <nav class="sp-offer-tabs" aria-label="Προσφορές">
   <?php foreach ($tabs as $key => $label): ?>
-  <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo OfferHelper::url('view=offers' . ($key === 'offers' ? '' : '&section=' . $key)); ?>"><?php echo $e($label); ?></a>
+  <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo OfferHelper::url($key === 'offers' ? 'view=documents&type=offer' : 'view=offers&section=' . $key); ?>"><?php echo $e($label); ?></a>
   <?php endforeach; ?>
  </nav>
  <script>

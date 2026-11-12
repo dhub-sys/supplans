@@ -27,19 +27,37 @@ $filterUrl = static fn(string $type) => OfferHelper::url('view=documents' . ($ty
 </header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo Sidebar::head(); ?>
-  <?php echo Sidebar::nav('documents'); ?>
+  <?php echo Sidebar::nav(['plan' => 'plans', 'offer' => 'offers', 'structure' => 'structures'][$this->type] ?? 'documents'); ?>
   <div class="sp-sidebar-bottom">
     <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
     <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
   </div>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
+<?php
+$titles = ['' => 'Έγγραφα', 'plan' => 'Πακέτα', 'offer' => 'Προσφορές', 'structure' => 'Προτάσεις δομής'];
+$intro = [
+    '' => 'Πακέτα, προσφορές και προτάσεις δομής με κοινή αρίθμηση. Κάθε νέο έγγραφο παίρνει τον επόμενο αριθμό μετά τον τελευταίο (<b>' . $e($this->nextNumber) . '</b>), που μπορείτε να αλλάξετε πριν την αποθήκευση.',
+    'plan' => 'Πακέτα υποστήριξης πελατών, κατά αριθμό εγγράφου (το νεότερο πρώτο). Νέος αριθμός: <b>' . $e($this->nextNumber) . '</b>.',
+    'offer' => 'Οικονομικές προσφορές, κατά αριθμό εγγράφου (η νεότερη πρώτη). Νέος αριθμός: <b>' . $e($this->nextNumber) . '</b>.',
+    'structure' => 'Προτάσεις δομής ιστοσελίδων (sitemap και περιεχόμενο), κατά αριθμό εγγράφου. Νέος αριθμός: <b>' . $e($this->nextNumber) . '</b>.',
+][$this->type];
+$newBtns = ['offer' => ['view=offers&mode=new', '＋ Προσφορά'], 'structure' => ['view=structures&mode=new', '＋ Πρόταση δομής'], 'plan' => ['view=plans&mode=new', '＋ Πακέτο']];
+if ($this->type !== '') $newBtns = [$this->type => $newBtns[$this->type]] + $newBtns;
+?>
+<?php if ($this->type === 'offer'): ?>
+<nav class="sp-offer-tabs" aria-label="Προσφορές">
+ <?php foreach (['' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες / Περιγραφές', 'variables' => 'Μεταβλητές'] as $sk => $sl): ?>
+ <a class="sp-offer-tab<?php echo $sk === '' ? ' is-active' : ''; ?>" href="<?php echo OfferHelper::url($sk === '' ? 'view=documents&type=offer' : 'view=offers&section=' . $sk); ?>"><?php echo $e($sl); ?></a>
+ <?php endforeach; ?>
+</nav>
+<?php endif; ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Έγγραφα</span><h1>Έγγραφα <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h1><p>Πακέτα, προσφορές και προτάσεις δομής με κοινή αρίθμηση. Κάθε νέο έγγραφο παίρνει τον επόμενο αριθμό μετά τον τελευταίο (<b><?php echo $e($this->nextNumber); ?></b>), που μπορείτε να αλλάξετε πριν την αποθήκευση.</p></div>
+  <div><span class="sp-eyebrow">Έγγραφα</span><h1><?php echo $e($titles[$this->type]); ?> <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h1><p><?php echo $intro; ?></p></div>
   <div class="sp-doc-new">
-   <a class="sp-primary-action" href="<?php echo OfferHelper::url('view=offers&mode=new'); ?>">＋ Προσφορά</a>
-   <a class="sp-doc-btn is-lg" href="<?php echo OfferHelper::url('view=structures&mode=new'); ?>">＋ Πρόταση δομής</a>
-   <a class="sp-doc-btn is-lg" href="<?php echo OfferHelper::url('view=plans&mode=new'); ?>">＋ Πακέτο</a>
+   <?php $first = true; foreach ($newBtns as [$nu, $nl]): ?>
+   <a class="<?php echo $first ? 'sp-primary-action' : 'sp-doc-btn is-lg'; ?>" href="<?php echo OfferHelper::url($nu); ?>"><?php echo $e($nl); ?></a>
+   <?php $first = false; endforeach; ?>
   </div>
 </section>
 <div class="sp-card">

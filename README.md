@@ -898,3 +898,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - «Back Office» → «Dashboard» σε όλο τον κώδικα, τα templates, το manifest (όνομα επέκτασης και μενού Administrator), τα plugins και τις γλώσσες (τα παλιά changelog μένουν ως έχουν).
 - Sidebar: `flex-shrink:0` στα παιδιά του (σε χαμηλές οθόνες η κεφαλίδα συμπιεζόταν 1–6px μόνο στην ανοιχτή κατάσταση → τα στοιχεία «πηδούσαν»). Ενεργό στοιχείο: `#4ade80` εικονίδιο, λευκό κείμενο, παλλόμενη κουκκίδα (`spPulse`, σέβεται το prefers-reduced-motion). Burger: γραμμές με `transform-origin:right`, κλειστό μενού = βέλος (rotate ±42°), cubic-bezier .65,0,.35,1.
 
+## v1.29.1
+- `media/css/docmail.css` (φορτώνεται από `DocMail::dialog()`): τα στυλ του διαλόγου αποστολής δεν εξαρτώνται πλέον από το `offers.css` (η σελίδα πακέτων δεν το φόρτωνε)· σταθερό πλάτος και checkbox ανεξάρτητα από κανόνες του θέματος.
+- Οι λίστες `plans`, `offers` (ενότητα προσφορών) και `structures` ανακατευθύνονται στο `view=documents&type=plan|offer|structure`· τα υπομενού του sidebar ανοίγουν εκεί, με ενεργό το αντίστοιχο στοιχείο. Πακέτα χωρίς αριθμό εγγράφου δείχνουν το παλιό Α/Α.
+

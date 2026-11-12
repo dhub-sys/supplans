@@ -241,7 +241,9 @@ final class DocMail
         // Defaults: protected, 30 days (packages: no expiry, their link follows the package).
         $otpDefault = true;
         $daysDefault = $type === 'plan' ? 0 : 30;
-        ob_start(); ?>
+        ob_start();
+        // Its own stylesheet: the dialog is used on pages that do not load the offers' styles.
+        echo Assets::css('docmail.css'); ?>
 <dialog class="sp-send" id="sp-send" aria-label="Αποστολή με email">
  <form method="post" enctype="multipart/form-data" action="<?php echo $e(OfferHelper::url('task=docmail.send', false)); ?>" id="sp-send-form">
   <div class="sp-send-head"><div><strong>Αποστολή: <?php echo $e(trim($c['name'] . ' ' . $number)); ?></strong><span>Αποστέλλεται η αποθηκευμένη μορφή του εγγράφου.</span></div><button type="button" class="sp-preview-close" onclick="document.getElementById('sp-send').close()" aria-label="Κλείσιμο">×</button></div>
