@@ -921,3 +921,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.30.2
 - Documentation: ο τίτλος και η περιγραφή μέσα στη sticky στήλη (`.sp-docs-nav-head`, sticky και όταν η στήλη κυλά). Στοιχεία μενού: σταθερό font-weight (το έντονο στο ενεργό άλλαζε το πλάτος του κειμένου), μετάβαση .25s σε χρώμα/φόντο, ένδειξη με inset box-shadow, `overscroll-behavior:contain`.
 
+## v1.30.3
+- Burger (κλειστό μενού) στο hover: και οι τρεις γραμμές +2px, ώστε η μεσαία να τελειώνει στη μύτη. Αποσύνδεση: εικονίδιο log-out (πλαίσιο αριστερά, βέλος προς τα έξω)· στο κλειστό μενού κρύβεται το κείμενο (παλιός κανόνας μεγάλωνε κάθε span).
+

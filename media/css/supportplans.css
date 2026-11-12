@@ -631,7 +631,9 @@ html body .sp-saas-root .sp-sidebar .sp-side-link.is-parent-active .sp-side-icon
 .sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(1){width:10px;transform:translate(10px,6px) rotate(42deg)}
 .sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(2){width:20px;transform:translateX(0)}
 .sp-sb-collapsed .sp-saas-root .sp-sb-toggle span:nth-child(3){width:10px;transform:translate(10px,-6px) rotate(-42deg)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle:hover span:nth-child(1){transform:translate(12px,6px) rotate(42deg)}
 .sp-sb-collapsed .sp-saas-root .sp-sb-toggle:hover span:nth-child(2){transform:translateX(2px)}
+.sp-sb-collapsed .sp-saas-root .sp-sb-toggle:hover span:nth-child(3){transform:translate(12px,-6px) rotate(-42deg)}
 /* Signed-in user and logout at the bottom of the sidebar (v1.30.0) */
 html body .sp-saas-root .sp-sb-user{display:grid;gap:6px;padding:14px 4px 0!important}
 .sp-saas-root .sp-user{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:11px;text-decoration:none!important;color:#fff!important;min-width:0}
@@ -658,3 +660,6 @@ html body .sp-saas-root .sp-logout{display:flex;align-items:center;gap:10px}
 /* Secondary main action ("＋ Νέος πελάτης"): white with blue text; blue with white text on hover. */
 html body .sp-saas-root .sp-primary-action.is-secondary{background:#fff!important;color:#1d4ed8!important;border:1px solid #c7d4f5!important;box-shadow:none!important}
 html body .sp-saas-root .sp-primary-action.is-secondary:hover,html body .sp-saas-root .sp-primary-action.is-secondary:focus-visible{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+/* Collapsed sidebar: logout shows only its exit icon (an older rule enlarged every span). */
+html.sp-sb-collapsed body .sp-saas-root .sp-logout>span:last-child{display:none!important}
+html.sp-sb-collapsed body .sp-saas-root .sp-logout>.sp-logout-icon{display:inline-flex!important;font-size:0!important}

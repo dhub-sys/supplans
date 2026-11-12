@@ -142,7 +142,7 @@ final class Sidebar
             . '<a class="sp-user" href="' . $e(OfferHelper::url('view=settings', false)) . '#sp-my-account" title="Ο λογαριασμός μου">'
             . '<span class="sp-user-photo">' . ($photo !== '' ? '<img src="' . $e($photo) . '" alt="">' : $e($initials ?: '?')) . '</span>'
             . '<span class="sp-user-text"><strong>' . $e($name) . '</strong><small>' . $e((string) ($user->email ?? '')) . '</small></span></a>'
-            . '<a class="sp-side-joomla sp-logout" href="' . $e($logout) . '" title="Αποσύνδεση"><span class="sp-logout-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l4-4-4-4"/><path d="M14 12H4"/></svg></span><span>Αποσύνδεση</span></a>'
+            . '<a class="sp-side-joomla sp-logout" href="' . $e($logout) . '" title="Αποσύνδεση"><span class="sp-logout-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/><path d="M16 16l4-4-4-4"/><path d="M20 12H9"/></svg></span><span>Αποσύνδεση</span></a>'
             . '</div>';
     }
 

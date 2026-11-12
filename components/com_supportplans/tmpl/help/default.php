@@ -296,6 +296,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <?php else: ?>
  <section class="sp-help-card">
 
+  <div class="sp-change"><div class="sp-version">v1.30.3</div><div><ul>
+<li>Κλειστό μενού: στο hover το βέλος μετακινείται ολόκληρο λίγο δεξιά, χωρίς η γραμμή να βγαίνει από τη μύτη. Η Αποσύνδεση δείχνει μόνο το εικονίδιο.</li>
+<li>Το εικονίδιο της Αποσύνδεσης είναι πλέον «έξοδος» (βέλος που βγαίνει από την πόρτα).</li>
+</ul></div></div>
+
   <div class="sp-change"><div class="sp-version">v1.30.2</div><div><ul>
 <li>Documentation: όλη η αριστερή στήλη (τίτλος «Documentation», περιγραφή και ενότητες) μένει σταθερή κατά την κύλιση· το περιεχόμενο ξεκινά από πάνω.</li>
 <li>Πιο ομαλό hover / ενεργό στοιχείο στο μενού ενοτήτων: απαλή μετάβαση χρώματος και φόντου, με λεπτή γραμμή αριστερά, χωρίς μετακίνηση του κειμένου στο κλικ.</li>
