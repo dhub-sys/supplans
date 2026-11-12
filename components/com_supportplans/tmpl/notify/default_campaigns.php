@@ -6,7 +6,7 @@ use Support\Component\Supportplans\Site\Helper\NotifyUi;
 $e = [NotifyUi::class, 'e'];
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Client Management</span><h1>Αποστολές</h1><p>Ελεύθερα μηνύματα σε όλους τους πελάτες, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους (ανακοινώσεις, εργασίες στον server, νέες υπηρεσίες). Οι πελάτες που έχουν διαγραφεί από τις ενημερώσεις εξαιρούνται αυτόματα.</p></div>
+  <div><span class="sp-eyebrow">Ανανεώσεις</span><h1>Αποστολές</h1><p>Ελεύθερα μηνύματα σε όλους τους πελάτες, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους (ανακοινώσεις, εργασίες στον server, νέες υπηρεσίες). Οι πελάτες που έχουν διαγραφεί από τις ενημερώσεις εξαιρούνται αυτόματα.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=campaigns&mode=new'); ?>">＋ Νέα αποστολή</a>
 </section>
 <div class="sp-card">

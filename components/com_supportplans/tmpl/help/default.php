@@ -26,15 +26,26 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout">
 <aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
-  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('help'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav($section === 'changelog' ? 'changelog' : 'help'); ?>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace">
 <style>
-.sp-help-wrap{max-width:1100px;margin:0 auto;padding:8px 0 40px}
+.sp-help-wrap{max-width:1180px;margin:0 auto;padding:8px 0 40px}
+.sp-docs{display:grid;grid-template-columns:230px minmax(0,1fr);gap:30px;align-items:start}
+.sp-docs-nav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid #e4e7ec;margin:-8px 0 0}
+.sp-docs-nav-inner{display:flex;flex-direction:column;gap:2px;padding:22px 14px 30px 0}
+.sp-docs-nav strong{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#98a2b3;margin:0 0 8px 10px}
+.sp-docs-nav a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;font-size:14px;color:#475467;text-decoration:none;border-left:2px solid transparent;transition:background .15s,color .15s}
+.sp-docs-nav a span{min-width:18px;font-size:12px;font-weight:700;color:#98a2b3;font-variant-numeric:tabular-nums}
+.sp-docs-nav a:hover{background:#f2f4f7;color:#101828}
+.sp-docs-nav a.is-active{background:#eff4ff;color:#1d4ed8;font-weight:600}
+.sp-docs-nav a.is-active span{color:#1d4ed8}
+.sp-docs-body{counter-reset:doc;min-width:0}
+.sp-docs-body .sp-help-card{scroll-margin-top:16px}
+.sp-docs-body .sp-help-card>h2::before{counter-increment:doc;content:counter(doc) ". ";color:#2563eb}
+@media(max-width:1000px){.sp-docs{grid-template-columns:1fr}.sp-docs-nav{position:static;height:auto;border-right:0;border-bottom:1px solid #e4e7ec;margin:0 0 16px}.sp-docs-nav-inner{flex-direction:row;flex-wrap:wrap;padding:0 0 12px}.sp-docs-nav strong{width:100%}}
+
 .sp-help-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}
 .sp-help-head h1{margin:0;font-size:28px;line-height:1.2;color:#111827}
 .sp-help-head p{margin:6px 0 0;color:#6b7280}
@@ -57,19 +68,32 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <div class="sp-help-wrap">
  <div class="sp-help-head">
   <div>
-   <h1>Οδηγίες &amp; Changelog</h1>
-   <p>Οδηγός χρήσης και ιστορικό αλλαγών του Dashboard.</p>
+   <?php if ($section === 'changelog'): ?><h1>Changelog</h1><p>Ιστορικό αλλαγών του Dashboard, η νεότερη έκδοση πρώτη.</p>
+   <?php else: ?><h1>Documentation</h1><p>Οδηγός χρήσης του Dashboard.</p><?php endif; ?>
   </div>
  </div>
 
- <nav class="sp-help-tabs">
-  <a class="sp-help-tab <?php echo $section !== 'changelog' ? 'is-active' : ''; ?>" href="<?php echo Route::_($base.'&view=help&section=guide'); ?>">Οδηγίες χρήσης</a>
-  <a class="sp-help-tab <?php echo $section === 'changelog' ? 'is-active' : ''; ?>" href="<?php echo Route::_($base.'&view=help&section=changelog'); ?>">Changelog</a>
- </nav>
-
  <?php if ($section !== 'changelog'): ?>
- <section class="sp-help-card">
-  <h2>1. Πρώτη ρύθμιση</h2>
+ <div class="sp-docs">
+  <nav class="sp-docs-nav" aria-label="Ενότητες"><div class="sp-docs-nav-inner"><strong>Ενότητες</strong>
+   <a href="#doc-1"><span>1</span>Πρώτη ρύθμιση</a>
+   <a href="#doc-2"><span>2</span>Σύνδεση στο Dashboard</a>
+   <a href="#doc-3"><span>3</span>Επισκόπηση</a>
+   <a href="#doc-4"><span>4</span>Πλάνα υπηρεσιών</a>
+   <a href="#doc-5"><span>5</span>Πακέτα πελατών</a>
+   <a href="#doc-6"><span>6</span>Καταχώρηση εργασιών</a>
+   <a href="#doc-7"><span>7</span>Αναφορά / PDF</a>
+   <a href="#doc-8"><span>8</span>Προσφορές</a>
+   <a href="#doc-9"><span>9</span>Προτάσεις δομής</a>
+   <a href="#doc-10"><span>10</span>Έγγραφα &amp; αποστολή με email</a>
+   <a href="#doc-11"><span>11</span>Ανανεώσεις</a>
+   <a href="#doc-12"><span>12</span>Ιστορικό ενεργειών</a>
+   <a href="#doc-13"><span>13</span>Χρήση ανά έτος</a>
+   <a href="#doc-14"><span>14</span>Ο λογαριασμός μου</a>
+  </div></nav>
+  <div class="sp-docs-body">
+ <section class="sp-help-card" id="doc-1">
+  <h2>Πρώτη ρύθμιση</h2>
   <ol>
    <li>Ανοίξτε τις <strong>Ρυθμίσεις</strong> και συμπληρώστε τα στοιχεία εταιρείας, το λογότυπο, τα στοιχεία επικοινωνίας και τα χρώματα του PDF.</li>
    <li>Ορίστε την ονομασία του πεδίου υπηρεσιών/υποστηριζόμενων websites όπως θέλετε να εμφανίζεται στα Πακέτα και στα PDF.</li>
@@ -78,8 +102,8 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ol>
  </section>
 
- <section class="sp-help-card">
-  <h2>2. Σύνδεση στο Dashboard</h2>
+ <section class="sp-help-card" id="doc-2">
+  <h2>Σύνδεση στο Dashboard</h2>
   <p>Η είσοδος στο Dashboard γίνεται χωρίς μετάβαση στο Joomla Administrator.</p>
   <ol>
    <li>Συμπληρώστε Joomla username και password.</li>
@@ -89,8 +113,16 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <div class="sp-help-note">Το OTP ισχύει για περιορισμένο χρόνο και χρησιμοποιείται μία φορά. Η αποσύνδεση γίνεται από το κάτω μέρος του sidebar.</div>
  </section>
 
- <section class="sp-help-card">
-  <h2>3. Πλάνα υπηρεσιών</h2>
+ <section class="sp-help-card" id="doc-3">
+  <h2>Επισκόπηση</h2>
+  <p>Η αρχική σελίδα μετά τη σύνδεση. Δείχνει την εικόνα του έτους: πόσα έγγραφα υπάρχουν ανά είδος, την αξία των αποδεκτών προσφορών και όσες είναι σε εκκρεμότητα, τους ενεργούς πελάτες και τα ενεργά πακέτα, τις ανανεώσεις του μήνα (πληρώθηκαν, προς πληρωμή, ληγμένες), τα πρόσφατα έγγραφα και τις υπηρεσίες που λήγουν τις επόμενες 30 ημέρες.</p>
+  <h3>Αναφορά ανανεώσεων (Excel / Pdf)</h3>
+  <p>Στην κάρτα «Αναφορά ανανεώσεων» επιλέγετε περίοδο (τρέχων μήνας, 30/60/90 ημέρες, έτος ή δικές σας ημερομηνίες) και τι θα περιέχει: <b>πληρωμές</b>, <b>λήξεις προς πληρωμή</b> και <b>ληγμένες απλήρωτες</b> υπηρεσίες. Το <b>Excel</b> έχει ένα φύλλο σύνοψης και ένα φύλλο για κάθε ενότητα με όλες τις γραμμές και τα σύνολα· το <b>Pdf</b> ανοίγει εκτυπώσιμη σελίδα (Αποθήκευση ως PDF).</p>
+  <p class="sp-help-note">Με «30 / 60 / 90 ημέρες» οι πληρωμές μετρούν τις τελευταίες ημέρες και οι λήξεις τις επόμενες. Με δικές σας ημερομηνίες, και τα δύο μετρούν μέσα στο διάστημα.</p>
+ </section>
+
+ <section class="sp-help-card" id="doc-4">
+  <h2>Πλάνα υπηρεσιών</h2>
   <p>Τα Πλάνα είναι τα πρότυπα πάνω στα οποία δημιουργούνται τα Πακέτα πελατών. Η εγκατάσταση δεν δημιουργεί προκαθορισμένα πλάνα.</p>
   <h3>Prepaid</h3><p>Προπληρωμένος χρόνος/ποσό με ελάχιστη χρέωση και βήμα χρέωσης.</p>
   <h3>Ongoing</h3><p>Η χρέωση υπολογίζεται από τον χρεώσιμο χρόνο και την ωριαία τιμή. Στο PDF εμφανίζονται Συνολικός χρόνος και Συνολικό κόστος.</p>
@@ -98,8 +130,8 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <p>Μπορείτε να επεξεργαστείτε ή να διαγράψετε ένα Πλάνο. Η διαγραφή εμποδίζεται όταν το Πλάνο χρησιμοποιείται ήδη από Πακέτο, ώστε να προστατεύεται το ιστορικό.</p>
  </section>
 
- <section class="sp-help-card">
-  <h2>4. Πακέτα πελατών</h2>
+ <section class="sp-help-card" id="doc-5">
+  <h2>Πακέτα πελατών</h2>
   <ol>
    <li>Επιλέξτε <strong>Νέο πακέτο</strong>.</li>
    <li>Συμπληρώστε πελάτη, ημερομηνία/περίοδο και τις υπηρεσίες που καλύπτονται.</li>
@@ -108,13 +140,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ol>
  </section>
 
- <section class="sp-help-card">
-  <h2>5. Καταχώρηση εργασιών</h2>
+ <section class="sp-help-card" id="doc-6">
+  <h2>Καταχώρηση εργασιών</h2>
   <p>Σε κάθε Πακέτο μπορείτε να προσθέτετε ημερομηνία/περίοδο, αίτημα ή εργασία, περιγραφή και διάρκεια. Στα χρεώσιμα πλάνα το Dashboard υπολογίζει τον χρεώσιμο χρόνο και το αντίστοιχο κόστος σύμφωνα με τους κανόνες του Πλάνου.</p>
  </section>
 
- <section class="sp-help-card">
-  <h2>6. Αναφορά / PDF</h2>
+ <section class="sp-help-card" id="doc-7">
+  <h2>Αναφορά / PDF</h2>
   <p>Η αναφορά ανοίγει σε καθαρή εταιρική διάταξη και χρησιμοποιεί το native Print/PDF του browser.</p>
   <ul>
    <li>Η πρώτη σελίδα περιλαμβάνει στοιχεία πελάτη/πακέτου και τη σύνοψη του αντίστοιχου τύπου Πλάνου.</li>
@@ -124,8 +156,8 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ul>
  </section>
 
- <section class="sp-help-card">
-  <h2>7. Προσφορές</h2>
+ <section class="sp-help-card" id="doc-8">
+  <h2>Προσφορές</h2>
   <p>Οι προσφορές δημιουργούνται από <strong>templates</strong> που συνδυάζουν <strong>υπηρεσίες</strong> από μια κοινή βιβλιοθήκη. Όλα βρίσκονται στο μενού <strong>Προσφορές</strong>, στις καρτέλες Προσφορές / Templates / Υπηρεσίες.</p>
   <h3>Υπηρεσίες</h3>
   <p>Κάθε υπηρεσία έχει τίτλο ενότητας και κείμενο περιγραφής για το έγγραφο, περιγραφή και τιμή για τον πίνακα τιμών. Μπορεί να είναι καθαρά κείμενο (π.χ. «Εισαγωγή», τιμή 0, χωρίς πίνακα) ή καθαρά χρέωση (π.χ. μια άδεια λογισμικού που μπαίνει μόνο στον πίνακα).</p>
@@ -155,8 +187,27 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   </ul>
  </section>
 
- <section class="sp-help-card">
-  <h2>8. Client Management</h2>
+ <section class="sp-help-card" id="doc-9">
+  <h2>Προτάσεις δομής</h2>
+  <p>Έντυπο με την προτεινόμενη δομή (sitemap) μιας ιστοσελίδας και προτάσεις περιεχομένου για κάθε ενότητα. Πατήστε «Νέα πρόταση δομής», συμπληρώστε πελάτη και έργο και διαλέξτε αρχική δομή (εταιρική, e-shop ή κενή).</p>
+  <ul>
+   <li><b>Δέντρο</b>: κάθε γραμμή είναι μια σελίδα/ενότητα. Τα <b>←</b> <b>→</b> αλλάζουν επίπεδο (υποενότητα της από πάνω, έως 5 επίπεδα: 1, 1.1, 1.1.1…), τα <b>↑</b> <b>↓</b> αλλάζουν σειρά μαζί με τις υποενότητες, το <b>↳</b> προσθέτει υποενότητα και το <b>+</b> ενότητα από κάτω. Στο πεδίο τίτλου: Enter = νέα ενότητα, Tab / Shift+Tab = επίπεδο, Alt+↑/↓ = σειρά.</li>
+   <li><b>Περιεχόμενο</b> ανά ενότητα: ο στόχος της (μία πρόταση) και οι προτάσεις περιεχομένου με τον ίδιο editor των προσφορών. Η πράσινη τελεία δείχνει ποιες ενότητες έχουν περιεχόμενο.</li>
+   <li><b>Pdf</b>: εξώφυλλο, header και footer όπως στις προσφορές· εισαγωγή, το sitemap ως δέντρο με γραμμές σύνδεσης (ρίζα το Έργο), οι προτάσεις περιεχομένου (μόνο όσες ενότητες έχουν στόχο ή περιεχόμενο, με τη διαδρομή τους) και το κλείσιμο. «Προεπισκόπηση» δείχνει το έγγραφο χωρίς αποθήκευση.</li>
+   <li><b>Θέση στο Pdf</b>: κάθε ενότητα του εγγράφου (Κείμενα εγγράφου) και κάθε ενότητα του δέντρου (στο «Περιεχόμενο» της) συνεχίζει στην ίδια σελίδα με απόσταση σε mm ή ξεκινά σε νέα σελίδα. Οι προτάσεις περιεχομένου αριθμούνται κάτω από την ενότητα του εγγράφου (3.1, 3.2…).</li>
+  </ul>
+ </section>
+
+ <section class="sp-help-card" id="doc-10">
+  <h2>Έγγραφα &amp; αποστολή με email</h2>
+  <p>Το μενού <b>Έγγραφα</b> δείχνει όλα τα πακέτα, τις προσφορές και τις προτάσεις δομής ταξινομημένα κατά αριθμό. Όλα τα έγγραφα έχουν κοινή αρίθμηση: ένα νέο έγγραφο προτείνει τον επόμενο αριθμό μετά τον τελευταίο, τον οποίο μπορείτε να αλλάξετε.</p>
+  <p>Κάθε έγγραφο (προσφορά, πρόταση δομής, πακέτο) στέλνεται με <b>«Αποστολή με email»</b> μέσα στο έγγραφο ή με «✉ Email» από τη λίστα Εγγράφων. Επιλέξτε <b>σύνδεσμο προβολής</b> (ο πελάτης ανοίγει την προσφορά online και την αποθηκεύει σε Pdf) ή/και <b>συνημμένο Pdf</b>: πατήστε «Δημιουργία Pdf…», αποθηκεύστε το αρχείο και επιλέξτε το στο πεδίο. Οι αποστολές φαίνονται στην κάρτα «Αποστολές με email», όπου μπορείτε και να απενεργοποιήσετε τον σύνδεσμο.</p>
+  <p><b>Προστασία συνδέσμου:</b> με «Προστασία με κωδικό μίας χρήσης» ο πελάτης, όταν ανοίγει τον σύνδεσμο, ζητά κωδικό που στέλνεται μόνο στα email στα οποία στάλθηκε το έγγραφο· με «Λήξη συνδέσμου» ο σύνδεσμος σταματά να λειτουργεί μετά από τις ημέρες που ορίσατε. Οι ρυθμίσεις της τελευταίας αποστολής ισχύουν για τον σύνδεσμο του εγγράφου. Σύνδεσμοι που στάλθηκαν πριν την έκδοση 1.26.0 προστατεύονται μόλις ξαναστείλετε το έγγραφο με την επιλογή (ή απενεργοποιήστε τους).</p>
+  <p><b>Αποστολέας:</b> στο Ανανεώσεις → Ρυθμίσεις email → «Αποστολείς εγγράφων» ορίζετε διαφορετικό αποστολέα ανά είδος εγγράφου.</p>
+ </section>
+
+ <section class="sp-help-card" id="doc-11">
+  <h2>Ανανεώσεις</h2>
   <p>Λίστα πελατών, κατάλογος υπηρεσιών (π.χ. Web Hosting Green, Ανανέωση Domain .gr), αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance και ενημερώσεις μέσω email.</p>
   <ol>
    <li><strong>Κατάλογος υπηρεσιών</strong>: προσθέστε τις υπηρεσίες που προσφέρετε με τιμή, διάρκεια (μήνες) και ημέρες υπενθύμισης. Δεν υπάρχουν προκαθορισμένες υπηρεσίες.</li>
@@ -190,34 +241,56 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
   <div class="sp-help-note">Το Ιστορικό κρατά κάθε μήνυμα με το ακριβές περιεχόμενο που στάλθηκε. Τα αποτυχημένα ξαναδοκιμάζονται έως 3 φορές· μπορείτε και χειροκίνητα.</div>
  </section>
 
- <section class="sp-help-card">
-  <h2>9. Ιστορικό ενεργειών</h2>
+ <section class="sp-help-card" id="doc-12">
+  <h2>Ιστορικό ενεργειών</h2>
   <p>Καταγράφει κάθε ενέργεια: ποιος (χρήστης και IP), πότε, σε ποια ενότητα, σε ποιο στοιχείο (π.χ. πελάτης, υπηρεσία, προσφορά) και με ποιο αποτέλεσμα (επιτυχία, προειδοποίηση, σφάλμα). Οι αποτυχημένες συνδέσεις φαίνονται με αποτέλεσμα «Σφάλμα».</p>
   <p>Φιλτράρετε με ημερομηνίες, ενότητα, χρήστη, αποτέλεσμα ή αναζήτηση και πατήστε «Εξαγωγή σε Excel»: το αρχείο περιέχει όσες εγγραφές ταιριάζουν (έως 20.000) και ένα φύλλο με τα φίλτρα που χρησιμοποιήθηκαν. Κωδικοί, OTP και κείμενα δεν καταγράφονται ποτέ.</p>
  </section>
 
- <section class="sp-help-card">
-  <h2>11. Έγγραφα &amp; αποστολή με email</h2>
-  <p>Το μενού <b>Έγγραφα</b> δείχνει όλα τα πακέτα, τις προσφορές και τις προτάσεις δομής ταξινομημένα κατά αριθμό. Όλα τα έγγραφα έχουν κοινή αρίθμηση: ένα νέο έγγραφο προτείνει τον επόμενο αριθμό μετά τον τελευταίο, τον οποίο μπορείτε να αλλάξετε.</p>
-  <p>Κάθε έγγραφο (προσφορά, πρόταση δομής, πακέτο) στέλνεται με <b>«Αποστολή με email»</b> μέσα στο έγγραφο ή με «✉ Email» από τη λίστα Εγγράφων. Επιλέξτε <b>σύνδεσμο προβολής</b> (ο πελάτης ανοίγει την προσφορά online και την αποθηκεύει σε Pdf) ή/και <b>συνημμένο Pdf</b>: πατήστε «Δημιουργία Pdf…», αποθηκεύστε το αρχείο και επιλέξτε το στο πεδίο. Οι αποστολές φαίνονται στην κάρτα «Αποστολές με email», όπου μπορείτε και να απενεργοποιήσετε τον σύνδεσμο.</p>
-  <p><b>Προστασία συνδέσμου:</b> με «Προστασία με κωδικό μίας χρήσης» ο πελάτης, όταν ανοίγει τον σύνδεσμο, ζητά κωδικό που στέλνεται μόνο στα email στα οποία στάλθηκε το έγγραφο· με «Λήξη συνδέσμου» ο σύνδεσμος σταματά να λειτουργεί μετά από τις ημέρες που ορίσατε. Οι ρυθμίσεις της τελευταίας αποστολής ισχύουν για τον σύνδεσμο του εγγράφου. Σύνδεσμοι που στάλθηκαν πριν την έκδοση 1.26.0 προστατεύονται μόλις ξαναστείλετε το έγγραφο με την επιλογή (ή απενεργοποιήστε τους).</p>
-  <p><b>Αποστολέας:</b> στο Client Management → Ρυθμίσεις email → «Αποστολείς εγγράφων» ορίζετε διαφορετικό αποστολέα ανά είδος εγγράφου.</p>
+ <section class="sp-help-card" id="doc-13">
+  <h2>Χρήση ανά έτος</h2>
+  <p>Το Dashboard ανοίγει πάντα στο τρέχον έτος. Κάθε έτος ξεκινά «καθαρό»: έγγραφα, Ιστορικό ενεργειών, ιστορικό email και συνόψεις δείχνουν μόνο το έτος, ενώ πελάτες, υπηρεσίες και κατάλογος είναι κοινά. Η αρίθμηση των εγγράφων ξεκινά από την αρχή κάθε χρόνο (26001 → 27001).</p>
+  <p>Τις προηγούμενες χρονιές τις ανοίγετε από την <b>Επισκόπηση</b> (κάρτα «Προηγούμενες χρονιές»). Όσο βλέπετε παλιό έτος, μια ένδειξη στο πάνω μέρος της σελίδας έχει «Επιστροφή» στο τρέχον.</p>
  </section>
 
- <section class="sp-help-card">
-  <h2>10. Προτάσεις δομής</h2>
-  <p>Έντυπο με την προτεινόμενη δομή (sitemap) μιας ιστοσελίδας και προτάσεις περιεχομένου για κάθε ενότητα. Πατήστε «Νέα πρόταση δομής», συμπληρώστε πελάτη και έργο και διαλέξτε αρχική δομή (εταιρική, e-shop ή κενή).</p>
-  <ul>
-   <li><b>Δέντρο</b>: κάθε γραμμή είναι μια σελίδα/ενότητα. Τα <b>←</b> <b>→</b> αλλάζουν επίπεδο (υποενότητα της από πάνω, έως 5 επίπεδα: 1, 1.1, 1.1.1…), τα <b>↑</b> <b>↓</b> αλλάζουν σειρά μαζί με τις υποενότητες, το <b>↳</b> προσθέτει υποενότητα και το <b>+</b> ενότητα από κάτω. Στο πεδίο τίτλου: Enter = νέα ενότητα, Tab / Shift+Tab = επίπεδο, Alt+↑/↓ = σειρά.</li>
-   <li><b>Περιεχόμενο</b> ανά ενότητα: ο στόχος της (μία πρόταση) και οι προτάσεις περιεχομένου με τον ίδιο editor των προσφορών. Η πράσινη τελεία δείχνει ποιες ενότητες έχουν περιεχόμενο.</li>
-   <li><b>Pdf</b>: εξώφυλλο, header και footer όπως στις προσφορές· εισαγωγή, το sitemap ως δέντρο με γραμμές σύνδεσης (ρίζα το Έργο), οι προτάσεις περιεχομένου (μόνο όσες ενότητες έχουν στόχο ή περιεχόμενο, με τη διαδρομή τους) και το κλείσιμο. «Προεπισκόπηση» δείχνει το έγγραφο χωρίς αποθήκευση.</li>
-   <li><b>Θέση στο Pdf</b>: κάθε ενότητα του εγγράφου (Κείμενα εγγράφου) και κάθε ενότητα του δέντρου (στο «Περιεχόμενο» της) συνεχίζει στην ίδια σελίδα με απόσταση σε mm ή ξεκινά σε νέα σελίδα. Οι προτάσεις περιεχομένου αριθμούνται κάτω από την ενότητα του εγγράφου (3.1, 3.2…).</li>
-  </ul>
+ <section class="sp-help-card" id="doc-14">
+  <h2>Ο λογαριασμός μου</h2>
+  <p>Στο κάτω μέρος του μενού φαίνεται ο συνδεδεμένος χρήστης με τη φωτογραφία του (ή τα αρχικά του) και η Αποσύνδεση. Πατώντας το όνομα ανοίγει η κάρτα «Ο λογαριασμός μου» στις Ρυθμίσεις, όπου ανεβάζετε ή αφαιρείτε τη φωτογραφία σας (PNG, JPG ή WEBP έως 2 MB).</p>
  </section>
+  </div>
+ </div>
 
- <?php else: ?>
+ <script>
+ (function () {
+   var links = Array.prototype.slice.call(document.querySelectorAll('.sp-docs-nav a'));
+   if (!links.length || !('IntersectionObserver' in window)) return;
+   var byId = {};
+   links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+   var visible = {};
+   var mark = function () {
+     var ids = Object.keys(visible).filter(function (k) { return visible[k]; });
+     var first = links.map(function (a) { return a.getAttribute('href').slice(1); }).filter(function (id) { return ids.indexOf(id) !== -1; })[0];
+     if (!first) return;
+     links.forEach(function (a) { a.classList.toggle('is-active', a === byId[first]); });
+   };
+   var io = new IntersectionObserver(function (entries) {
+     entries.forEach(function (en) { visible[en.target.id] = en.isIntersecting; });
+     mark();
+   }, {rootMargin: '0px 0px -55% 0px', threshold: 0});
+   Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+   links[0].classList.add('is-active');
+ })();
+ </script>
+<?php else: ?>
  <section class="sp-help-card">
-  <h2>Changelog</h2>
+
+  <div class="sp-change"><div class="sp-version">v1.30.0</div><div><ul>
+<li>Το «Client Management» λέγεται πλέον <b>Ανανεώσεις</b>.</li>
+<li>Κάτω μέρος του μενού: ο συνδεδεμένος χρήστης με στρογγυλή φωτογραφία (ή τα αρχικά του) και Αποσύνδεση με εικονίδιο εξόδου. Η φωτογραφία ορίζεται στις Ρυθμίσεις → «Ο λογαριασμός μου».</li>
+<li>Τα <b>Πλάνα</b> βγήκαν από το μενού και είναι καρτέλα μέσα στα Πακέτα (Πακέτα | Πλάνα), όπως τα Templates στις Προσφορές.</li>
+<li><b>Αναφορά ανανεώσεων</b> στην Επισκόπηση: πληρωμές, λήξεις προς πληρωμή και ληγμένες απλήρωτες για την περίοδο που επιλέγετε, σε <b>Excel</b> (σύνοψη και ένα φύλλο ανά ενότητα) ή σε <b>Pdf</b> για εκτύπωση.</li>
+<li><b>Documentation</b> και <b>Changelog</b> ως χωριστές σελίδες στο μενού· το Documentation έχει σταθερό (sticky) μενού ενοτήτων σε όλο το ύψος, που δείχνει σε ποια ενότητα βρίσκεστε, και νέες ενότητες (Επισκόπηση, Χρήση ανά έτος, Ο λογαριασμός μου).</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.29.3</div><div><ul>
 <li><b>Ιστορικό ενεργειών</b> πιο συμπαγές: μία γραμμή ανά ενέργεια (ημερομηνία, χρήστης, ενότητα, ενέργεια με το στοιχείο, αποτέλεσμα) και εικονίδιο ⓘ δεξιά που ανοίγει όλες τις λεπτομέρειες σε παράθυρο (IP, μήνυμα, τιμές που καταχωρήθηκαν, τεχνικό όνομα). Η εξαγωγή σε Excel περιέχει όλα τα στοιχεία όπως πριν.</li>

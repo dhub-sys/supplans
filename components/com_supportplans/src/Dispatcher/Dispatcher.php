@@ -90,7 +90,7 @@ final class Dispatcher extends ComponentDispatcher
         // Browser tab title of the Service Hub (Settings > Τίτλος σελίδας). The printable views
         // keep their own title, which the browser uses as the Pdf file name.
         $document = $app->getDocument();
-        if ($document && method_exists($document, 'setTitle') && !in_array($view, ['report', 'offerdoc', 'structuredoc'], true)) {
+        if ($document && method_exists($document, 'setTitle') && !in_array($view, ['report', 'offerdoc', 'structuredoc', 'renewalsreport'], true)) {
             $document->setTitle(trim((string) ComponentHelper::getParams('com_supportplans')->get('page_title', '')) ?: 'Dashboard');
         }
     }

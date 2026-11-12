@@ -9,7 +9,7 @@ $stale = $lastRun === '' || strtotime($lastRun . ' UTC') < time() - 2 * 3600;
 $expired = count(array_filter($this->rows, static fn($s) => Notify::daysUntil($s->expiry_date) < 0));
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Client Management</span><h1>Επισκόπηση</h1><p>Υπηρεσίες που λήγουν, αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance και ενημερώσεις προς πελάτες.</p></div>
+  <div><span class="sp-eyebrow">Ανανεώσεις</span><h1>Επισκόπηση</h1><p>Υπηρεσίες που λήγουν, αυτόματες υπενθυμίσεις ανανέωσης, αναφορές maintenance και ενημερώσεις προς πελάτες.</p></div>
   <div class="sp-head-actions">
     <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=services&mode=new'); ?>">＋ Ανάθεση υπηρεσίας</a>
     <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=clients&mode=new'); ?>">＋ Νέος πελάτης</a>

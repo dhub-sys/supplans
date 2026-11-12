@@ -11,6 +11,7 @@ final class Sidebar
     public const ICON_CLIENTS = '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2"/></svg>';
     public const ICON_DOCUMENTS = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/></svg>';
     public const ICON_STRUCTURES = '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="4" rx="1"/><rect x="3" y="16" width="6" height="4" rx="1"/><rect x="15" y="16" width="6" height="4" rx="1"/><path d="M12 7v4M6 16v-2.5a1.5 1.5 0 0 1 1.5-1.5h9a1.5 1.5 0 0 1 1.5 1.5V16"/></svg>';
+    public const ICON_RENEWALS = '<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3.5V8h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20.5V16h-4.5"/><path d="M12 8.5v7M14.2 10.2c-.4-.7-1.2-1.1-2.2-1.1-1.3 0-2.2.7-2.2 1.6 0 2.2 4.6 1.2 4.6 3.4 0 .9-1 1.6-2.4 1.6-1.1 0-2-.4-2.4-1.2"/></svg>';
     public const ICON_ACTIVITY = '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>';
 
     public static function nav(string $active): string
@@ -24,20 +25,25 @@ final class Sidebar
             'help' => '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 1 1 3.7 1.8c-.9.6-1.5 1-1.5 2.2"/><path d="M12 17h.01"/></svg>',
         ];
         // Πλάνα, then Έγγραφα with its document types as a sub menu, then the rest.
+        // Επισκόπηση, Έγγραφα (Πακέτα — with the plans as a tab —, Προσφορές, Προτάσεις δομής),
+        // Ανανεώσεις, Ρυθμίσεις, Ιστορικό, Documentation, Changelog.
         $items = [
             'overview' => ['Επισκόπηση', '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>'],
-            'serviceplans' => ['Πλάνα', $icons['serviceplans']],
             'documents' => ['Έγγραφα', self::ICON_DOCUMENTS, [
                 'plans' => ['Πακέτα', $icons['plans']],
                 'offers' => ['Προσφορές', $icons['offers']],
                 'structures' => ['Προτάσεις δομής', self::ICON_STRUCTURES],
             ]],
-            'notify' => ['Client Management', self::ICON_CLIENTS],
+            'notify' => ['Ανανεώσεις', self::ICON_RENEWALS],
             'settings' => ['Ρυθμίσεις', $icons['settings']],
             'activity' => ['Ιστορικό ενεργειών', self::ICON_ACTIVITY],
-            'help' => ['Οδηγίες', $icons['help']],
+            'help' => ['Documentation', $icons['help']],
+            'changelog' => ['Changelog', '<svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/><path d="M7 3.5 5 2M17 3.5 19 2"/></svg>'],
         ];
+        // The plans page belongs to Πακέτα; the changelog is a section of the help view.
+        if ($active === 'serviceplans') $active = 'plans';
         $link = static function (string $view, string $label, string $icon, string $class) use ($itemid): string {
+            if ($view === 'changelog') $view = 'help&section=changelog';
             return '<a class="sp-side-link' . $class . '" href="' . Route::_('index.php?option=com_supportplans&view=' . $view . '&tmpl=component&spapp=1&Itemid=' . $itemid) . '">'
                 . '<span class="sp-side-icon">' . $icon . '</span><span>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></a>';
         };
@@ -109,7 +115,41 @@ final class Sidebar
             'activity' => ['Ιστορικό ενεργειών', self::ICON_ACTIVITY],
             'structures' => ['Προτάσεις δομής', self::ICON_STRUCTURES],
             'documents' => ['Έγγραφα', self::ICON_DOCUMENTS],
-        ][$view] ?? ['Client Management', self::ICON_CLIENTS];
+        ][$view] ?? ['Ανανεώσεις', self::ICON_RENEWALS];
         return '<a class="sp-side-link' . ($active ? ' is-active' : '') . '" href="' . Route::_('index.php?option=com_supportplans&view=' . $view . '&tmpl=component&spapp=1&Itemid=' . $itemid) . '"><span class="sp-side-icon">' . $icon . '</span><span>' . $label . '</span></a>';
+    }
+
+    /**
+     * Bottom of the sidebar: the signed-in user (round photo, else initials) and "Αποσύνδεση"
+     * with an exit icon. The photo is set in Ρυθμίσεις → Ο λογαριασμός μου.
+     */
+    public static function bottom(): string
+    {
+        $app = \Joomla\CMS\Factory::getApplication();
+        $uid = (int) $app->getSession()->get('supportplans.auth.user_id', 0);
+        $user = $uid ? \Joomla\CMS\Factory::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($uid) : null;
+        $name = trim((string) ($user->name ?? '')) ?: (string) ($user->username ?? '');
+        $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+        $photo = self::avatar($uid);
+        $initials = '';
+        foreach (preg_split('/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY) as $w) {
+            $initials .= OfferHelper::upperGr(mb_substr($w, 0, 1));
+            if (mb_strlen($initials) >= 2) break;
+        }
+        $itemid = OfferHelper::itemid();
+        $logout = rtrim(\Joomla\CMS\Uri\Uri::root(), '/') . '/index.php?option=com_supportplans&task=auth.logout&tmpl=component&Itemid=' . $itemid;
+        return '<div class="sp-sidebar-bottom sp-sb-user">'
+            . '<a class="sp-user" href="' . $e(OfferHelper::url('view=settings', false)) . '#sp-my-account" title="Ο λογαριασμός μου">'
+            . '<span class="sp-user-photo">' . ($photo !== '' ? '<img src="' . $e($photo) . '" alt="">' : $e($initials ?: '?')) . '</span>'
+            . '<span class="sp-user-text"><strong>' . $e($name) . '</strong><small>' . $e((string) ($user->email ?? '')) . '</small></span></a>'
+            . '<a class="sp-side-joomla sp-logout" href="' . $e($logout) . '" title="Αποσύνδεση"><span class="sp-logout-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l4-4-4-4"/><path d="M14 12H4"/></svg></span><span>Αποσύνδεση</span></a>'
+            . '</div>';
+    }
+
+    /** URL of the user's photo ('' when none). */
+    public static function avatar(int $uid): string
+    {
+        $path = trim((string) \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('avatar_' . $uid, ''));
+        return $path !== '' ? OfferHelper::assetUrl($path) : '';
     }
 }

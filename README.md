@@ -908,3 +908,9 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.29.3
 - Ιστορικό ενεργειών: συμπαγής πίνακας μίας γραμμής (ellipsis στο στοιχείο), κουκκίδα αποτελέσματος, κουμπί ⓘ → `<dialog>` με όλα τα πεδία (ελληνικές ετικέτες για τα `details`, ημερομηνίες σε dd/mm/yyyy). Η εξαγωγή Excel δεν άλλαξε.
 
+## v1.30.0 — Ανανεώσεις, χρήστης στο μενού, αναφορά ανανεώσεων, Documentation
+- «Client Management» → «Ανανεώσεις» (μενού, eyebrows, περιοχές Ιστορικού). `Sidebar::nav()`: Επισκόπηση, Έγγραφα (Πακέτα, Προσφορές, Προτάσεις δομής), Ανανεώσεις, Ρυθμίσεις, Ιστορικό, Documentation, Changelog· τα Πλάνα (`serviceplans`) είναι καρτέλα των Πακέτων.
+- `Sidebar::bottom()`: χρήστης (φωτογραφία `avatar_<user id>` ή αρχικά) και Αποσύνδεση με εικονίδιο εξόδου· `settings.avatar` (PNG/JPG/WEBP ≤ 2 MB στο `images/supportplans/avatars`, έλεγχος με getimagesize).
+- `Notify::summaryRanges()` / `summaryRows()`, `OverviewController::export` (Excel: Σύνοψη, Πληρωμές, Λήγουν, Ληγμένες) και view `renewalsreport` (εκτυπώσιμη Α4), με φίλτρα περιόδου και περιεχομένου από την Επισκόπηση.
+- Οδηγίες: χωριστές σελίδες Documentation (`view=help`, sticky πλευρικό μενού ενοτήτων με scrollspy, αρίθμηση με CSS counter) και Changelog (`view=help&section=changelog`).
+

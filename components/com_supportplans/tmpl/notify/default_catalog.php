@@ -7,7 +7,7 @@ $e = [NotifyUi::class, 'e'];
 $global = (string) Notify::setting('notify_reminder_days');
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Client Management</span><h1>Κατάλογος υπηρεσιών</h1><p>Οι υπηρεσίες που προσφέρετε (π.χ. «Web Hosting Green», «Ανανέωση Domain .gr»), με προεπιλεγμένη τιμή, διάρκεια και ημέρες υπενθύμισης. Όταν αναθέτετε μια υπηρεσία σε πελάτη, η τιμή και η διάρκεια αντιγράφονται και μπορούν να αλλάξουν για τον συγκεκριμένο πελάτη.</p></div>
+  <div><span class="sp-eyebrow">Ανανεώσεις</span><h1>Κατάλογος υπηρεσιών</h1><p>Οι υπηρεσίες που προσφέρετε (π.χ. «Web Hosting Green», «Ανανέωση Domain .gr»), με προεπιλεγμένη τιμή, διάρκεια και ημέρες υπενθύμισης. Όταν αναθέτετε μια υπηρεσία σε πελάτη, η τιμή και η διάρκεια αντιγράφονται και μπορούν να αλλάξουν για τον συγκεκριμένο πελάτη.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=catalog&mode=new'); ?>">＋ Νέα υπηρεσία</a>
 </section>
 <div class="sp-card">

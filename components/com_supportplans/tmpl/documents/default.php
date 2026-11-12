@@ -28,10 +28,7 @@ $filterUrl = static fn(string $type) => OfferHelper::url('view=documents' . ($ty
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo Sidebar::head(); ?>
   <?php echo Sidebar::nav(['plan' => 'plans', 'offer' => 'offers', 'structure' => 'structures'][$this->type] ?? 'documents'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
 <?php
@@ -45,6 +42,10 @@ $intro = [
 $newBtns = ['offer' => ['view=offers&mode=new', '＋ Προσφορά'], 'structure' => ['view=structures&mode=new', '＋ Πρόταση δομής'], 'plan' => ['view=plans&mode=new', '＋ Πακέτο']];
 if ($this->type !== '') $newBtns = [$this->type => $newBtns[$this->type]] + $newBtns;
 ?>
+<?php if ($this->type === 'plan'): ?>
+<?php $spPlanTabs = ['view=documents&type=plan' => 'Πακέτα', 'view=serviceplans' => 'Πλάνα']; ?>
+<nav class="sp-offer-tabs" aria-label="Πακέτα"><?php foreach ($spPlanTabs as $tq => $tl): ?><a class="sp-offer-tab<?php echo $tl === 'Πακέτα' ? ' is-active' : ''; ?>" href="<?php echo \Support\Component\Supportplans\Site\Helper\OfferHelper::url($tq); ?>"><?php echo $tl; ?></a><?php endforeach; ?></nav>
+<?php endif; ?>
 <?php if ($this->type === 'offer'): ?>
 <nav class="sp-offer-tabs" aria-label="Προσφορές">
  <?php foreach (['' => 'Προσφορές', 'templates' => 'Templates', 'services' => 'Υπηρεσίες / Περιγραφές', 'variables' => 'Μεταβλητές'] as $sk => $sl): ?>

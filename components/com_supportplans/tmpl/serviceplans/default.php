@@ -1,7 +1,7 @@
 <?php
 \defined('_JEXEC') or die;
 $spItemid=max(1,(int)\Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->get('standalone_itemid',785));
- use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route; echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css');HTMLHelper::_('behavior.formvalidator');$item=$this->selected;$mode=$item->billing_mode??'prepaid'; ?>
+ use Joomla\CMS\HTML\HTMLHelper; use Joomla\CMS\Router\Route; echo \Support\Component\Supportplans\Site\Helper\Assets::css('supportplans.css', 'offers.css');HTMLHelper::_('behavior.formvalidator');$item=$this->selected;$mode=$item->billing_mode??'prepaid'; ?>
 <?php
 $spParams=$this->params ?? \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans');
 $spCompany=trim((string)$spParams->get('brand_name','')) ?: \Joomla\CMS\Factory::getApplication()->get('sitename','Dashboard');
@@ -27,12 +27,11 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('serviceplans'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace">
+<?php $spPlanTabs = ['view=documents&type=plan' => 'Πακέτα', 'view=serviceplans' => 'Πλάνα']; ?>
+<nav class="sp-offer-tabs" aria-label="Πακέτα"><?php foreach ($spPlanTabs as $tq => $tl): ?><a class="sp-offer-tab<?php echo $tl === 'Πλάνα' ? ' is-active' : ''; ?>" href="<?php echo \Support\Component\Supportplans\Site\Helper\OfferHelper::url($tq); ?>"><?php echo $tl; ?></a><?php endforeach; ?></nav>
 <div class="sp-standalone-actions sp-serviceplans-actions">
 <?php if($this->mode==='new' || $this->selected): ?>
  <button type="button" class="btn btn-primary" onclick="spSubmit('serviceplan.apply')">Αποθήκευση</button>

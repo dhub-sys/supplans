@@ -15,6 +15,46 @@ class SettingsController extends BaseController
  public function save():void{$this->store(true);}
  public function cancel():void{Factory::getApplication()->redirect(Route::_('index.php?option=com_supportplans&view=plans&tmpl=component&Itemid=' . max(1,(int) ComponentHelper::getParams('com_supportplans')->get('standalone_itemid',785)) . '',false));}
 
+ /** Photo of the signed-in user (bottom of the sidebar): upload a new one or remove it. */
+ public function avatar():void
+ {
+  Session::checkToken() or jexit('Invalid Token');
+  $app=Factory::getApplication();
+  $uid=(int)$app->getSession()->get('supportplans.auth.user_id',0);
+  $back=\Support\Component\Supportplans\Site\Helper\OfferHelper::url('view=settings',false).'#sp-my-account';
+  if($uid<1){$app->redirect($back);return;}
+  $key='avatar_'.$uid;
+  $old=trim((string)ComponentHelper::getParams('com_supportplans')->get($key,''));
+  $removeOld=static function() use ($old){ if($old!=='' && preg_match('#^images/supportplans/avatars/[a-z0-9_.-]+$#i',$old) && is_file(JPATH_ROOT.'/'.$old)) @unlink(JPATH_ROOT.'/'.$old); };
+  if($app->input->getInt('remove',0)===1){
+   $removeOld();
+   \Support\Component\Supportplans\Site\Helper\OfferHelper::saveParam($key,'');
+   $app->enqueueMessage('Η φωτογραφία αφαιρέθηκε.');
+   $app->redirect($back);return;
+  }
+  $up=$app->input->files->get('avatar',null,'array');
+  if(!is_array($up) || (int)($up['error'] ?? UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK || !is_uploaded_file((string)$up['tmp_name'])){
+   $app->enqueueMessage('Επιλέξτε μια φωτογραφία.','error');$app->redirect($back);return;
+  }
+  // Only real images (no SVG), up to 2 MB.
+  $allowed=['image/png'=>'png','image/jpeg'=>'jpg','image/webp'=>'webp'];
+  $info=@getimagesize((string)$up['tmp_name']);
+  $mime=is_array($info)?(string)$info['mime']:'';
+  if(!isset($allowed[$mime]) || (int)$up['size']>2*1024*1024){
+   $app->enqueueMessage('Επιτρέπονται εικόνες PNG, JPG ή WEBP έως 2 MB.','error');$app->redirect($back);return;
+  }
+  $dir=JPATH_ROOT.'/images/supportplans/avatars';
+  if(!Folder::exists($dir))Folder::create($dir);
+  $file='user-'.$uid.'-'.substr(bin2hex(random_bytes(6)),0,10).'.'.$allowed[$mime];
+  if(!File::upload((string)$up['tmp_name'],$dir.'/'.$file)){
+   $app->enqueueMessage('Η φωτογραφία δεν αποθηκεύτηκε.','error');$app->redirect($back);return;
+  }
+  $removeOld();
+  \Support\Component\Supportplans\Site\Helper\OfferHelper::saveParam($key,'images/supportplans/avatars/'.$file);
+  $app->enqueueMessage('Η φωτογραφία αποθηκεύτηκε.');
+  $app->redirect($back);
+ }
+
  private function store(bool $close):void
  {
   Session::checkToken() or jexit('Invalid Token');

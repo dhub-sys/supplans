@@ -32,13 +32,27 @@ if($spLogo!==''){$spLogoUrl=preg_match('#^https?://#i',$spLogo)?$spLogo:\Joomla\
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('settings'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, αναφορές και προσφορές σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int)$spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace">
- <section class="sp-dashboard-head"><div><span class="sp-eyebrow">Εμφάνιση και στοιχεία</span><h1>Στοιχεία επιχείρησης</h1><p>Εταιρικά στοιχεία και χρώματα για την προσωποποίηση των Pdf αναφορών και προσφορών.</p></div></section><form action="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&Itemid='.(int)$spItemid.''); ?>" method="post" enctype="multipart/form-data" name="adminForm" id="adminForm">
+ <section class="sp-dashboard-head"><div><span class="sp-eyebrow">Εμφάνιση και στοιχεία</span><h1>Στοιχεία επιχείρησης</h1><p>Εταιρικά στοιχεία και χρώματα για την προσωποποίηση των Pdf αναφορών και προσφορών.</p></div></section>
+<?php $spUid = (int) \Joomla\CMS\Factory::getApplication()->getSession()->get('supportplans.auth.user_id', 0);
+$spMe = $spUid ? \Joomla\CMS\Factory::getContainer()->get(\Joomla\CMS\User\UserFactoryInterface::class)->loadUserById($spUid) : null;
+$spPhoto = \Support\Component\Supportplans\Site\Helper\Sidebar::avatar($spUid); ?>
+<div class="sp-card sp-my-account" id="sp-my-account">
+ <h2>Ο λογαριασμός μου</h2>
+ <div class="sp-my-account-row">
+  <span class="sp-user-photo is-large"><?php if ($spPhoto !== ''): ?><img src="<?php echo htmlspecialchars($spPhoto, ENT_QUOTES, 'UTF-8'); ?>" alt=""><?php else: ?><?php echo htmlspecialchars(\Support\Component\Supportplans\Site\Helper\OfferHelper::upperGr(mb_substr((string) ($spMe->name ?? '?'), 0, 1)), ENT_QUOTES, 'UTF-8'); ?><?php endif; ?></span>
+  <div class="sp-my-account-info"><strong><?php echo htmlspecialchars((string) ($spMe->name ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong><small><?php echo htmlspecialchars((string) ($spMe->email ?? ''), ENT_QUOTES, 'UTF-8'); ?></small>
+   <form method="post" enctype="multipart/form-data" action="<?php echo htmlspecialchars(\Support\Component\Supportplans\Site\Helper\OfferHelper::url('task=settings.avatar', false), ENT_QUOTES, 'UTF-8'); ?>" class="sp-my-account-form">
+    <input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" required onchange="this.form.submit()" id="sp-avatar-file"><label for="sp-avatar-file" class="btn btn-sm btn-outline-primary"><?php echo $spPhoto !== '' ? 'Αλλαγή φωτογραφίας' : 'Ανέβασμα φωτογραφίας'; ?></label>
+    <?php echo \Joomla\CMS\HTML\HTMLHelper::_('form.token'); ?>
+   </form>
+   <?php if ($spPhoto !== ''): ?><form method="post" action="<?php echo htmlspecialchars(\Support\Component\Supportplans\Site\Helper\OfferHelper::url('task=settings.avatar', false), ENT_QUOTES, 'UTF-8'); ?>" class="sp-my-account-form"><input type="hidden" name="remove" value="1"><?php echo \Joomla\CMS\HTML\HTMLHelper::_('form.token'); ?><button class="btn btn-sm btn-link">Αφαίρεση</button></form><?php endif; ?>
+  </div>
+ </div>
+ <p class="sp-foot">Η φωτογραφία εμφανίζεται στο κάτω μέρος του μενού, μαζί με το όνομά σας. PNG, JPG ή WEBP έως 2 MB· καλύτερα τετράγωνη.</p>
+</div><form action="<?php echo Route::_('index.php?option=com_supportplans&view=settings&tmpl=component&Itemid='.(int)$spItemid.''); ?>" method="post" enctype="multipart/form-data" name="adminForm" id="adminForm">
   <div class="sp-card">
    <h2>Στοιχεία επιχείρησης και Pdf</h2>
    <p class="text-muted">Τα στοιχεία αυτά χρησιμοποιούνται στο report / Pdf. Αν η επωνυμία μείνει κενή, χρησιμοποιείται το Site Name του Joomla.</p>

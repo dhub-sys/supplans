@@ -446,15 +446,8 @@ final class Notify
 
     public const SUMMARY_PERIODS = ['month' => 'Τρέχων μήνας', '30' => '30 ημέρες', '60' => '60 ημέρες', '90' => '90 ημέρες', 'year' => 'Τρέχον έτος', 'custom' => 'Επιλογή ημερομηνιών'];
 
-    /**
-     * Summary of the renewals for a period:
-     *  - paid:    payments recorded ("Πληρώθηκε") in the period up to today (amount with VAT; an
-     *             empty amount counts as the service price with VAT);
-     *  - due:     active services expiring from today to the end of the period (to be paid);
-     *  - overdue: active services already expired (not paid), whatever the period.
-     * Month / year: from the 1st to the end; N days: the last N days (paid) and the next N days (due).
-     */
-    public static function summary(string $period, string $from = '', string $to = ''): array
+    /** [[paid from, to], [due from, to]] of a summary period (see summary()). */
+    public static function summaryRanges(string $period, string $from = '', string $to = ''): array
     {
         $today = self::today();
         $tz = self::tz();
@@ -475,6 +468,63 @@ final class Notify
             $paid = [$now->format('Y-m-01'), $today];
             $due = [$today, $now->format('Y-m-t')];
         }
+        return [$paid, $due];
+    }
+
+    /**
+     * Detailed rows of a summary period, for the export (Excel / Pdf):
+     * paid: payments; due: services expiring in the period; overdue: expired, not paid.
+     */
+    public static function summaryRows(string $period, string $from = '', string $to = ''): array
+    {
+        $today = self::today();
+        [$paid, $due] = self::summaryRanges($period, $from, $to);
+        $db = self::db();
+        $vat = 1 + self::vatRate() / 100;
+        $out = ['paidRange' => $paid, 'dueRange' => $due, 'paid' => [], 'due' => [], 'overdue' => []];
+        if ($paid[0] <= $paid[1]) {
+            $q = $db->getQuery(true)->select('r.paid_on, r.old_expiry, r.new_expiry, r.amount, r.note, COALESCE(s.price, k.price) AS price, s.label, k.name AS service_name, c.name AS client_name, c.company AS client_company, c.email AS client_email')
+                ->from($db->quoteName(self::T_RENEWALS, 'r'))
+                ->leftJoin($db->quoteName(self::T_SERVICES, 's') . ' ON s.id = r.service_id')
+                ->leftJoin($db->quoteName(self::T_CATALOG, 'k') . ' ON k.id = s.catalog_id')
+                ->leftJoin($db->quoteName(self::T_CLIENTS, 'c') . ' ON c.id = r.client_id')
+                ->where('r.paid_on >= ' . $db->quote($paid[0]))->where('r.paid_on <= ' . $db->quote($paid[1]))->order('r.paid_on ASC, r.id ASC');
+            foreach ($db->setQuery($q)->loadObjectList() as $r) {
+                $r->gross = $r->amount !== null ? (float) $r->amount : round((float) $r->price * $vat, 2);
+                $out['paid'][] = $r;
+            }
+        }
+        $q = $db->getQuery(true)->select('s.id, s.expiry_date, s.label, s.duration_months, COALESCE(s.price, k.price) AS price, k.name AS service_name, c.name AS client_name, c.company AS client_company, c.email AS client_email')
+            ->from($db->quoteName(self::T_SERVICES, 's'))
+            ->leftJoin($db->quoteName(self::T_CATALOG, 'k') . ' ON k.id = s.catalog_id')
+            ->leftJoin($db->quoteName(self::T_CLIENTS, 'c') . ' ON c.id = s.client_id')
+            ->where("s.status = 'active'")->where("(c.status IS NULL OR c.status = 'active')")->where('s.expiry_date IS NOT NULL')
+            ->where('s.expiry_date <= ' . $db->quote(max($due[1], $today)))->order('s.expiry_date ASC, c.name ASC');
+        foreach ($db->setQuery($q)->loadObjectList() as $r) {
+            $r->net = (float) $r->price;
+            $r->gross = round($r->net * $vat, 2);
+            if ((string) $r->expiry_date < $today) {
+                $r->days = -(int) self::daysUntil($r->expiry_date);
+                $out['overdue'][] = $r;
+            } elseif ((string) $r->expiry_date >= $due[0] && (string) $r->expiry_date <= $due[1]) {
+                $out['due'][] = $r;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Summary of the renewals for a period:
+     *  - paid:    payments recorded ("Πληρώθηκε") in the period up to today (amount with VAT; an
+     *             empty amount counts as the service price with VAT);
+     *  - due:     active services expiring from today to the end of the period (to be paid);
+     *  - overdue: active services already expired (not paid), whatever the period.
+     * Month / year: from the 1st to the end; N days: the last N days (paid) and the next N days (due).
+     */
+    public static function summary(string $period, string $from = '', string $to = ''): array
+    {
+        $today = self::today();
+        [$paid, $due] = self::summaryRanges($period, $from, $to);
         $db = self::db();
         $vat = 1 + self::vatRate() / 100;
         $out = ['paid' => ['from' => $paid[0], 'to' => $paid[1], 'count' => 0, 'gross' => 0.0],

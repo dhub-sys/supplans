@@ -22,7 +22,7 @@ final class Activity
         'plan' => 'Πακέτα', 'entry' => 'Εργασίες πακέτων', 'serviceplan' => 'Πλάνα',
         'offer' => 'Προσφορές', 'offerservice' => 'Προσφορές', 'offertemplate' => 'Προσφορές', 'offerfield' => 'Προσφορές',
         'settings' => 'Ρυθμίσεις', 'share' => 'Σύνδεσμοι πελάτη', 'auth' => 'Σύνδεση', 'otp' => 'Σύνδεση',
-        'unsubscribe' => 'Client Management', 'activity' => 'Ιστορικό ενεργειών', 'structure' => 'Προτάσεις δομής', 'docmail' => 'Αποστολές εγγράφων', 'docgate' => 'Αποστολές εγγράφων',
+        'unsubscribe' => 'Ανανεώσεις', 'activity' => 'Ιστορικό ενεργειών', 'structure' => 'Προτάσεις δομής', 'docmail' => 'Αποστολές εγγράφων', 'overview' => 'Επισκόπηση', 'docgate' => 'Αποστολές εγγράφων',
     ];
 
     private const NOTIFY_AREAS = [
@@ -52,12 +52,13 @@ final class Activity
         'offerfield.save' => 'Αποθήκευση μεταβλητών προσφορών',
         'structure.create' => 'Νέα πρόταση δομής', 'structure.apply' => 'Αποθήκευση πρότασης δομής', 'structure.save' => 'Αποθήκευση πρότασης δομής',
         'structure.preview' => 'Προεπισκόπηση πρότασης δομής', 'structure.duplicate' => 'Αντίγραφο πρότασης δομής', 'structure.delete' => 'Διαγραφή πρότασης δομής',
-        'settings.apply' => 'Αποθήκευση ρυθμίσεων', 'settings.save' => 'Αποθήκευση ρυθμίσεων', 'settings.cancel' => 'Κλείσιμο ρυθμίσεων',
+        'settings.avatar' => 'Φωτογραφία χρήστη', 'settings.apply' => 'Αποθήκευση ρυθμίσεων', 'settings.save' => 'Αποθήκευση ρυθμίσεων', 'settings.cancel' => 'Κλείσιμο ρυθμίσεων',
         'share.create' => 'Δημιουργία συνδέσμου πελάτη', 'share.revoke' => 'Ακύρωση συνδέσμου πελάτη', 'share.send' => 'Αποστολή συνδέσμου πελάτη',
         'auth.authenticate' => 'Σύνδεση (κωδικός)', 'auth.logout' => 'Αποσύνδεση', 'otp.send' => 'Αποστολή κωδικού OTP', 'otp.verify' => 'Επιβεβαίωση OTP',
         'unsubscribe.run' => 'Διαγραφή από ενημερώσεις (σύνδεσμος email)',
         'docgate.send' => 'Κωδικός προβολής εγγράφου (πελάτης)', 'docgate.verify' => 'Επιβεβαίωση κωδικού εγγράφου (πελάτης)',
         'docmail.send' => 'Αποστολή εγγράφου με email', 'docmail.revoke' => 'Απενεργοποίηση συνδέσμου εγγράφου',
+        'overview.export' => 'Εξαγωγή αναφοράς ανανεώσεων σε Excel',
         'activity.export' => 'Εξαγωγή ιστορικού ενεργειών σε Excel',
         'notify.saveclient' => 'Αποθήκευση πελάτη', 'notify.deleteclient' => 'Διαγραφή πελάτη', 'notify.unsubscribe' => 'Αλλαγή προτίμησης ενημερώσεων',
         'notify.importsheet' => 'Εισαγωγή από Excel', 'notify.template' => 'Λήψη προτύπου Excel', 'notify.export' => 'Εξαγωγή πελατών σε Excel',
@@ -111,7 +112,7 @@ final class Activity
         try {
             [$controller, $method] = explode('.', $task, 2);
             $in = Factory::getApplication()->input;
-            $area = $controller === 'notify' ? (self::NOTIFY_AREAS[$method] ?? 'Client Management') : (self::AREAS[$controller] ?? 'Άλλο');
+            $area = $controller === 'notify' ? (self::NOTIFY_AREAS[$method] ?? 'Ανανεώσεις') : (self::AREAS[$controller] ?? 'Άλλο');
             $details = [];
             foreach (self::SAFE_FIELDS as $f) {
                 $v = $in->get($f, null, 'raw');

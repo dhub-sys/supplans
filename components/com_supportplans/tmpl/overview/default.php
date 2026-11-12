@@ -33,10 +33,7 @@ $current = Year::isCurrent();
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo Sidebar::head(); ?>
   <?php echo Sidebar::nav('overview'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
 <section class="sp-dashboard-head">
@@ -53,7 +50,7 @@ $current = Year::isCurrent();
   <article><span>Έγγραφα <?php echo (int) $this->year; ?></span><strong><?php echo count($this->docs); ?></strong><small><?php echo (int) $this->counts['offer']; ?> προσφορές · <?php echo (int) $this->counts['structure']; ?> προτάσεις δομής · <?php echo (int) $this->counts['plan']; ?> πακέτα</small></article>
   <article><span>Αποδεκτές προσφορές</span><strong><?php echo $m($this->offers['accepted']); ?></strong><small><?php echo (int) $this->offers['acceptedCount']; ?> προσφορές · προ ΦΠΑ</small></article>
   <article><span>Προσφορές σε εκκρεμότητα</span><strong><?php echo (int) $this->offers['pending']; ?></strong><small>αξία <?php echo $e($m($this->offers['pendingValue'])); ?> προ ΦΠΑ</small></article>
-  <article><span>Ενεργοί πελάτες / πακέτα</span><strong><?php echo (int) $this->clients; ?> / <?php echo (int) $this->activePlans; ?></strong><small>Client Management · πακέτα υποστήριξης</small></article>
+  <article><span>Ενεργοί πελάτες / πακέτα</span><strong><?php echo (int) $this->clients; ?> / <?php echo (int) $this->activePlans; ?></strong><small>ενεργοί πελάτες · ενεργά πακέτα</small></article>
 </section>
 <div class="sp-card sp-n-summary">
   <div class="sp-title-row"><h2>Ανανεώσεις υπηρεσιών <?php echo $current ? '· τρέχων μήνας' : (int) $this->year; ?></h2><a class="sp-doc-btn" href="<?php echo OfferHelper::url('view=notify&section=services'); ?>">Αναλυτικά</a></div>
@@ -64,6 +61,26 @@ $current = Year::isCurrent();
     <div class="sp-n-sum is-overdue"><span>Ληγμένες, απλήρωτες</span><strong><?php echo $m($sm['overdue']['gross']); ?></strong><small><?php echo (int) $sm['overdue']['count']; ?> υπηρεσίες · με ΦΠΑ</small></div>
     <?php endif; ?>
   </div>
+</div>
+<div class="sp-card sp-ov-export" id="sp-ov-export">
+  <div class="sp-title-row"><div><h2>Αναφορά ανανεώσεων</h2><p class="sp-foot">Πληρωμές, λήξεις και ληγμένες υπηρεσίες για την περίοδο που θα επιλέξετε, σε Excel ή σε Pdf για εκτύπωση.</p></div></div>
+  <form method="get" action="<?php echo $e(OfferHelper::url('', false)); ?>" class="sp-ov-export-form">
+    <input type="hidden" name="option" value="com_supportplans"><input type="hidden" name="tmpl" value="component"><input type="hidden" name="spapp" value="1"><input type="hidden" name="Itemid" value="<?php echo (int) $spItemid; ?>">
+    <label>Περίοδος<select name="sp" onchange="this.form.querySelector('.sp-ov-dates').hidden=this.value!=='custom'">
+      <?php foreach (Notify::SUMMARY_PERIODS as $pk => $pl): if ($pk === 'year') $pl = $current ? 'Τρέχον έτος' : 'Όλο το ' . (int) $this->year; ?><option value="<?php echo $pk; ?>"<?php echo $pk === ($current ? 'month' : 'year') ? ' selected' : ''; ?>><?php echo $e($pl); ?></option><?php endforeach; ?>
+    </select></label>
+    <span class="sp-ov-dates" hidden><label>Από<input type="date" name="sf"></label><label>Έως<input type="date" name="st"></label></span>
+    <fieldset><legend>Περιεχόμενο</legend>
+      <label class="sp-check"><input type="checkbox" name="parts[]" value="paid" checked> Πληρωμές</label>
+      <label class="sp-check"><input type="checkbox" name="parts[]" value="due" checked> Λήξεις (προς πληρωμή)</label>
+      <label class="sp-check"><input type="checkbox" name="parts[]" value="overdue" checked> Ληγμένες απλήρωτες</label>
+    </fieldset>
+    <div class="sp-ov-export-btns">
+      <button class="btn btn-outline-primary" name="task" value="overview.export">⭳ Excel</button>
+      <button class="btn btn-primary" name="view" value="renewalsreport" formtarget="_blank">Pdf / εκτύπωση</button>
+    </div>
+  </form>
+  <p class="sp-foot">«30 / 60 / 90 ημέρες»: οι πληρωμές των τελευταίων ημερών και οι λήξεις των επόμενων. Με δικές σας ημερομηνίες: πληρωμές και λήξεις μέσα στο διάστημα.</p>
 </div>
 <div class="sp-ov-cols">
   <div class="sp-card">

@@ -25,10 +25,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo Sidebar::head(); ?>
   <?php echo Sidebar::nav('structures'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
  <script>function spSubmit(task){var f=document.getElementById('adminForm');if(!f)return;if(!f.reportValidity||f.reportValidity()){if(window.spBeforeSubmit)window.spBeforeSubmit();f.querySelector('input[name="task"]').value=task;f.submit();}}</script>

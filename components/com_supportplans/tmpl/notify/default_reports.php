@@ -6,7 +6,7 @@ use Support\Component\Supportplans\Site\Helper\NotifyUi;
 $e = [NotifyUi::class, 'e'];
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Client Management</span><h1>Αναφορές maintenance</h1><p>Αναφορά προς τον πελάτη με σύνοψη εργασιών και πίνακα ενημερώσεων (Joomla, extensions, templates κ.λπ.). Προεπισκόπηση, δοκιμή στο email σας και αποστολή.</p></div>
+  <div><span class="sp-eyebrow">Ανανεώσεις</span><h1>Αναφορές maintenance</h1><p>Αναφορά προς τον πελάτη με σύνοψη εργασιών και πίνακα ενημερώσεων (Joomla, extensions, templates κ.λπ.). Προεπισκόπηση, δοκιμή στο email σας και αποστολή.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=reports&mode=new'); ?>">＋ Νέα αναφορά</a>
 </section>
 <div class="sp-card">

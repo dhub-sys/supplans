@@ -31,10 +31,7 @@ $badge = ['ok' => 'is-accepted', 'warning' => 'sp-n-warn', 'error' => 'is-reject
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
   <?php echo Sidebar::nav('activity'); ?>
-  <div class="sp-sidebar-bottom">
-    <div class="sp-sidebar-help"><strong>Dashboard</strong><span>Πακέτα, πλάνα, προσφορές και client management σε ένα σημείο.</span></div>
-    <a class="sp-side-joomla" href="<?php echo Uri::root(); ?>index.php?option=com_supportplans&amp;task=auth.logout&amp;tmpl=component&amp;Itemid=<?php echo (int) $spItemid; ?>"><span>↪</span> Αποσύνδεση</a>
-  </div>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
 <section class="sp-dashboard-head">
