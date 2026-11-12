@@ -33,18 +33,23 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <style>
 .sp-help-wrap{max-width:1180px;margin:0 auto;padding:8px 0 40px}
 .sp-docs{display:grid;grid-template-columns:230px minmax(0,1fr);gap:30px;align-items:start}
-.sp-docs-nav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid #e4e7ec;margin:-8px 0 0}
+.sp-docs-nav{position:sticky;top:0;height:100vh;overflow-y:auto;overscroll-behavior:contain;border-right:1px solid #e4e7ec;margin:-8px 0 0}
 .sp-docs-nav-inner{display:flex;flex-direction:column;gap:2px;padding:22px 14px 30px 0}
-.sp-docs-nav strong{position:sticky;top:0;z-index:1;display:block;background:#f7f8fa;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#98a2b3;margin:-22px 0 6px;padding:22px 10px 8px}
-.sp-docs-nav a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;font-size:14px;color:#475467;text-decoration:none;border-left:2px solid transparent;transition:background .15s,color .15s}
+.sp-docs-nav-head{position:sticky;top:0;z-index:1;background:#f7f8fa;margin:-22px 0 6px;padding:22px 10px 8px}
+.sp-docs-nav-head h1{margin:0;font-size:24px;line-height:1.2;color:#111827}
+.sp-docs-nav-head p{margin:6px 0 18px;font-size:13.5px;color:#6b7280}
+.sp-docs-nav-head strong{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#98a2b3}
+.sp-docs-nav a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:8px;font-size:14px;font-weight:500;color:#475467;text-decoration:none!important;outline:none;transition:background-color .25s ease,color .25s ease,box-shadow .25s ease}
 .sp-docs-nav a span{min-width:18px;font-size:12px;font-weight:700;color:#98a2b3;font-variant-numeric:tabular-nums}
 .sp-docs-nav a:hover{background:#f2f4f7;color:#101828}
-.sp-docs-nav a.is-active{background:#eff4ff;color:#1d4ed8;font-weight:600}
+.sp-docs-nav a.is-active{background:#eff4ff;color:#1d4ed8;box-shadow:inset 3px 0 0 #2563eb}
+.sp-docs-nav a:focus-visible{box-shadow:0 0 0 2px #93b4f5}
+.sp-docs-nav a span{transition:color .25s ease}
 .sp-docs-nav a.is-active span{color:#1d4ed8}
 .sp-docs-body{counter-reset:doc;min-width:0}
 .sp-docs-body .sp-help-card{scroll-margin-top:16px}
 .sp-docs-body .sp-help-card>h2::before{counter-increment:doc;content:counter(doc) ". ";color:#2563eb}
-@media(max-width:1000px){.sp-docs{grid-template-columns:1fr}.sp-docs-nav{position:static;height:auto;border-right:0;border-bottom:1px solid #e4e7ec;margin:0 0 16px}.sp-docs-nav-inner{flex-direction:row;flex-wrap:wrap;padding:0 0 12px}.sp-docs-nav strong{width:100%}}
+@media(max-width:1000px){.sp-docs{grid-template-columns:1fr}.sp-docs-nav{position:static;height:auto;border-right:0;border-bottom:1px solid #e4e7ec;margin:0 0 16px}.sp-docs-nav-inner{flex-direction:row;flex-wrap:wrap;padding:0 0 12px}.sp-docs-nav-head{width:100%;position:static;margin:0;padding:0 10px 8px}}
 
 .sp-help-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}
 .sp-help-head h1{margin:0;font-size:28px;line-height:1.2;color:#111827}
@@ -66,16 +71,13 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 </style>
 
 <div class="sp-help-wrap">
- <div class="sp-help-head">
-  <div>
-   <?php if ($section === 'changelog'): ?><h1>Changelog</h1><p>Ιστορικό αλλαγών του Dashboard, η νεότερη έκδοση πρώτη.</p>
-   <?php else: ?><h1>Documentation</h1><p>Οδηγός χρήσης του Dashboard.</p><?php endif; ?>
-  </div>
- </div>
+ <?php if ($section === 'changelog'): ?>
+ <div class="sp-help-head"><div><h1>Changelog</h1><p>Ιστορικό αλλαγών του Dashboard, η νεότερη έκδοση πρώτη.</p></div></div>
+ <?php endif; ?>
 
  <?php if ($section !== 'changelog'): ?>
  <div class="sp-docs">
-  <nav class="sp-docs-nav" aria-label="Ενότητες"><div class="sp-docs-nav-inner"><strong>Ενότητες</strong>
+  <nav class="sp-docs-nav" aria-label="Ενότητες"><div class="sp-docs-nav-inner"><div class="sp-docs-nav-head"><h1>Documentation</h1><p>Οδηγός χρήσης του Dashboard.</p><strong>Ενότητες</strong></div>
    <a href="#doc-1"><span>1</span>Πρώτη ρύθμιση</a>
    <a href="#doc-2"><span>2</span>Σύνδεση στο Dashboard</a>
    <a href="#doc-3"><span>3</span>Επισκόπηση</a>
@@ -293,6 +295,11 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
  </script>
 <?php else: ?>
  <section class="sp-help-card">
+
+  <div class="sp-change"><div class="sp-version">v1.30.2</div><div><ul>
+<li>Documentation: όλη η αριστερή στήλη (τίτλος «Documentation», περιγραφή και ενότητες) μένει σταθερή κατά την κύλιση· το περιεχόμενο ξεκινά από πάνω.</li>
+<li>Πιο ομαλό hover / ενεργό στοιχείο στο μενού ενοτήτων: απαλή μετάβαση χρώματος και φόντου, με λεπτή γραμμή αριστερά, χωρίς μετακίνηση του κειμένου στο κλικ.</li>
+</ul></div></div>
 
   <div class="sp-change"><div class="sp-version">v1.30.1</div><div><ul>
 <li>Documentation: ο τίτλος «Ενότητες» του πλευρικού μενού μένει σταθερός· όταν πατάτε μια ενότητα, ενεργή γίνεται αυτή (και όχι η προηγούμενη), και κατά την κύλιση φωτίζεται η ενότητα που έχει φτάσει στο πάνω μέρος της σελίδας.</li>

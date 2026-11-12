@@ -918,3 +918,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - Documentation: scrollspy με θέση (ενεργή = η τελευταία ενότητα που πέρασε το πάνω μέρος + 120px· η επιλεγμένη μένει ενεργή όταν η σελίδα δεν κυλά άλλο), sticky τίτλος «Ενότητες» μέσα στο μενού.
 - `.sp-primary-action.is-secondary`: χρώματα με μεγαλύτερη εξειδίκευση (το μπλε φόντο του κύριου κουμπιού υπερίσχυε, με μπλε γράμματα).
 
+## v1.30.2
+- Documentation: ο τίτλος και η περιγραφή μέσα στη sticky στήλη (`.sp-docs-nav-head`, sticky και όταν η στήλη κυλά). Στοιχεία μενού: σταθερό font-weight (το έντονο στο ενεργό άλλαζε το πλάτος του κειμένου), μετάβαση .25s σε χρώμα/φόντο, ένδειξη με inset box-shadow, `overscroll-behavior:contain`.
+
