@@ -65,3 +65,16 @@
 .sp-n-sumby summary{cursor:pointer;font-size:14px;font-weight:600;color:#344054}
 .sp-n-sumby table{margin-top:8px}
 @media (max-width:860px){.sp-n-sumgrid{grid-template-columns:1fr}}
+/* "Πληρώθηκε" from the services tables (v1.29.2) */
+html body dialog.sp-n-paydlg{width:min(560px,96vw)!important;max-width:96vw!important;padding:0;border:0;border-radius:14px;box-shadow:0 30px 80px rgba(16,24,40,.35)}
+.sp-n-paydlg::backdrop{background:rgba(16,24,40,.55)}
+.sp-n-paydlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 22px 12px;border-bottom:1px solid #eef0f3}
+.sp-n-paydlg-head strong{display:block;font-size:17px;color:#101828}
+.sp-n-paydlg-head span{font-size:13px;color:#667085}
+.sp-n-paydlg-x{border:0;background:transparent;font-size:26px;line-height:1;color:#475467;cursor:pointer;padding:0 4px}
+.sp-n-paydlg-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 22px}
+.sp-n-paydlg-body label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:#344054;margin:0}
+.sp-n-paydlg-body input{padding:8px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;font-weight:400}
+.sp-n-paydlg-wide{grid-column:1/-1}
+.sp-n-paydlg-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 22px 16px;border-top:1px solid #eef0f3}
+@media (max-width:520px){.sp-n-paydlg-body{grid-template-columns:1fr}}

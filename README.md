@@ -902,3 +902,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `media/css/docmail.css` (φορτώνεται από `DocMail::dialog()`): τα στυλ του διαλόγου αποστολής δεν εξαρτώνται πλέον από το `offers.css` (η σελίδα πακέτων δεν το φόρτωνε)· σταθερό πλάτος και checkbox ανεξάρτητα από κανόνες του θέματος.
 - Οι λίστες `plans`, `offers` (ενότητα προσφορών) και `structures` ανακατευθύνονται στο `view=documents&type=plan|offer|structure`· τα υπομενού του sidebar ανοίγουν εκεί, με ενεργό το αντίστοιχο στοιχείο. Πακέτα χωρίς αριθμό εγγράφου δείχνουν το παλιό Α/Α.
 
+## v1.29.2
+- `default_servicestable.php`: το «Πληρώθηκε…» ανοίγει διάλογο (`#sp-n-paydlg`, ένας ανά σελίδα) με τα στοιχεία της γραμμής (`data-pay`) και στέλνει στο `notify.renew` με `back` = η τρέχουσα σελίδα και τα φίλτρα της.
+
