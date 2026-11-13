@@ -37,7 +37,7 @@ $interval = (int) ($i->interval_days ?? Notify::setting('notify_invoice_interval
    <?php endif; ?>
    <label class="sp-wide">Σημειώσεις (δεν εμφανίζονται στο email)<textarea name="notes" rows="2"><?php echo $e($v('notes')); ?></textarea></label>
   </div>
-  <p class="sp-n-help">Οι αυτόματες υπενθυμίσεις φεύγουν<?php echo Notify::sendTimeLabel() !== '' ? ' καθημερινά από τις ' . $e(Notify::sendTimeLabel()) : ''; ?>, ανά τις ημέρες που ορίσατε από την προηγούμενη, μέχρι να πατήσετε «Πληρώθηκε». Το κείμενο του email και ο αποστολέας ορίζονται στις Ανανεώσεις → Ρυθμίσεις email.</p>
+  <p class="sp-n-help">Οι αυτόματες υπενθυμίσεις φεύγουν<?php echo Notify::sendTimeLabel() !== '' ? ' καθημερινά από τις ' . $e(Notify::sendTimeLabel()) : ''; ?>, ανά τις ημέρες που ορίσατε από την προηγούμενη, μέχρι να πατήσετε «Πληρώθηκε». Το κείμενο του email ορίζεται στο <a href="<?php echo NotifyUi::url('section=settings'); ?>#sp-invoice-template">Ανανεώσεις → Ρυθμίσεις email → «Πρότυπο: Υπενθύμιση πληρωμής»</a> και ο αποστολέας στους «Αποστολείς εγγράφων».</p>
  </div>
  <input type="hidden" name="id" value="<?php echo (int) ($i->id ?? 0); ?>"><input type="hidden" name="task" value="notify.saveInvoice">
  <?php echo HTMLHelper::_('form.token'); ?>

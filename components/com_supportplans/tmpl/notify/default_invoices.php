@@ -12,7 +12,10 @@ $openTotal = array_sum(array_map(static fn($r) => (float) $r->amount, $open));
 ?>
 <section class="sp-dashboard-head">
   <div><span class="sp-eyebrow">Εισπράξεις</span><h1>Υπενθυμίσεις πληρωμών</h1><p>Παραστατικά που έχουν εκδοθεί και δεν έχουν πληρωθεί. Η 1η υπενθύμιση φεύγει αμέσως (ή την ημέρα που ορίζετε) και μετά ξανά ανά τις ημέρες που ορίζετε<?php echo Notify::sendTimeLabel() !== '' ? ', καθημερινά από τις ' . $e(Notify::sendTimeLabel()) : ''; ?>, μέχρι να πατήσετε «Πληρώθηκε».</p></div>
-  <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=invoices&mode=new'); ?>">＋ Νέο παραστατικό</a>
+  <div class="sp-head-actions">
+    <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=settings'); ?>#sp-invoice-template" title="Θέμα, κείμενο και προεπιλεγμένο διάστημα των υπενθυμίσεων πληρωμών">✎ Κείμενο email</a>
+    <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=invoices&mode=new'); ?>">＋ Νέο παραστατικό</a>
+  </div>
 </section>
 <?php if ($f['status'] === 'open'): ?>
 <section class="sp-kpis sp-n-kpis">

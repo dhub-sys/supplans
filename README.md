@@ -929,3 +929,6 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 - `Notify::queueInvoices()` μέσα στο `run()` (μόνο μετά την ώρα αποστολής, π.χ. 09:30), `queueInvoice()` (μήνυμα `kind=invoice`, `ref=invoice:<id>:<n>:<time>`, μετακινεί την επόμενη υπενθύμιση κατά το διάστημα), `invoicePaid()` (ακυρώνει όσα περιμένουν στην ουρά), έλεγχος πριν την αποστολή (`skipReason`: εξοφλημένο/διαγραμμένο/άλλαξε email). Tasks `notify.saveInvoice`, `sendInvoice`, `invoicePaid`, `reopenInvoice`, `deleteInvoice`.
 - Ρυθμίσεις email: «Πρότυπο: Υπενθύμιση πληρωμής» (διάστημα, θέμα, κείμενο με {invoice_number}, {invoice_date}, {amount}, {days}, {reminder_no}, {banks}) και αποστολέας `doc_invoice_*` στους «Αποστολείς εγγράφων».
 
+## v1.31.1
+- Υπενθυμίσεις πληρωμών: σύνδεσμος «✎ Κείμενο email» → `section=settings#sp-invoice-template`· padding στο πεδίο ημερομηνίας της 1ης υπενθύμισης.
+
