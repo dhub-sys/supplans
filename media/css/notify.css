@@ -105,3 +105,4 @@ html body dialog.sp-act-dlg{width:min(620px,96vw)!important;max-width:96vw!impor
 .sp-act-dlg-body dd.sp-act-result{color:#067647;font-weight:600}
 .sp-act-dlg-body dd.sp-act-result.warning{color:#b54708}
 .sp-act-dlg-body dd.sp-act-result.error{color:#b42318}
+.sp-inv-start{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center}.sp-inv-start .sp-check{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:8px;font-weight:500}.sp-inv-start input[type=date]{padding:6px 8px;border:1px solid #d0d5dd;border-radius:7px}

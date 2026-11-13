@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS `#__supportplans_offer_items`;
 DROP TABLE IF EXISTS `#__supportplans_offers`;
 DROP TABLE IF EXISTS `#__supportplans_offer_templates`;
 DROP TABLE IF EXISTS `#__supportplans_offer_services`;
+DROP TABLE IF EXISTS `#__supportplans_invoices`;
 DROP TABLE IF EXISTS `#__supportplans_offer_sends`;
 DROP TABLE IF EXISTS `#__supportplans_structures`;
 DROP TABLE IF EXISTS `#__supportplans_activity`;

@@ -34,7 +34,9 @@ final class Activity
         'savereport' => 'Αναφορές maintenance', 'deletereport' => 'Αναφορές maintenance',
         'savecampaign' => 'Αποστολές', 'deletecampaign' => 'Αποστολές',
         'retry' => 'Ουρά email', 'cancel' => 'Ουρά email', 'runnow' => 'Ουρά email',
-        'savesettings' => 'Ρυθμίσεις email', 'sendtest' => 'Ρυθμίσεις email',
+        'savesettings' => 'Ρυθμίσεις email',
+        'saveinvoice' => 'Υπενθυμίσεις πληρωμών', 'sendinvoice' => 'Υπενθυμίσεις πληρωμών', 'invoicepaid' => 'Υπενθυμίσεις πληρωμών',
+        'reopeninvoice' => 'Υπενθυμίσεις πληρωμών', 'deleteinvoice' => 'Υπενθυμίσεις πληρωμών', 'sendtest' => 'Ρυθμίσεις email',
     ];
 
     /** Human label of every task (lower case "controller.method"). */
@@ -68,6 +70,8 @@ final class Activity
         'notify.remindnow' => 'Χειροκίνητη υπενθύμιση', 'notify.savereport' => 'Αναφορά maintenance', 'notify.deletereport' => 'Διαγραφή αναφοράς',
         'notify.savecampaign' => 'Αποστολή / πρόχειρο', 'notify.deletecampaign' => 'Διαγραφή πρόχειρης αποστολής',
         'notify.retry' => 'Επανάληψη μηνύματος', 'notify.cancel' => 'Ακύρωση μηνύματος', 'notify.runnow' => 'Έλεγχος λήξεων & αποστολή ουράς',
+        'notify.saveinvoice' => 'Αποθήκευση παραστατικού', 'notify.sendinvoice' => 'Υπενθύμιση πληρωμής (χειροκίνητη)', 'notify.invoicepaid' => 'Εξόφληση παραστατικού',
+        'notify.reopeninvoice' => 'Επαναφορά παραστατικού σε ανεξόφλητο', 'notify.deleteinvoice' => 'Διαγραφή παραστατικού',
         'notify.savesettings' => 'Αποθήκευση ρυθμίσεων email', 'notify.sendtest' => 'Δοκιμαστικό email',
     ];
 
@@ -86,13 +90,14 @@ final class Activity
         'notify.service' => ['#__supportplans_client_services', null],
         'notify.report' => ['#__supportplans_notify_reports', 'period'],
         'notify.campaign' => ['#__supportplans_notify_campaigns', 'subject'],
+        'notify.invoice' => ['#__supportplans_invoices', "CONCAT(invoice_number, ' – ', email)"],
         'notify.message' => ['#__supportplans_notify_messages', "CONCAT(to_email, ' – ', subject)"],
     ];
 
     /** Input fields that may be recorded (as details); everything else is ignored. */
     private const SAFE_FIELDS = ['id', 'plan_id', 'client_id', 'catalog_id', 'service_plan_id', 'client_service_id', 'do', 'status', 'name', 'company',
         'email', 'username', 'label', 'customer_name', 'project_name', 'offer_number', 'number', 'plan_type', 'work_type', 'period', 'subject', 'expiry_date',
-        'new_expiry', 'paid_on', 'amount', 'price', 'duration_months', 'value', 'template', 'aud_mode', 'to'];
+        'new_expiry', 'paid_on', 'amount', 'invoice_number', 'invoice_date', 'interval_days', 'next_send', 'price', 'duration_months', 'value', 'template', 'aud_mode', 'to'];
 
     private static ?array $pending = null;
     private static string $note = '';
@@ -201,7 +206,8 @@ final class Activity
         $id = (int) $in->getInt('id', 0);
         $key = $controller;
         if ($controller === 'notify') {
-            if (preg_match('/client|unsubscribe/', $method)) $key = 'notify.client';
+            if (strpos($method, 'invoice') !== false) $key = 'notify.invoice';
+            elseif (preg_match('/client|unsubscribe/', $method)) $key = 'notify.client';
             elseif (strpos($method, 'catalog') !== false) $key = 'notify.catalog';
             elseif ($method === 'remindnow' && !$id) { $id = (int) $in->getInt('client_id', 0); $key = 'notify.client'; }
             elseif (in_array($method, ['saveservice', 'deleteservice', 'renew', 'remindnow'], true)) $key = 'notify.service';

@@ -28,7 +28,7 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
  <div class="sp-card" id="sp-doc-senders">
   <h2>Αποστολείς εγγράφων</h2>
   <p class="sp-n-help">Αποστολέας για τα έγγραφα που στέλνετε με «Αποστολή με email». Όσα πεδία μείνουν κενά παίρνουν τις τιμές του «Αποστολέας» παραπάνω. Η κρυφή κοινοποίηση στέλνει αντίγραφο κάθε αποστολής (π.χ. στο λογιστήριο). Το email αποστολέα πρέπει να επιτρέπεται από τον mail server σας (ίδιο domain / SPF).</p>
-  <?php foreach (['offer' => 'Προσφορές', 'structure' => 'Προτάσεις δομής', 'plan' => 'Πακέτα'] as $dt => $dl): ?>
+  <?php foreach (['offer' => 'Προσφορές', 'structure' => 'Προτάσεις δομής', 'plan' => 'Πακέτα', 'invoice' => 'Υπενθυμίσεις πληρωμών'] as $dt => $dl): ?>
   <h3 class="sp-doc-sender-title"><?php echo $e($dl); ?></h3>
   <div class="sp-grid">
    <label>Όνομα αποστολέα<input name="doc_<?php echo $dt; ?>_from_name" value="<?php echo $e($v('doc_' . $dt . '_from_name')); ?>" placeholder="<?php echo $e($v('notify_from_name') ?: Notify::brandName()); ?>"></label>
@@ -119,6 +119,15 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
   <p class="sp-n-help"><b>Κείμενο μετά τη λήξη:</b> μπαίνει μόνο για υπηρεσίες που έχουν λήξει. Κάθε υπηρεσία του καταλόγου μπορεί να έχει δικό της κείμενο (π.χ. τι παθαίνει το project αν λήξει το domain ή το hosting)· αλλιώς χρησιμοποιείται αυτό.</p>
   <p class="sp-n-help"><b>Προσφώνηση:</b> <code>{greeting}</code> = η προσφώνηση του πελάτη (καρτέλα πελάτη) ή, αν δεν έχει, η γενική (π.χ. «Αγαπητέ/ή πελάτη»). <b>{paid_notice}</b>: στην 1η υπενθύμιση δεν μπαίνει τίποτα· από τη 2η (πριν ή την ημέρα της λήξης) η φράση «αγνοήστε», και μετά τη λήξη η φράση «επικοινωνήστε μαζί μας»· αν λείπει από το κείμενο, προστίθεται μετά τους λογαριασμούς.</p>
   <p class="sp-n-help"><b>Κείμενο email</b>, σε δική τους γραμμή: <code>{services_status}</code> (εισαγωγή και υπηρεσίες), <code>{expired_notice}</code> (κείμενα μετά τη λήξη), <code>{price_table}</code> (οικονομική σύνοψη: αξία, ΦΠΑ, σύνολο, όπως στις προσφορές), <code>{banks}</code> (τραπεζικοί λογαριασμοί από τις Ρυθμίσεις). Επίσης <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>.</p>
+ </div>
+ <div class="sp-card" id="sp-invoice-template">
+  <h2>Πρότυπο: Υπενθύμιση πληρωμής</h2>
+  <div class="sp-grid">
+   <label>Προεπιλεγμένο διάστημα (ημέρες)<input type="number" name="notify_invoice_interval" min="1" max="365" value="<?php echo (int) Notify::setting('notify_invoice_interval'); ?>"></label>
+   <label class="sp-wide">Θέμα<input name="notify_invoice_subject" value="<?php echo $e($v('notify_invoice_subject')); ?>"></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο</span><textarea name="notify_invoice_body" rows="10" data-sp-editor><?php echo $e($v('notify_invoice_body')); ?></textarea></div>
+  </div>
+  <p class="sp-n-help">Μεταβλητές: <code>{greeting}</code> <code>{client_name}</code> <code>{invoice_number}</code> <code>{invoice_date}</code> <code>{amount}</code> <code>{days}</code> (ημέρες από το παραστατικό) <code>{reminder_no}</code> (α/α υπενθύμισης) <code>{company}</code>, και σε δική του γραμμή <code>{banks}</code> (τραπεζικοί λογαριασμοί). Το διάστημα μπορεί να αλλάξει σε κάθε παραστατικό.</p>
  </div>
  <div class="sp-card">
   <h2>Πρότυπο: Αναφορά maintenance</h2>

@@ -24,6 +24,7 @@ $templates = [
     'reports' => $this->mode === 'list' ? 'reports' : 'report',
     'campaigns' => $this->mode === 'list' ? 'campaigns' : 'campaign',
     'log' => $this->selected ? 'message' : 'log',
+    'invoices' => $this->mode === 'list' ? 'invoices' : 'invoice',
 ];
 ?>
 <div class="sp-saas-root">
@@ -36,15 +37,17 @@ $templates = [
 </header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
-  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav('notify'); ?>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav($this->section === 'invoices' ? 'invoices' : 'notify'); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
+ <?php if ($this->section !== 'invoices'): ?>
  <nav class="sp-offer-tabs" aria-label="Ανανεώσεις">
   <?php foreach (HtmlView::SECTIONS as $key => $label): ?>
   <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo NotifyUi::url($key === 'overview' ? '' : 'section=' . $key); ?>"><?php echo $e($label); ?><?php if ($key === 'log' && ($this->counts['failed'] ?? 0) > 0): ?> <span class="sp-offer-status is-rejected"><?php echo (int) $this->counts['failed']; ?></span><?php endif; ?></a>
   <?php endforeach; ?>
  </nav>
+ <?php endif; ?>
  <script>function spSubmit(task){var f=document.getElementById('adminForm');if(!f)return;if(!f.reportValidity||f.reportValidity()){f.querySelector('input[name="task"]').value=task;f.submit();}}</script>
  <script>window.spCustomVariables=function(){return <?php echo json_encode([['{greeting}','Προσφώνηση (π.χ. Αγαπητέ/ή πελάτη)'],['{client_name}','Όνομα πελάτη'],['{client_company}','Εταιρεία πελάτη'],['{service}','Υπηρεσία'],['{label}','Domain / περιγραφή'],['{expiry_date}','Ημ/νία λήξης'],['{expiry_phrase}','«λήγει σε 7 ημέρες»'],['{price}','Τιμή'],['{duration}','Διάρκεια'],['{period}','Περίοδος αναφοράς'],['{services_list}','Λίστα υπηρεσιών πελάτη']], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP); ?>;};</script>
 <?php echo $this->loadTemplate($templates[$this->section]); ?>

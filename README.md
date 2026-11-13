@@ -924,3 +924,8 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.30.3
 - Burger (κλειστό μενού) στο hover: και οι τρεις γραμμές +2px, ώστε η μεσαία να τελειώνει στη μύτη. Αποσύνδεση: εικονίδιο log-out (πλαίσιο αριστερά, βέλος προς τα έξω)· στο κλειστό μενού κρύβεται το κείμενο (παλιός κανόνας μεγάλωνε κάθε span).
 
+## v1.31.0 — Υπενθυμίσεις πληρωμών
+- Πίνακας `#__supportplans_invoices` (email, πελάτης, αριθμός/ημερομηνία παραστατικού, ποσό, διάστημα σε ημέρες, επόμενη υπενθύμιση, αποστολές, κατάσταση open/paid). Ενότητα `view=notify&section=invoices` ως ξεχωριστό στοιχείο του μενού (λίστα με φίλτρα και KPIs, φόρμα, ιστορικό υπενθυμίσεων ανά παραστατικό).
+- `Notify::queueInvoices()` μέσα στο `run()` (μόνο μετά την ώρα αποστολής, π.χ. 09:30), `queueInvoice()` (μήνυμα `kind=invoice`, `ref=invoice:<id>:<n>:<time>`, μετακινεί την επόμενη υπενθύμιση κατά το διάστημα), `invoicePaid()` (ακυρώνει όσα περιμένουν στην ουρά), έλεγχος πριν την αποστολή (`skipReason`: εξοφλημένο/διαγραμμένο/άλλαξε email). Tasks `notify.saveInvoice`, `sendInvoice`, `invoicePaid`, `reopenInvoice`, `deleteInvoice`.
+- Ρυθμίσεις email: «Πρότυπο: Υπενθύμιση πληρωμής» (διάστημα, θέμα, κείμενο με {invoice_number}, {invoice_date}, {amount}, {days}, {reminder_no}, {banks}) και αποστολέας `doc_invoice_*` στους «Αποστολείς εγγράφων».
+

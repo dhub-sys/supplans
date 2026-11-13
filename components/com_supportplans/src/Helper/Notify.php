@@ -29,13 +29,15 @@ final class Notify
     public const T_SENT = '#__supportplans_notify_sent';
     /** Payments / renewals recorded with "Πληρώθηκε" (history per client service). */
     public const T_RENEWALS = '#__supportplans_renewals';
+    public const T_INVOICES = '#__supportplans_invoices';
+    public const INVOICE_STATUSES = ['open' => 'Ανεξόφλητο', 'paid' => 'Εξοφλήθηκε'];
 
     public const MAX_ATTEMPTS = 3;
     public const DEFAULT_REMINDER_DAYS = '30,14,7,1,0,-3';
 
     public const SERVICE_STATUSES = ['active' => 'Ενεργή', 'suspended' => 'Σε αναστολή', 'cancelled' => 'Ακυρωμένη'];
     public const CLIENT_STATUSES = ['active' => 'Ενεργός', 'inactive' => 'Ανενεργός'];
-    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'test' => 'Δοκιμαστικό'];
+    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'invoice' => 'Υπενθύμιση πληρωμής', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'test' => 'Δοκιμαστικό'];
     public const MESSAGE_STATUSES = ['queued' => 'Σε αναμονή', 'sending' => 'Αποστέλλεται', 'sent' => 'Εστάλη', 'failed' => 'Απέτυχε', 'cancelled' => 'Ακυρώθηκε'];
 
     /* ================================================================ settings */
@@ -57,6 +59,11 @@ final class Notify
             // Sender per document type (offer / structure / plan); empty = the sender above.
             'doc_offer_from_name' => '', 'doc_offer_from_email' => '', 'doc_offer_reply_to' => '', 'doc_offer_bcc' => '',
             'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
+            'doc_invoice_from_name' => '', 'doc_invoice_from_email' => '', 'doc_invoice_reply_to' => '', 'doc_invoice_bcc' => '',
+            // Payment reminders of unpaid invoices (v1.31.0).
+            'notify_invoice_interval' => 7,
+            'notify_invoice_subject' => 'Υπενθύμιση πληρωμής: παραστατικό {invoice_number}',
+            'notify_invoice_body' => "{greeting},\n\nσας υπενθυμίζουμε ότι το παραστατικό **{invoice_number}** της {invoice_date}, ποσού **{amount}**, δεν έχει εξοφληθεί ακόμα.\n\n{banks}\n\nΑν έχετε ήδη πραγματοποιήσει την πληρωμή, παρακαλούμε αγνοήστε το παρόν μήνυμα ή ενημερώστε μας για να την καταχωρήσουμε.\n\nΜε εκτίμηση,\n{company}",
             'doc_plan_from_name' => '', 'doc_plan_from_email' => '', 'doc_plan_reply_to' => '', 'doc_plan_bcc' => '',
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
             'notify_batch_size'      => 20,
@@ -1573,7 +1580,7 @@ final class Notify
 
         $error = '';
         try {
-            $mailer = self::senderMailer();
+            $mailer = self::senderMailer($m->kind === 'invoice' ? 'invoice' : '');
             $bcc = trim((string) self::setting('notify_bcc'));
             if ($m->kind === 'renewal' && $bcc !== '' && filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                 $mailer->addBcc($bcc);
@@ -1659,6 +1666,15 @@ final class Notify
     private static function skipReason(object $m, ?object $client): string
     {
         if ($m->kind === 'test') return '';
+        if ($m->kind === 'invoice') {
+            // Only while the invoice is still unpaid and its email has not changed.
+            $inv = preg_match('/^invoice:(\d+):/', (string) $m->ref, $mm) ? self::invoice((int) $mm[1]) : null;
+            if (!$inv) return 'Το παραστατικό διαγράφηκε.';
+            if ($inv->status !== 'open') return 'Το παραστατικό εξοφλήθηκε.';
+            if (strcasecmp((string) $inv->email, (string) $m->to_email) !== 0) return 'Το email του παραστατικού άλλαξε.';
+            if ($client && $client->status !== 'active') return 'Ο πελάτης είναι ανενεργός.';
+            return '';
+        }
         if (!$client) return 'Ο πελάτης δεν υπάρχει πλέον.';
         if ($client->status !== 'active') return 'Ο πελάτης είναι ανενεργός.';
         if ($m->kind === 'campaign' && $client->unsubscribed_at) return 'Ο πελάτης έχει διαγραφεί από τις ενημερώσεις.';
@@ -1771,9 +1787,113 @@ final class Notify
      * reminder is queued once, so later runs of the same day add nothing), then the queue, which
      * also sends reports and campaigns at any time. $force (the "now" button) ignores the time.
      */
+    /* ================================================================ payment reminders */
+
+    public static function invoice(int $id): ?object
+    {
+        $db = self::db();
+        return $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_INVOICES))->where('id=' . $id))->loadObject() ?: null;
+    }
+
+    /** Invoices, unpaid first (by next reminder), then paid (newest first). */
+    public static function invoices(string $status = '', string $search = ''): array
+    {
+        $db = self::db();
+        $q = $db->getQuery(true)->select('*')->from($db->quoteName(self::T_INVOICES))
+            ->order("status='paid', CASE WHEN status='open' THEN next_send END ASC, invoice_date DESC, id DESC");
+        if (isset(self::INVOICE_STATUSES[$status])) $q->where('status=' . $db->quote($status));
+        if ($search !== '') {
+            $like = $db->quote('%' . $db->escape($search, true) . '%', false);
+            $q->where('(invoice_number LIKE ' . $like . ' OR email LIKE ' . $like . ' OR name LIKE ' . $like . ')');
+        }
+        return $db->setQuery($q)->loadObjectList();
+    }
+
+    /** [subject, html] of a payment reminder. */
+    public static function buildInvoiceReminder(object $inv): array
+    {
+        $client = self::clientByEmail((string) $inv->email);
+        $base = $client ?: (object) ['name' => (string) $inv->name, 'company' => '', 'email' => (string) $inv->email, 'salutation' => ''];
+        $days = $inv->invoice_date ? max(0, -(int) self::daysUntil($inv->invoice_date)) : 0;
+        $vars = self::clientVars($base) + [
+            'invoice_number' => (string) $inv->invoice_number,
+            'invoice_date'   => self::dateGr($inv->invoice_date),
+            'amount'         => self::money((float) $inv->amount),
+            'days'           => (string) $days,
+            'reminder_no'    => (string) ((int) $inv->sends + 1),
+            'name'           => (string) $inv->name,
+        ];
+        if (trim((string) $inv->name) !== '' && !$client) $vars['client_name'] = (string) $inv->name;
+        $blocks = ['banks' => self::banksTable()];
+        return [self::subject((string) self::setting('notify_invoice_subject'), $vars),
+            self::wrap(self::renderText((string) self::setting('notify_invoice_body'), $vars, $blocks))];
+    }
+
+    /** Queues a reminder for an unpaid invoice and moves its next reminder. Returns the message id. */
+    public static function queueInvoice(object $inv): int
+    {
+        if ($inv->status !== 'open' || !filter_var((string) $inv->email, FILTER_VALIDATE_EMAIL)) return 0;
+        $client = self::clientByEmail((string) $inv->email);
+        [$subject, $body] = self::buildInvoiceReminder($inv);
+        $n = (int) $inv->sends + 1;
+        $id = self::queue(['client_id' => $client ? (int) $client->id : 0, 'kind' => 'invoice', 'to_email' => (string) $inv->email,
+            'subject' => $subject, 'body' => $body, 'ref' => 'invoice:' . (int) $inv->id . ':' . $n . ':' . self::now()]);
+        if ($id) {
+            $db = self::db();
+            $next = self::addDays(self::today(), max(1, (int) $inv->interval_days));
+            $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_INVOICES))
+                ->set(['sends=' . $n, 'last_sent=' . $db->quote(self::now()), 'next_send=' . $db->quote($next), 'client_id=' . ($client ? (int) $client->id : 0)])
+                ->where('id=' . (int) $inv->id))->execute();
+        }
+        return $id;
+    }
+
+    /** Automatic reminders: every unpaid invoice whose next reminder is due. */
+    public static function queueInvoices(): int
+    {
+        $db = self::db();
+        try {
+            $rows = $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_INVOICES))
+                ->where("status='open'")->where('next_send IS NOT NULL')->where('next_send <= ' . $db->quote(self::today())))->loadObjectList();
+        } catch (\Throwable $e) {
+            return 0; // table not there yet (during an update)
+        }
+        $n = 0;
+        foreach ($rows as $inv) {
+            if (self::queueInvoice($inv)) $n++;
+        }
+        return $n;
+    }
+
+    /** Paid: no more reminders; the ones waiting in the queue are cancelled. */
+    public static function invoicePaid(int $id, string $paidOn): void
+    {
+        $db = self::db();
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_INVOICES))
+            ->set(["status='paid'", 'paid_on=' . $db->quote($paidOn ?: self::today()), 'next_send=NULL', 'modified=' . $db->quote(self::now())])->where('id=' . $id))->execute();
+        self::cancelInvoiceQueue($id, 'Το παραστατικό εξοφλήθηκε.');
+    }
+
+    public static function cancelInvoiceQueue(int $id, string $reason): void
+    {
+        $db = self::db();
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_MESSAGES))
+            ->set(["status='cancelled'", 'last_error=' . $db->quote($reason)])
+            ->where("kind='invoice'")->where("status='queued'")->where('ref LIKE ' . $db->quote('invoice:' . $id . ':%')))->execute();
+    }
+
+    /** Sent reminders of an invoice (newest first). */
+    public static function invoiceMessages(int $id): array
+    {
+        $db = self::db();
+        return $db->setQuery($db->getQuery(true)->select('id, to_email, subject, status, created, sent, last_error')->from($db->quoteName(self::T_MESSAGES))
+            ->where("kind='invoice'")->where('ref LIKE ' . $db->quote('invoice:' . $id . ':%'))->order('id DESC'))->loadObjectList();
+    }
+
     public static function run(bool $force = false): array
     {
-        $queued = $force || self::sendTimeReached() ? self::queueRenewals() : 0;
+        $due = $force || self::sendTimeReached();
+        $queued = $due ? self::queueRenewals() + self::queueInvoices() : 0;
         [$sent, $failed] = self::processQueue();
         try {
             OfferHelper::saveParam('notify_last_run', self::now());

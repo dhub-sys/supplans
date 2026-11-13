@@ -6,6 +6,7 @@ namespace Support\Component\Supportplans\Site\Controller;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Session\Session;
+use Support\Component\Supportplans\Site\Helper\Activity;
 use Support\Component\Supportplans\Site\Helper\Notify;
 use Support\Component\Supportplans\Site\Helper\OfferHelper;
 
@@ -603,6 +604,112 @@ class NotifyController extends BaseController
         $this->go('section=reports');
     }
 
+    /* ------------------------------------------------------------ payment reminders */
+
+    public function saveInvoice(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        $existing = $id ? Notify::invoice($id) : null;
+        $email = $this->email('email');
+        $number = $this->str('invoice_number', 80);
+        $date = Notify::parseDate($this->input->post->getString('invoice_date', ''));
+        $amount = $this->price('amount');
+        $back = 'section=invoices&' . ($id ? 'id=' . $id : 'mode=new');
+        if ($email === '' || $number === '' || $date === '' || $amount === null) {
+            $this->msg('Συμπληρώστε email, αριθμό παραστατικού, ημερομηνία και ποσό.', 'error');
+            $this->go($back);
+            return;
+        }
+        $interval = max(1, min(365, $this->input->post->getInt('interval_days', (int) Notify::setting('notify_invoice_interval'))));
+        $fields = ['email' => mb_strtolower($email), 'name' => $this->str('name'), 'invoice_number' => $number, 'invoice_date' => $date,
+            'amount' => $amount, 'interval_days' => $interval, 'notes' => mb_substr(trim((string) $this->input->post->getString('notes', '')), 0, 5000)];
+        $client = Notify::clientByEmail($fields['email']);
+        $fields['client_id'] = $client ? (int) $client->id : 0;
+        // First reminder: now, or on a date. Later: the next reminder date can be changed.
+        $start = $this->input->post->getCmd('start', 'now');
+        $sendNow = false;
+        if (!$existing) {
+            $fields['status'] = 'open';
+            if ($start === 'date') {
+                $first = Notify::parseDate($this->input->post->getString('first_send', ''));
+                $fields['next_send'] = $first !== '' && $first > Notify::today() ? $first : Notify::today();
+                $sendNow = $fields['next_send'] === Notify::today() && Notify::sendTimeReached();
+            } else {
+                $fields['next_send'] = Notify::today();
+                $sendNow = true;
+            }
+        } elseif ($existing->status === 'open') {
+            $next = Notify::parseDate($this->input->post->getString('next_send', ''));
+            if ($next !== '') $fields['next_send'] = $next;
+            if (strcasecmp((string) $existing->email, $fields['email']) !== 0) Notify::cancelInvoiceQueue($id, 'Το email του παραστατικού άλλαξε.');
+        }
+        $id = $this->store(Notify::T_INVOICES, $fields, $id);
+        $sent = false;
+        if ($sendNow) {
+            $mid = Notify::queueInvoice(Notify::invoice($id));
+            $sent = $mid && Notify::sendNow($mid);
+        }
+        $inv = Notify::invoice($id);
+        $this->msg($existing ? 'Το παραστατικό αποθηκεύτηκε.' : ($sent ? 'Το παραστατικό καταχωρήθηκε και στάλθηκε η 1η υπενθύμιση στο ' . $inv->email . '. Επόμενη: ' . Notify::dateGr($inv->next_send) . '.'
+            : ($sendNow ? 'Το παραστατικό καταχωρήθηκε, αλλά η αποστολή απέτυχε — δείτε το Ιστορικό αποστολών.' : 'Το παραστατικό καταχωρήθηκε. 1η υπενθύμιση: ' . Notify::dateGr($inv->next_send) . ($inv->next_send === Notify::today() ? ' (από τις ' . Notify::sendTimeLabel() . ')' : '') . '.')),
+            !$existing && $sendNow && !$sent ? 'warning' : 'message');
+        $this->go('section=invoices');
+    }
+
+    public function sendInvoice(): void
+    {
+        $this->guard();
+        $inv = Notify::invoice($this->input->post->getInt('id', 0));
+        if (!$inv || $inv->status !== 'open') {
+            $this->msg('Το παραστατικό δεν είναι ανεξόφλητο.', 'error');
+            $this->go($this->back());
+            return;
+        }
+        $mid = Notify::queueInvoice($inv);
+        $ok = $mid && Notify::sendNow($mid);
+        $inv = Notify::invoice((int) $inv->id);
+        $this->msg($ok ? 'Η υπενθύμιση στάλθηκε στο ' . $inv->email . '. Επόμενη: ' . Notify::dateGr($inv->next_send) . '.' : 'Η αποστολή απέτυχε — δείτε το Ιστορικό αποστολών.', $ok ? 'message' : 'error');
+        $this->go($this->back());
+    }
+
+    public function invoicePaid(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        $inv = Notify::invoice($id);
+        if ($inv) {
+            $paidOn = Notify::parseDate($this->input->post->getString('paid_on', '')) ?: Notify::today();
+            Notify::invoicePaid($id, $paidOn);
+            Activity::note($inv->invoice_number . ' · ' . Notify::money((float) $inv->amount));
+            $this->msg('Το παραστατικό ' . $inv->invoice_number . ' σημειώθηκε ως εξοφλημένο· οι υπενθυμίσεις σταμάτησαν.');
+        }
+        $this->go($this->back());
+    }
+
+    public function reopenInvoice(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        $inv = Notify::invoice($id);
+        if ($inv) {
+            $next = Notify::addDays(Notify::today(), max(1, (int) $inv->interval_days));
+            $this->store(Notify::T_INVOICES, ['status' => 'open', 'paid_on' => null, 'next_send' => $next], $id);
+            $this->msg('Το παραστατικό είναι ξανά ανεξόφλητο. Επόμενη υπενθύμιση: ' . Notify::dateGr($next) . '.');
+        }
+        $this->go($this->back());
+    }
+
+    public function deleteInvoice(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        Notify::cancelInvoiceQueue($id, 'Το παραστατικό διαγράφηκε.');
+        $this->delete(Notify::T_INVOICES, 'id=' . $id);
+        $this->msg('Το παραστατικό διαγράφηκε από τη λίστα.');
+        $this->go('section=invoices');
+    }
+
     /* ------------------------------------------------------------ campaigns */
 
     public function saveCampaign(): void
@@ -723,6 +830,11 @@ class NotifyController extends BaseController
             'doc_offer_reply_to' => $this->email('doc_offer_reply_to'), 'doc_offer_bcc' => $this->email('doc_offer_bcc'),
             'doc_structure_from_name' => $this->str('doc_structure_from_name'), 'doc_structure_from_email' => $this->email('doc_structure_from_email'),
             'doc_structure_reply_to' => $this->email('doc_structure_reply_to'), 'doc_structure_bcc' => $this->email('doc_structure_bcc'),
+            'doc_invoice_from_name' => $this->str('doc_invoice_from_name'), 'doc_invoice_from_email' => $this->email('doc_invoice_from_email'),
+            'doc_invoice_reply_to' => $this->email('doc_invoice_reply_to'), 'doc_invoice_bcc' => $this->email('doc_invoice_bcc'),
+            'notify_invoice_interval' => max(1, min(365, $this->input->post->getInt('notify_invoice_interval', 7))),
+            'notify_invoice_subject' => $this->str('notify_invoice_subject', 255),
+            'notify_invoice_body' => $this->text('notify_invoice_body'),
             'doc_plan_from_name' => $this->str('doc_plan_from_name'), 'doc_plan_from_email' => $this->email('doc_plan_from_email'),
             'doc_plan_reply_to' => $this->email('doc_plan_reply_to'), 'doc_plan_bcc' => $this->email('doc_plan_bcc'),
             'notify_reminder_days' => $this->days('notify_reminder_days') ?: Notify::DEFAULT_REMINDER_DAYS,

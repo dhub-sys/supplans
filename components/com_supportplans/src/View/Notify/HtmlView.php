@@ -57,7 +57,8 @@ class HtmlView extends BaseHtmlView
         $this->params = ComponentHelper::getParams('com_supportplans');
         $in = Factory::getApplication()->input;
         $section = $in->getCmd('section', 'overview');
-        $this->section = isset(self::SECTIONS[$section]) ? $section : 'overview';
+        // 'invoices' (Υπενθυμίσεις πληρωμών) is a menu item of its own, not a tab of Ανανεώσεις.
+        $this->section = isset(self::SECTIONS[$section]) || $section === 'invoices' ? $section : 'overview';
         $id = $in->getInt('id', 0);
         $this->mode = $in->getCmd('mode', '') === 'new' ? 'new' : ($id ? 'edit' : 'list');
         $this->counts = Notify::messageCounts();
@@ -183,6 +184,19 @@ class HtmlView extends BaseHtmlView
                         $aud = json_decode((string) $this->selected->audience, true) ?: ['mode' => 'all'];
                         $this->total = $this->selected->status === 'draft' ? count(Notify::audience($aud)) : (int) $this->selected->recipients;
                     }
+                }
+                break;
+
+            case 'invoices':
+                if ($this->mode === 'list') {
+                    $this->filters = ['status' => $in->getCmd('status', 'open'), 'search' => trim($in->getString('q', ''))];
+                    if ($this->filters['status'] === 'all') $this->filters['status'] = '';
+                    $this->rows = Notify::invoices($this->filters['status'], $this->filters['search']);
+                    $this->clients = Notify::clients('', 'active');
+                } else {
+                    $this->clients = Notify::clients('', 'active');
+                    $this->selected = $id ? Notify::invoice($id) : null;
+                    if ($this->selected) $this->messages = Notify::invoiceMessages($id);
                 }
                 break;
 
