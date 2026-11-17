@@ -41,12 +41,13 @@ $expired = count(array_filter($this->rows, static fn($s) => Notify::daysUntil($s
   <?php if (!$this->namedays): ?><p class="text-muted">Κανένας πελάτης δεν γιορτάζει τις επόμενες 30 ημέρες. Η ονομαστική εορτή ορίζεται στην καρτέλα του πελάτη.</p>
   <?php else: ?>
   <div class="table-responsive"><table class="table sp-offer-table">
-   <thead><tr><th>Ημερομηνία</th><th>Πελάτης</th><th>Email</th><th>Ευχές</th></tr></thead>
+   <thead><tr><th>Ημερομηνία</th><th>Πελάτης</th><th>Email</th><th>Ευχές</th><th></th></tr></thead>
    <tbody><?php foreach ($this->namedays as $row): $c = $row['client']; ?>
     <tr><td><strong><?php echo $e($row['date'] === Notify::today() ? 'Σήμερα' : Notify::dateGr($row['date'])); ?></strong></td>
      <td><a href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id); ?>"><?php echo $e(Notify::clientLabel($c)); ?></a></td>
      <td><?php echo $e($c->email); ?></td>
-     <td><?php echo $c->unsubscribed_at ? '<span class="sp-offer-status is-rejected">Διαγράφηκε από ενημερώσεις</span>' : '<span class="sp-offer-status is-accepted">Αυτόματα' . (Notify::sendTimeLabel() !== '' ? ' ' . $e(Notify::sendTimeLabel()) : '') . '</span>'; ?></td></tr>
+     <td><?php echo $c->unsubscribed_at ? '<span class="sp-offer-status is-rejected">Διαγράφηκε από ενημερώσεις</span>' : '<span class="sp-offer-status is-accepted">Αυτόματα' . (Notify::sendTimeLabel() !== '' ? ' ' . $e(Notify::sendTimeLabel()) : '') . '</span>'; ?></td>
+     <td class="sp-num"><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=settings&preview=nameday&client=' . (int) $c->id); ?>#sp-nameday-template">Προεπισκόπηση</a></td></tr>
    <?php endforeach; ?></tbody>
   </table></div>
   <?php endif; ?>

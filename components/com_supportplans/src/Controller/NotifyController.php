@@ -37,7 +37,13 @@ class NotifyController extends BaseController
 
     private function go(string $query): void
     {
-        OfferHelper::redirect('view=notify&' . ltrim($query, '&'));
+        // A "#fragment" goes at the very end, after what the redirect adds (Itemid).
+        [$query, $fragment] = array_pad(explode('#', $query, 2), 2, '');
+        if ($fragment === '') {
+            OfferHelper::redirect('view=notify&' . ltrim($query, '&'));
+            return;
+        }
+        Factory::getApplication()->redirect(OfferHelper::url('view=notify&' . ltrim($query, '&'), false) . '#' . $fragment);
     }
 
     /** Return location inside the notifications page (query characters only). */
@@ -920,6 +926,18 @@ class NotifyController extends BaseController
         }
         $this->saveEmailLogo();
         $this->msg('Οι ρυθμίσεις ειδοποιήσεων αποθηκεύτηκαν.');
+        // "Αποθήκευση & προεπισκόπηση / δοκιμή" of the name day wishes.
+        $after = $this->input->post->getCmd('after', '');
+        if ($after === 'nameday_test') {
+            $me = $this->me();
+            [$subject, $body] = Notify::buildNameday($me);
+            $ok = $me->email !== '' && Notify::sendTest($me->email, $subject, $body);
+            $this->msg($ok ? 'Δοκιμαστικό ευχών εστάλη στο ' . $me->email . '.' : 'Η δοκιμαστική αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
+        }
+        if ($after === 'nameday_preview' || $after === 'nameday_test') {
+            $this->go('section=settings&preview=nameday#sp-nameday-template');
+            return;
+        }
         $this->go('section=settings');
     }
 

@@ -55,6 +55,8 @@ class HtmlView extends BaseHtmlView
     public array $namedays = [];
     /** New campaign from a ready-made greeting (Notify::campaignPresets). */
     public ?object $preset = null;
+    /** Preview of the name day wishes (settings, ?preview=nameday[&client=id]). */
+    public array $namedayPreview = [];
 
     public function display($tpl = null): void
     {
@@ -68,6 +70,20 @@ class HtmlView extends BaseHtmlView
         $this->counts = Notify::messageCounts();
         Notify::rememberSiteRoot();
 
+        if ($this->section === 'settings' && $in->getCmd('preview', '') === 'nameday') {
+            // A client of the next name days (or the one asked for), else the administrator.
+            $client = $in->getInt('client', 0) ? Notify::client($in->getInt('client', 0)) : null;
+            if (!$client) {
+                $next = Notify::upcomingNamedays(366);
+                $client = $next ? $next[0]['client'] : null;
+            }
+            if (!$client) {
+                $s = Factory::getApplication()->getSession();
+                $client = (object) ['id' => 0, 'name' => (string) $s->get('supportplans.auth.name', ''), 'company' => '', 'email' => (string) $s->get('supportplans.auth.email', ''), 'salutation' => ''];
+            }
+            [$subject, $body] = Notify::buildNameday((object) (['id' => 0] + (array) $client));
+            $this->namedayPreview = ['to' => Notify::clientLabel($client) . ' <' . $client->email . '>', 'subject' => $subject, 'body' => $body];
+        }
         switch ($this->section) {
             case 'overview':
                 $this->rows = Notify::services(['status' => 'active', 'expiring' => 60]);

@@ -121,3 +121,4 @@ html body .sp-saas-root .sp-inv-start input[type=date]{padding:7px 10px!importan
 .sp-n-or{font-size:13px;color:#667085}
 .sp-n-namedays{margin-top:20px!important}
 @media (max-width:620px){.sp-n-card-row{flex-direction:column}.sp-n-card-row img{max-width:100%}}
+.sp-n-nameday-preview{margin-top:16px}#sp-nameday-template .sp-n-actions{margin-top:12px}

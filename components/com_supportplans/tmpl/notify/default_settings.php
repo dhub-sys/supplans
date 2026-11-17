@@ -145,7 +145,15 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
     </div>
    </div>
   </div>
-  <p class="sp-n-help">Μεταβλητές: <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>. Η ημερομηνία ορίζεται στην καρτέλα κάθε πελάτη· στέλνεται μία φορά τον χρόνο και όχι σε όσους έχουν διαγραφεί από τις ενημερώσεις.</p>
+  <p class="sp-n-help">Μεταβλητές: <code>{banner}</code> (χρωματιστό πλαίσιο «Χρόνια Πολλά!» με emojis, σε δική του γραμμή) <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>. Emojis μπορείτε να γράψετε απευθείας στο κείμενο (Windows: <kbd>Win</kbd>+<kbd>.</kbd>, Mac: <kbd>Ctrl</kbd>+<kbd>⌘</kbd>+<kbd>Space</kbd>). Η ημερομηνία ορίζεται στην καρτέλα κάθε πελάτη· στέλνεται μία φορά τον χρόνο και όχι σε όσους έχουν διαγραφεί από τις ενημερώσεις.</p>
+  <div class="sp-n-actions">
+   <button type="button" class="btn btn-outline-primary" onclick="var f=document.getElementById('adminForm');f.querySelector('input[name=after]').value='nameday_preview';spSubmit('notify.saveSettings')">Αποθήκευση &amp; προεπισκόπηση</button>
+   <button type="button" class="btn btn-outline-secondary" onclick="var f=document.getElementById('adminForm');f.querySelector('input[name=after]').value='nameday_test';spSubmit('notify.saveSettings')">Αποθήκευση &amp; δοκιμή στο email μου</button>
+  </div>
+  <?php if ($this->namedayPreview): ?>
+  <div class="sp-n-nameday-preview"><dl class="sp-n-meta"><dt>Προς</dt><dd><?php echo $e($this->namedayPreview['to']); ?></dd><dt>Θέμα</dt><dd><?php echo $e($this->namedayPreview['subject']); ?></dd></dl>
+  <?php echo NotifyUi::preview($this->namedayPreview['body']); ?></div>
+  <?php endif; ?>
  </div>
  <div class="sp-card">
   <h2>Πρότυπο: Αναφορά maintenance</h2>
@@ -155,7 +163,7 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
   </div>
   <p class="sp-n-help">Μεταβλητές: <?php echo $vars; ?> <code>{period}</code>, και σε δική τους γραμμή <code>{summary}</code> (σύνοψη εργασιών) και <code>{updates}</code> (πίνακας ενημερώσεων).</p>
  </div>
- <input type="hidden" name="task" value="notify.saveSettings">
+ <input type="hidden" name="after" value=""><input type="hidden" name="task" value="notify.saveSettings">
  <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 <div class="sp-card">

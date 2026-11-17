@@ -66,8 +66,8 @@ final class Notify
             'notify_invoice_body' => "{greeting},\n\nσας υπενθυμίζουμε ότι το παραστατικό **{invoice_number}** της {invoice_date}, ποσού **{amount}**, δεν έχει εξοφληθεί ακόμα.\n\n{banks}\n\nΑν έχετε ήδη πραγματοποιήσει την πληρωμή, παρακαλούμε αγνοήστε το παρόν μήνυμα ή ενημερώστε μας για να την καταχωρήσουμε.\n\nΜε εκτίμηση,\n{company}",
             // Name day wishes (v1.32.0): sent on the client's name day, at the send time.
             'notify_nameday_enabled' => 1,
-            'notify_nameday_subject' => 'Χρόνια πολλά!',
-            'notify_nameday_body' => "{greeting},\n\nμε την ευκαιρία της ονομαστικής σας εορτής, σας ευχόμαστε **χρόνια πολλά**, με υγεία, χαρά και κάθε επιτυχία!\n\nΜε εκτίμηση,\n{company}",
+            'notify_nameday_subject' => '🎉 Χρόνια πολλά!',
+            'notify_nameday_body' => "{banner}\n\n{greeting},\n\nσήμερα γιορτάζετε και θέλαμε να είμαστε από τους πρώτους που θα σας ευχηθούν **χρόνια πολλά**! 🎂🥳\n\nΝα έχετε υγεία, χαρά και αγάπη, και κάθε σας μέρα να είναι γεμάτη όμορφες στιγμές και επιτυχίες! ✨\n\nΜε τις θερμότερες ευχές,\n{company} 🎈",
             'notify_nameday_image' => '',
             'doc_plan_from_name' => '', 'doc_plan_from_email' => '', 'doc_plan_reply_to' => '', 'doc_plan_bcc' => '',
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
@@ -93,9 +93,18 @@ final class Notify
         ];
     }
 
+    /** Texts of v1.32.0 that were saved unchanged: replaced by the new (festive) defaults. */
+    private const OLD_DEFAULTS = [
+        'notify_nameday_subject' => ['Χρόνια πολλά!'],
+        'notify_nameday_body' => ["{greeting},\n\nμε την ευκαιρία της ονομαστικής σας εορτής, σας ευχόμαστε **χρόνια πολλά**, με υγεία, χαρά και κάθε επιτυχία!\n\nΜε εκτίμηση,\n{company}"],
+    ];
+
     public static function setting(string $key)
     {
         $value = ComponentHelper::getParams('com_supportplans')->get($key, null);
+        if (isset(self::OLD_DEFAULTS[$key]) && is_string($value) && in_array(str_replace("\r\n", "\n", trim($value)), self::OLD_DEFAULTS[$key], true)) {
+            $value = '';
+        }
         $defaults = self::defaults();
         if (($value === null || $value === '') && isset($defaults[$key])) {
             return $defaults[$key];
@@ -1516,8 +1525,25 @@ final class Notify
     {
         $vars = self::clientVars($client);
         $unsub = (int) $client->id > 0 ? self::unsubscribeUrl($client) : self::siteRoot() . '#';
-        $html = self::renderText((string) self::setting('notify_nameday_body'), $vars, ['banks' => self::banksTable()]);
+        $html = self::renderText((string) self::setting('notify_nameday_body'), $vars, ['banner' => self::namedayBanner(), 'banks' => self::banksTable()]);
         return [self::subject((string) self::setting('notify_nameday_subject'), $vars), self::wrap($html, $unsub, self::absUrl((string) self::setting('notify_nameday_image'))), (int) $client->id > 0 ? $unsub : ''];
+    }
+
+    /** Colourful "Χρόνια Πολλά!" banner of the name day wishes ({banner}); Outlook shows the plain colour. */
+    public static function namedayBanner(): string
+    {
+        $font = self::fontStack();
+        $pill = static function (string $text, string $bg, string $fg) use ($font): string {
+            return '<td style="padding:4px;"><span style="display:inline-block;padding:6px 13px;border-radius:999px;background:' . $bg . ';color:' . $fg . ';font-family:' . $font . ';font-size:13px;line-height:18px;font-weight:bold;white-space:nowrap;">' . $text . '</span></td>';
+        };
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;border-collapse:separate;">'
+            . '<tr><td align="center" bgcolor="#ff7a59" style="background-color:#ff7a59;background-image:linear-gradient(135deg,#ff5f8f 0%,#ff9a3c 55%,#ffc93c 100%);border-radius:16px;padding:26px 18px 24px;text-align:center;">'
+            . '<div style="font-size:30px;line-height:40px;letter-spacing:4px;">🎈🎉🎂🎁🎊</div>'
+            . '<div style="font-family:' . $font . ';font-size:34px;line-height:42px;font-weight:bold;color:#ffffff;padding-top:6px;text-shadow:0 2px 6px rgba(0,0,0,.18);">Χρόνια Πολλά!</div>'
+            . '<div style="font-family:' . $font . ';font-size:16px;line-height:24px;color:#fffaf0;padding-top:6px;">Χαρούμενη γιορτή, γεμάτη χαμόγελα! 🌟</div>'
+            . '</td></tr><tr><td align="center" style="padding-top:12px;"><table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>'
+            . $pill('🌸 Υγεία', '#ffe4ef', '#be185d') . $pill('💛 Χαρά', '#fff4cc', '#a16207') . $pill('❤️ Αγάπη', '#fee2e2', '#b91c1c') . $pill('⭐ Επιτυχία', '#e0f2fe', '#1d4ed8')
+            . '</tr></table></td></tr></table>';
     }
 
     /** The wishes of the clients who celebrate today (once a year each; not to unsubscribed clients). */
