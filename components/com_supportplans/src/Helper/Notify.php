@@ -69,6 +69,10 @@ final class Notify
             'notify_nameday_subject' => '🎉 Χρόνια πολλά!',
             'notify_nameday_body' => "{banner}\n\n{greeting},\n\nσήμερα γιορτάζετε και θέλαμε να είμαστε από τους πρώτους που θα σας ευχηθούν **χρόνια πολλά**! 🎂🥳\n\nΝα έχετε υγεία, χαρά και αγάπη, και κάθε σας μέρα να είναι γεμάτη όμορφες στιγμές και επιτυχίες! ✨\n\nΜε τις θερμότερες ευχές,\n{company} 🎈",
             'notify_nameday_image' => '',
+            // Colours of the {banner}: background (1 colour, or 2-3 for a gradient) and text.
+            'notify_banner_gradient' => 1,
+            'notify_banner_bg1' => '#ff5f8f', 'notify_banner_bg2' => '#ff9a3c', 'notify_banner_bg3' => '#ffc93c',
+            'notify_banner_text' => '#ffffff',
             'doc_plan_from_name' => '', 'doc_plan_from_email' => '', 'doc_plan_reply_to' => '', 'doc_plan_bcc' => '',
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
             'notify_batch_size'      => 20,
@@ -1530,17 +1534,38 @@ final class Notify
     }
 
     /** Colourful "Χρόνια Πολλά!" banner of the name day wishes ({banner}); Outlook shows the plain colour. */
+    /** [background css, Outlook colour, text colour] of the {banner}. */
+    public static function bannerColors(): array
+    {
+        $hex = static function (string $key): string {
+            $v = strtolower(trim((string) self::setting($key)));
+            return preg_match('/^#[0-9a-f]{6}$/', $v) ? $v : (string) self::defaults()[$key];
+        };
+        $bg1 = $hex('notify_banner_bg1');
+        $text = $hex('notify_banner_text');
+        if (!(int) self::setting('notify_banner_gradient')) {
+            return ['background-color:' . $bg1 . ';', $bg1, $text];
+        }
+        $stops = [$bg1, $hex('notify_banner_bg2')];
+        $bg3 = strtolower(trim((string) self::setting('notify_banner_bg3')));
+        if (preg_match('/^#[0-9a-f]{6}$/', $bg3)) $stops[] = $bg3;
+        $css = count($stops) === 3 ? $stops[0] . ' 0%,' . $stops[1] . ' 55%,' . $stops[2] . ' 100%' : $stops[0] . ' 0%,' . $stops[1] . ' 100%';
+        // Outlook for Windows: no gradients, the middle colour.
+        return ['background-color:' . $stops[1] . ';background-image:linear-gradient(135deg,' . $css . ');', $stops[1], $text];
+    }
+
     public static function namedayBanner(): string
     {
         $font = self::fontStack();
+        [$bgCss, $bgMso, $fg] = self::bannerColors();
         $pill = static function (string $text, string $bg, string $fg) use ($font): string {
             return '<td style="padding:4px;"><span style="display:inline-block;padding:6px 13px;border-radius:999px;background:' . $bg . ';color:' . $fg . ';font-family:' . $font . ';font-size:13px;line-height:18px;font-weight:bold;white-space:nowrap;">' . $text . '</span></td>';
         };
         return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;border-collapse:separate;">'
-            . '<tr><td align="center" bgcolor="#ff7a59" style="background-color:#ff7a59;background-image:linear-gradient(135deg,#ff5f8f 0%,#ff9a3c 55%,#ffc93c 100%);border-radius:16px;padding:26px 18px 24px;text-align:center;">'
+            . '<tr><td align="center" bgcolor="' . $bgMso . '" style="' . $bgCss . 'border-radius:16px;padding:26px 18px 24px;text-align:center;">'
             . '<div style="font-size:30px;line-height:40px;letter-spacing:4px;">🎈🎉🎂🎁🎊</div>'
-            . '<div style="font-family:' . $font . ';font-size:34px;line-height:42px;font-weight:bold;color:#ffffff;padding-top:6px;text-shadow:0 2px 6px rgba(0,0,0,.18);">Χρόνια Πολλά!</div>'
-            . '<div style="font-family:' . $font . ';font-size:16px;line-height:24px;color:#fffaf0;padding-top:6px;">Χαρούμενη γιορτή, γεμάτη χαμόγελα! 🌟</div>'
+            . '<div style="font-family:' . $font . ';font-size:34px;line-height:42px;font-weight:bold;color:' . $fg . ';padding-top:6px;text-shadow:0 2px 6px rgba(0,0,0,.14);">Χρόνια Πολλά!</div>'
+            . '<div style="font-family:' . $font . ';font-size:16px;line-height:24px;color:' . $fg . ';padding-top:6px;">Χαρούμενη γιορτή, γεμάτη χαμόγελα! 🌟</div>'
             . '</td></tr><tr><td align="center" style="padding-top:12px;"><table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>'
             . $pill('🌸 Υγεία', '#ffe4ef', '#be185d') . $pill('💛 Χαρά', '#fff4cc', '#a16207') . $pill('❤️ Αγάπη', '#fee2e2', '#b91c1c') . $pill('⭐ Επιτυχία', '#e0f2fe', '#1d4ed8')
             . '</tr></table></td></tr></table>';

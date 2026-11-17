@@ -122,3 +122,21 @@ html body .sp-saas-root .sp-inv-start input[type=date]{padding:7px 10px!importan
 .sp-n-namedays{margin-top:20px!important}
 @media (max-width:620px){.sp-n-card-row{flex-direction:column}.sp-n-card-row img{max-width:100%}}
 .sp-n-nameday-preview{margin-top:16px}#sp-nameday-template .sp-n-actions{margin-top:12px}
+/* {banner} colours (v1.32.2) */
+.sp-n-banner{border:1px solid #e4e7ec!important;border-radius:12px;padding:12px 16px 14px!important;margin:16px 0 0!important}
+.sp-n-banner legend{float:none;width:auto;font-size:14px;font-weight:600;color:#344054;padding:0 6px;margin:0}
+.sp-n-banner-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:center}
+.sp-n-banner-fields{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.sp-n-colors{display:flex;flex-wrap:wrap;gap:12px 16px}
+.sp-n-colors label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:#344054;margin:0}
+.sp-n-colors label span{display:inline-flex;align-items:center;gap:5px}
+.sp-n-colors input[type=color]{width:64px!important;height:38px!important;min-height:0!important;padding:3px!important;border:1px solid #d0d5dd;border-radius:8px;background:#fff;cursor:pointer}
+.sp-n-colors input[type=color]:disabled{opacity:.35;cursor:default}
+.sp-n-colors input[type=checkbox]{min-height:0!important;margin:0}
+.sp-n-banner.is-solid .sp-n-grad-only{display:none!important}
+.sp-n-banner-demo{border-radius:16px;padding:20px 14px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.sp-n-banner-demo div{font-size:24px;letter-spacing:3px}
+.sp-n-banner-demo strong{font-size:28px;line-height:36px;text-shadow:0 2px 6px rgba(0,0,0,.14)}
+.sp-n-banner-demo span{font-size:14px}
+@media (max-width:760px){.sp-n-banner-grid{grid-template-columns:1fr}}
+.sp-n-banner:not(.is-solid) .sp-n-solid-only{display:none}

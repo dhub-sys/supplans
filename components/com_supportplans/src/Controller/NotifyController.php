@@ -64,6 +64,13 @@ class NotifyController extends BaseController
         return str_replace("\r\n", "\n", (string) $this->input->post->get($name, '', 'raw'));
     }
 
+    /** "#rrggbb" from a colour field, '' (= default) otherwise. */
+    private function hex(string $name): string
+    {
+        $v = strtolower(trim((string) $this->input->post->getString($name, '')));
+        return preg_match('/^#[0-9a-f]{6}$/', $v) ? $v : '';
+    }
+
     private function email(string $name): string
     {
         $v = trim((string) $this->input->post->getString($name, ''));
@@ -919,6 +926,10 @@ class NotifyController extends BaseController
             'notify_nameday_enabled' => $this->input->post->getInt('notify_nameday_enabled', 0) ? 1 : 0,
             'notify_nameday_subject' => $this->str('notify_nameday_subject', 255),
             'notify_nameday_body' => $this->text('notify_nameday_body'),
+            'notify_banner_gradient' => $this->input->post->getInt('notify_banner_gradient', 0) ? 1 : 0,
+            'notify_banner_bg1' => $this->hex('notify_banner_bg1'), 'notify_banner_bg2' => $this->hex('notify_banner_bg2'),
+            'notify_banner_bg3' => $this->input->post->getInt('notify_banner_use3', 0) ? $this->hex('notify_banner_bg3') : '-',
+            'notify_banner_text' => $this->hex('notify_banner_text'),
             'notify_nameday_image' => $this->saveCardImage('notify_nameday_upload') ?? mb_substr(trim((string) $this->input->post->getString('notify_nameday_image', '')), 0, 500),
         ];
         foreach ($values as $k => $v) {

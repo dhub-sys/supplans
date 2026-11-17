@@ -146,6 +146,35 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
    </div>
   </div>
   <p class="sp-n-help">Μεταβλητές: <code>{banner}</code> (χρωματιστό πλαίσιο «Χρόνια Πολλά!» με emojis, σε δική του γραμμή) <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>. Emojis μπορείτε να γράψετε απευθείας στο κείμενο (Windows: <kbd>Win</kbd>+<kbd>.</kbd>, Mac: <kbd>Ctrl</kbd>+<kbd>⌘</kbd>+<kbd>Space</kbd>). Η ημερομηνία ορίζεται στην καρτέλα κάθε πελάτη· στέλνεται μία φορά τον χρόνο και όχι σε όσους έχουν διαγραφεί από τις ενημερώσεις.</p>
+  <?php
+  $bc = static function (string $k): string { $v = strtolower(trim((string) Notify::setting($k))); return preg_match('/^#[0-9a-f]{6}$/', $v) ? $v : (string) Notify::defaults()[$k]; };
+  $use3 = preg_match('/^#[0-9a-f]{6}$/i', trim((string) Notify::setting('notify_banner_bg3'))) === 1;
+  $grad = (int) Notify::setting('notify_banner_gradient') === 1;
+  ?>
+  <fieldset class="sp-n-banner" id="sp-n-banner">
+   <legend>Χρώματα πλαισίου <code>{banner}</code></legend>
+   <div class="sp-n-banner-grid">
+    <div class="sp-n-banner-fields">
+     <label class="sp-check"><input type="hidden" name="notify_banner_gradient" value="0"><input type="checkbox" name="notify_banner_gradient" value="1" data-b="grad"<?php echo $grad ? ' checked' : ''; ?>> Διαβάθμιση (gradient)</label>
+     <div class="sp-n-colors">
+      <label><span class="sp-n-solid-only">Φόντο</span><span class="sp-n-grad-only">Χρώμα 1</span><input type="color" name="notify_banner_bg1" data-b="bg1" value="<?php echo $e($bc('notify_banner_bg1')); ?>"></label>
+      <label class="sp-n-grad-only">Χρώμα 2<input type="color" name="notify_banner_bg2" data-b="bg2" value="<?php echo $e($bc('notify_banner_bg2')); ?>"></label>
+      <label class="sp-n-grad-only"><span><input type="checkbox" name="notify_banner_use3" value="1" data-b="use3"<?php echo $use3 ? ' checked' : ''; ?>> Χρώμα 3</span><input type="color" name="notify_banner_bg3" data-b="bg3" value="<?php echo $e($use3 ? strtolower(trim((string) Notify::setting('notify_banner_bg3'))) : '#ffc93c'); ?>"></label>
+      <label>Γράμματα<input type="color" name="notify_banner_text" data-b="text" value="<?php echo $e($bc('notify_banner_text')); ?>"></label>
+     </div>
+     <button type="button" class="btn btn-sm btn-outline-secondary" data-b="reset">Επαναφορά αρχικών χρωμάτων</button>
+    </div>
+    <div class="sp-n-banner-demo" data-b="demo"><div>🎈🎉🎂🎁🎊</div><strong>Χρόνια Πολλά!</strong><span>Χαρούμενη γιορτή, γεμάτη χαμόγελα! 🌟</span></div>
+   </div>
+   <small class="sp-n-help">Στο Outlook για Windows η διαβάθμιση εμφανίζεται ως ένα χρώμα (το μεσαίο). Διαλέξτε γράμματα με αρκετή αντίθεση ώστε να διαβάζονται.</small>
+  </fieldset>
+  <script>(function(){var r=document.getElementById('sp-n-banner');if(!r)return;var q=function(k){return r.querySelector('[data-b="'+k+'"]');};
+  var paint=function(){var g=q('grad').checked,u=q('use3').checked;r.classList.toggle('is-solid',!g);q('bg3').disabled=!u;
+   var bg=g?'linear-gradient(135deg,'+q('bg1').value+' 0%,'+q('bg2').value+(u?' 55%,'+q('bg3').value+' 100%':' 100%')+')':q('bg1').value;
+   var d=q('demo');d.style.background=bg;d.style.color=q('text').value;};
+  r.addEventListener('input',paint);r.addEventListener('change',paint);
+  q('reset').addEventListener('click',function(){q('grad').checked=true;q('use3').checked=true;q('bg1').value='#ff5f8f';q('bg2').value='#ff9a3c';q('bg3').value='#ffc93c';q('text').value='#ffffff';paint();});
+  paint();})();</script>
   <div class="sp-n-actions">
    <button type="button" class="btn btn-outline-primary" onclick="var f=document.getElementById('adminForm');f.querySelector('input[name=after]').value='nameday_preview';spSubmit('notify.saveSettings')">Αποθήκευση &amp; προεπισκόπηση</button>
    <button type="button" class="btn btn-outline-secondary" onclick="var f=document.getElementById('adminForm');f.querySelector('input[name=after]').value='nameday_test';spSubmit('notify.saveSettings')">Αποθήκευση &amp; δοκιμή στο email μου</button>
