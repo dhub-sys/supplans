@@ -310,6 +310,10 @@ $base='index.php?option=com_supportplans&view=help&tmpl=component&spapp=1&Itemid
 <?php else: ?>
  <section class="sp-help-card">
 
+  <div class="sp-change"><div class="sp-version">v1.31.2</div><div><ul>
+   <li>Προσφορές / Προτάσεις δομής: στο εξώφυλλο το Project δεν εμφανίζεται πλέον διπλό. Προστίθεται ως τελευταία γραμμή του τίτλου μόνο όταν ο τίτλος δεν το περιέχει ήδη (π.χ. με {project}).</li>
+   <li>Το πεδίο «Έργο / Εταιρεία» μετονομάστηκε σε «Project» (φόρμες, λίστες, μεταβλητές, ιστορικό).</li>
+  </ul></div></div>
   <div class="sp-change"><div class="sp-version">v1.31.1</div><div><ul>
 <li>Υπενθυμίσεις πληρωμών: κουμπί «✎ Κείμενο email» που ανοίγει απευθείας το πρότυπο του μηνύματος (Ανανεώσεις → Ρυθμίσεις email). Σωστά κενά στην ημερομηνία της 1ης υπενθύμισης.</li>
 </ul></div></div>

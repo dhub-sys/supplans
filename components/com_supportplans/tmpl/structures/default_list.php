@@ -12,7 +12,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 <div class="sp-card">
   <h2>Προτάσεις δομής <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h2>
   <div class="table-responsive"><table class="table sp-offer-table">
-    <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Έργο</th><th class="sp-num">Ενότητες</th><th class="sp-num">Σελίδες</th><th>Κατάσταση</th><th></th></tr></thead>
+    <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Project</th><th class="sp-num">Ενότητες</th><th class="sp-num">Σελίδες</th><th>Κατάσταση</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($this->rows as $r): $c = Structure::counts(Structure::nodes($r->tree)); ?>
       <tr>

@@ -20,7 +20,7 @@ $row = static function (array $f) use ($e) {
 $fields = $this->fields ?: [['key' => '', 'label' => '', 'type' => 'text', 'default' => '']];
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Προσφορές</span><h1>Μεταβλητές</h1><p>Κάθε μεταβλητή γίνεται πεδίο σε όλες τις προσφορές, όπως ο Πελάτης και το Έργο. Γράψτε τη μεταβλητή στα κείμενα (π.χ. <code>{intro_service}</code>) και η τιμή του πεδίου κάθε προσφοράς μπαίνει αυτόματα στο Pdf.</p></div>
+  <div><span class="sp-eyebrow">Προσφορές</span><h1>Μεταβλητές</h1><p>Κάθε μεταβλητή γίνεται πεδίο σε όλες τις προσφορές, όπως ο Πελάτης και το Project. Γράψτε τη μεταβλητή στα κείμενα (π.χ. <code>{intro_service}</code>) και η τιμή του πεδίου κάθε προσφοράς μπαίνει αυτόματα στο Pdf.</p></div>
 </section>
 
 <?php if ($this->undefinedVariables): ?>
@@ -42,7 +42,7 @@ $fields = $this->fields ?: [['key' => '', 'label' => '', 'type' => 'text', 'defa
     <button type="button" class="sp-info-btn" aria-label="Οδηγίες για τις μεταβλητές" aria-expanded="false" aria-controls="sp-fields-help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r=".9"/></svg></button>
     <span class="sp-info-pop" id="sp-fields-help" role="tooltip">
      <strong>Πώς λειτουργούν</strong>
-     <span>Κάθε μεταβλητή γίνεται <b>πεδίο σε όλες τις προσφορές</b>, όπως ο Πελάτης και το Έργο. Γράψτε τη στα κείμενα, π.χ. <code>{intro_service}</code>, και στο Pdf μπαίνει η τιμή του πεδίου της κάθε προσφοράς.</span>
+     <span>Κάθε μεταβλητή γίνεται <b>πεδίο σε όλες τις προσφορές</b>, όπως ο Πελάτης και το Project. Γράψτε τη στα κείμενα, π.χ. <code>{intro_service}</code>, και στο Pdf μπαίνει η τιμή του πεδίου της κάθε προσφοράς.</span>
      <span>Η μεταβλητή συμπληρώνεται αυτόματα από το όνομα του πεδίου (π.χ. «Intro Service» → <code>{intro_service}</code>) και μπορείτε να την αλλάξετε.</span>
      <span>Σύρετε από τη λαβή <span class="sp-inline-grip">⋮⋮</span> για να αλλάξετε τη σειρά των πεδίων στην προσφορά.</span>
      <span>Αν διαγράψετε μια μεταβλητή, οι προσφορές που έχουν ήδη τιμή την κρατούν.</span>

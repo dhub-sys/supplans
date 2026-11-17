@@ -104,7 +104,7 @@ foreach ($this->services as $s) {
    <label>Αρ. προσφοράς<input name="offer_number" value="<?php echo $e($o->offer_number); ?>" required></label>
    <label>Ημερομηνία<input type="date" name="offer_date" value="<?php echo $e($o->offer_date); ?>" required></label>
    <label>Πελάτης<input name="customer_name" value="<?php echo $e($o->customer_name); ?>" required></label>
-   <label>Έργο / Εταιρεία<input name="project_name" value="<?php echo $e($o->project_name); ?>"></label>
+   <label>Project<input name="project_name" value="<?php echo $e($o->project_name); ?>"></label>
    <label>Κατάσταση<select name="status"><?php foreach (OfferHelper::STATUSES as $k => $label): ?><option value="<?php echo $k; ?>" <?php echo $o->status === $k ? 'selected' : ''; ?>><?php echo $e($label); ?></option><?php endforeach; ?></select></label>
    <label>Φ.Π.Α. %<input type="number" step="0.01" min="0" name="vat_rate" id="sp-offer-vat" value="<?php echo $e($o->vat_rate); ?>"></label>
   </div>
@@ -142,7 +142,7 @@ foreach ($this->services as $s) {
  <div class="sp-card">
   <h3>Κείμενα εγγράφου</h3>
   <div class="sp-grid">
-   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Έργο προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2"><?php echo $e($o->doc_title); ?></textarea></label>
+   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Project προστίθεται ως τελευταία γραμμή, εκτός αν ο τίτλος το περιέχει ήδη, π.χ. με {project})<textarea name="doc_title" rows="2"><?php echo $e($o->doc_title); ?></textarea></label>
    <label>Υπότιτλος<input name="doc_subtitle" value="<?php echo $e($o->doc_subtitle); ?>" placeholder="ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΣΦΟΡΑ"></label>
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($o->footer_title); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo (int) $o->show_banks ? 'checked' : ''; ?>> Τραπεζικοί λογαριασμοί στο block τιμών</label>

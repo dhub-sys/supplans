@@ -14,7 +14,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
   <h2>Νέα πρόταση δομής</h2>
   <div class="sp-grid">
    <label>Πελάτης<input name="customer_name" required placeholder="Επωνυμία"></label>
-   <label>Έργο / Ιστοσελίδα<input name="project_name" placeholder="π.χ. www.example.gr"></label>
+   <label>Project<input name="project_name" placeholder="π.χ. www.example.gr"></label>
    <label>Αρ. πρότασης<input name="number" value="<?php echo $e($this->nextNumber); ?>"></label>
    <label>Ημερομηνία<input type="date" name="proposal_date" value="<?php echo date('Y-m-d'); ?>" required></label>
    <label class="sp-wide">Αρχική δομή

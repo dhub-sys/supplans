@@ -932,3 +932,7 @@ Ongoing / Pay as you go plans with configurable hourly rate, minimum charge and 
 ## v1.31.1
 - Υπενθυμίσεις πληρωμών: σύνδεσμος «✎ Κείμενο email» → `section=settings#sp-invoice-template`· padding στο πεδίο ημερομηνίας της 1ης υπενθύμισης.
 
+
+## v1.31.2
+- Εξώφυλλο προσφοράς / πρότασης δομής: το Project προστίθεται μόνο αν ο τίτλος δεν το περιέχει ήδη (όχι πια διπλό).
+- «Έργο / Εταιρεία» → «Project».

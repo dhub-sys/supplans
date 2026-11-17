@@ -75,7 +75,7 @@ if ($this->type !== '') $newBtns = [$this->type => $newBtns[$this->type]] + $new
    </form>
   </nav>
   <div class="table-responsive"><table class="table sp-offer-table sp-doc-table">
-    <thead><tr><th>Αρ.</th><th>Είδος</th><th>Ημ/νία</th><th>Πελάτης</th><th>Έργο / Περιγραφή</th><th>Κατάσταση</th><th></th></tr></thead>
+    <thead><tr><th>Αρ.</th><th>Είδος</th><th>Ημ/νία</th><th>Πελάτης</th><th>Project / Περιγραφή</th><th>Κατάσταση</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($this->rows as $r): ?>
       <tr>

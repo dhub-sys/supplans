@@ -27,7 +27,7 @@ $acceptedValue = array_sum(array_map(static fn($o) => $o->status === 'accepted' 
 <div class="sp-card">
   <h2>Προσφορές <?php echo \Support\Component\Supportplans\Site\Helper\Year::get(); ?></h2>
   <div class="table-responsive"><table class="table sp-offer-table">
-    <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Έργο</th><th class="sp-num">Αξία προ Φ.Π.Α.</th><th class="sp-num">Σύνολο</th><th>Κατάσταση</th><th></th></tr></thead>
+    <thead><tr><th>Αρ.</th><th>Ημ/νία</th><th>Πελάτης</th><th>Project</th><th class="sp-num">Αξία προ Φ.Π.Α.</th><th class="sp-num">Σύνολο</th><th>Κατάσταση</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($this->offers as $o): ?>
       <tr>

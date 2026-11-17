@@ -355,7 +355,7 @@ final class OfferHelper
     /** Built-in variables, always available in offer texts. */
     public const BUILTIN_VARIABLES = [
         'customer' => 'Πελάτης',
-        'project'  => 'Έργο / εταιρεία πελάτη',
+        'project'  => 'Project',
         'company'  => 'Η επωνυμία σας',
         'number'   => 'Αριθμός προσφοράς',
         'date'     => 'Ημερομηνία προσφοράς',

@@ -44,7 +44,7 @@ $h2 = static function (string $title, string $key) use (&$section, $e, $d): stri
    <div class="sp-od-cover-top">
     <?php if ($brand['logo'] !== ''): ?><img class="sp-od-logo" src="<?php echo $e($brand['logo']); ?>" alt="<?php echo $e($brand['name']); ?>"><?php else: ?><div class="sp-od-logo-text"><?php echo $e($brand['name']); ?></div><?php endif; ?>
    </div>
-   <h1 class="sp-od-title"><?php foreach ($titleLines as $line): ?><span><?php echo $e($line); ?></span><?php endforeach; ?><?php if ($project !== ''): ?><span><?php echo $e($project); ?></span><?php endif; ?></h1>
+   <h1 class="sp-od-title"><?php foreach ($titleLines as $line): ?><span><?php echo $e($line); ?></span><?php endforeach; ?><?php if ($project !== '' && mb_stripos(implode(' ', $titleLines), $project) === false): ?><span><?php echo $e($project); ?></span><?php endif; ?></h1>
    <div class="sp-od-rule"></div>
    <?php if (trim((string) $d->doc_subtitle) !== ''): ?><div class="sp-od-subtitle"><?php echo $e($v($d->doc_subtitle)); ?></div><?php endif; ?>
    <div class="sp-od-meta">

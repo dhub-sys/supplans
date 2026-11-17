@@ -60,7 +60,7 @@ $fallbackOrder = (count($selected) + 1) * 10;
  <div class="sp-card">
   <h3>Κείμενα εγγράφου</h3>
   <div class="sp-grid">
-   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Έργο της προσφοράς προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2" placeholder="Σχεδιασμός – Υλοποίηση e-shop&#10;Υπηρεσίες Φιλοξενίας &amp; Συμβόλαιο Συντήρησης"><?php echo $e($t->doc_title ?? ''); ?></textarea></label>
+   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Project της προσφοράς προστίθεται ως τελευταία γραμμή, εκτός αν ο τίτλος το περιέχει ήδη, π.χ. με {project})<textarea name="doc_title" rows="2" placeholder="Σχεδιασμός – Υλοποίηση e-shop&#10;Υπηρεσίες Φιλοξενίας &amp; Συμβόλαιο Συντήρησης"><?php echo $e($t->doc_title ?? ''); ?></textarea></label>
    <label>Υπότιτλος<input name="doc_subtitle" value="<?php echo $e($t->doc_subtitle ?? 'ΟΙΚΟΝΟΜΙΚΗ ΠΡΟΣΦΟΡΑ'); ?>"></label>
    <label>Κείμενο footer<input name="footer_title" value="<?php echo $e($t->footer_title ?? ''); ?>" placeholder="Αν μείνει κενό, χρησιμοποιείται ο τίτλος"></label>
    <label class="sp-check sp-check-inline"><input type="checkbox" name="show_banks" value="1" <?php echo !$t || (int) $t->show_banks ? 'checked' : ''; ?>> Τραπεζικοί λογαριασμοί στο block τιμών</label>

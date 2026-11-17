@@ -56,7 +56,7 @@ $badge = ['ok' => 'is-accepted', 'warning' => 'sp-n-warn', 'error' => 'is-reject
   // Labels of the recorded fields for the details window.
   $fieldLabels = ['id' => 'Κωδικός εγγραφής', 'plan_id' => 'Πακέτο', 'client_id' => 'Πελάτης (κωδ.)', 'catalog_id' => 'Υπηρεσία καταλόγου (κωδ.)', 'service_plan_id' => 'Πλάνο (κωδ.)',
       'client_service_id' => 'Υπηρεσία πελάτη (κωδ.)', 'do' => 'Ενέργεια', 'status' => 'Κατάσταση', 'name' => 'Όνομα', 'company' => 'Εταιρεία', 'email' => 'Email', 'username' => 'Χρήστης',
-      'label' => 'Περιγραφή / domain', 'customer_name' => 'Πελάτης', 'project_name' => 'Έργο', 'offer_number' => 'Αρ. προσφοράς', 'number' => 'Αριθμός', 'plan_type' => 'Τύπος πακέτου',
+      'label' => 'Περιγραφή / domain', 'customer_name' => 'Πελάτης', 'project_name' => 'Project', 'offer_number' => 'Αρ. προσφοράς', 'number' => 'Αριθμός', 'plan_type' => 'Τύπος πακέτου',
       'work_type' => 'Εργασία', 'period' => 'Περίοδος', 'subject' => 'Θέμα', 'expiry_date' => 'Λήξη', 'new_expiry' => 'Νέα λήξη', 'paid_on' => 'Ημερομηνία πληρωμής', 'amount' => 'Ποσό',
       'price' => 'Τιμή', 'duration_months' => 'Διάρκεια (μήνες)', 'value' => 'Τιμή', 'template' => 'Template', 'aud_mode' => 'Αποδέκτες', 'to' => 'Προς'];
   $dateLike = static fn($v) => is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v) ? Notify::dateGr($v) : $v;

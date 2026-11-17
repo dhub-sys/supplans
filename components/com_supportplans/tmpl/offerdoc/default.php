@@ -51,7 +51,7 @@ $section = 0;
    <div class="sp-od-cover-top">
     <?php if ($brand['logo'] !== ''): ?><img class="sp-od-logo" src="<?php echo $e($brand['logo']); ?>" alt="<?php echo $e($brand['name']); ?>"><?php else: ?><div class="sp-od-logo-text"><?php echo $e($brand['name']); ?></div><?php endif; ?>
    </div>
-   <h1 class="sp-od-title"><?php foreach ($titleLines as $line): ?><span><?php echo $e($line); ?></span><?php endforeach; ?><?php if ($o->project_name !== ''): ?><span><?php echo $e($o->project_name); ?></span><?php endif; ?></h1>
+   <h1 class="sp-od-title"><?php foreach ($titleLines as $line): ?><span><?php echo $e($line); ?></span><?php endforeach; ?><?php if ($o->project_name !== '' && mb_stripos(implode(' ', $titleLines), trim((string) $o->project_name)) === false): ?><span><?php echo $e($o->project_name); ?></span><?php endif; ?></h1>
    <div class="sp-od-rule"></div>
    <?php if (trim((string) $o->doc_subtitle) !== ''): ?><div class="sp-od-subtitle"><?php echo $e($v($o->doc_subtitle)); ?></div><?php endif; ?>
    <div class="sp-od-meta">

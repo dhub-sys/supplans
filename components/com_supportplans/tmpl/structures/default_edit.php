@@ -51,7 +51,7 @@ $layoutPick = static function (string $key) use ($s, $e): string {
    <label>Αρ. πρότασης<input name="number" value="<?php echo $e($s->number); ?>" required></label>
    <label>Ημερομηνία<input type="date" name="proposal_date" value="<?php echo $e($s->proposal_date); ?>" required></label>
    <label>Πελάτης<input name="customer_name" value="<?php echo $e($s->customer_name); ?>" required></label>
-   <label>Έργο / Ιστοσελίδα<input name="project_name" value="<?php echo $e($s->project_name); ?>" placeholder="Εμφανίζεται και ως ρίζα του δέντρου"></label>
+   <label>Project<input name="project_name" value="<?php echo $e($s->project_name); ?>" placeholder="Εμφανίζεται και ως ρίζα του δέντρου"></label>
    <label>Κατάσταση<select name="status"><?php foreach (OfferHelper::STATUSES as $k => $l): ?><option value="<?php echo $k; ?>" <?php echo $s->status === $k ? 'selected' : ''; ?>><?php echo $e($l); ?></option><?php endforeach; ?></select></label>
   </div>
  </div>
@@ -71,7 +71,7 @@ $layoutPick = static function (string $key) use ($s, $e): string {
  <div class="sp-card">
   <h3>Κείμενα εγγράφου</h3>
   <div class="sp-grid">
-   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Έργο προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2" placeholder="<?php echo $ph('doc_title'); ?>"><?php echo $label('doc_title'); ?></textarea></label>
+   <label class="sp-wide">Τίτλος εξωφύλλου (μία γραμμή ανά σειρά — το Project προστίθεται ως τελευταία γραμμή)<textarea name="doc_title" rows="2" placeholder="<?php echo $ph('doc_title'); ?>"><?php echo $label('doc_title'); ?></textarea></label>
    <label class="sp-wide">Υπότιτλος εξωφύλλου<input name="doc_subtitle" value="<?php echo $label('doc_subtitle'); ?>" placeholder="π.χ. SITEMAP &amp; ΠΡΟΤΑΣΕΙΣ ΠΕΡΙΕΧΟΜΕΝΟΥ"></label>
    <div class="sp-wide sp-st-pair"><label>Τίτλος εισαγωγής<input name="intro_title" value="<?php echo $label('intro_title'); ?>" placeholder="<?php echo $ph('intro_title'); ?>"></label> <?php echo $layoutPick('intro'); ?></div>
    <div class="sp-wide sp-field"><span class="sp-field-label">Εισαγωγή (πρώτη ενότητα μετά το εξώφυλλο — αν μείνει κενή δεν εμφανίζεται)</span><textarea name="intro_body" rows="5" data-sp-editor><?php echo $e($s->intro_body); ?></textarea></div>

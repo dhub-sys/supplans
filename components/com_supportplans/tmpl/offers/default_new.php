@@ -22,7 +22,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
     </select>
    </label>
    <label>Πελάτης<input name="customer_name" required placeholder="Επωνυμία"></label>
-   <label>Έργο / Εταιρεία<input name="project_name" placeholder="Project"></label>
+   <label>Project<input name="project_name" placeholder="π.χ. example.gr"></label>
    <label>Αρ. προσφοράς<input name="offer_number" value="<?php echo $e($this->nextNumber); ?>"></label>
    <label>Ημερομηνία<input type="date" name="offer_date" value="<?php echo date('Y-m-d'); ?>" required></label>
   </div>
