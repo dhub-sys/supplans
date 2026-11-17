@@ -48,15 +48,15 @@ $card = (string) ($k->card_image ?? '');
   <div class="sp-grid">
    <label class="sp-wide">Θέμα *<input name="subject" required value="<?php echo $e($src->subject ?? ''); ?>"<?php echo $dis; ?>></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο</span><textarea name="body" rows="14"<?php echo $locked ? ' disabled' : ' data-sp-editor'; ?>><?php echo $e($src->body ?? ''); ?></textarea>
-   <p class="sp-n-help">Μεταβλητές: <code>{greeting}</code> (προσφώνηση) <code>{client_name}</code> <code>{client_company}</code> <code>{client_email}</code> <code>{services_list}</code> (οι ενεργές υπηρεσίες του πελάτη) και <code>{banks}</code> (τραπεζικοί λογαριασμοί), σε δική τους γραμμή, <code>{company}</code>. Ο σύνδεσμος διαγραφής από τις ενημερώσεις μπαίνει αυτόματα στο τέλος.</p></div>
+   <p class="sp-n-help">Μεταβλητές: <code>{photo}</code> (η φωτογραφία, σε δική της γραμμή) <code>{greeting}</code> (προσφώνηση) <code>{client_name}</code> <code>{client_company}</code> <code>{client_email}</code> <code>{services_list}</code> (οι ενεργές υπηρεσίες του πελάτη) και <code>{banks}</code> (τραπεζικοί λογαριασμοί), σε δική τους γραμμή, <code>{company}</code>. Ο σύνδεσμος διαγραφής από τις ενημερώσεις μπαίνει αυτόματα στο τέλος.</p></div>
    <div class="sp-wide sp-field sp-n-card">
-    <span class="sp-field-label">Ευχετήρια κάρτα (προαιρετικά)</span>
+    <span class="sp-field-label">Φωτογραφία / κάρτα (προαιρετικά)</span>
     <div class="sp-n-card-row">
      <?php if ($card !== ''): ?><img src="<?php echo $e(Notify::absUrl($card)); ?>" alt=""><?php endif; ?>
      <div>
       <input name="card_image" value="<?php echo $e($card); ?>" placeholder="images/supportplans/cards/xmas.jpg ή URL"<?php echo $dis; ?>>
       <?php if (!$locked): ?><label class="sp-n-upload">ή ανεβάστε εικόνα <input type="file" name="card_upload" accept="image/png,image/jpeg,image/gif"></label><?php endif; ?>
-      <small class="sp-n-help">Εμφανίζεται σε όλο το πλάτος του email, κάτω από το λογότυπο και πάνω από το κείμενο. Προτεινόμενο πλάτος 1280 px (JPG/PNG/GIF έως 3 MB). Για αφαίρεση αδειάστε το πεδίο.</small>
+      <small class="sp-n-help">Εμφανίζεται σε όλο το πλάτος του email, κάτω από το λογότυπο και πάνω από το κείμενο. Αν γράψετε <code>{photo}</code> σε δική του γραμμή στο κείμενο, μπαίνει εκεί (π.χ. μετά την προσφώνηση). Προτεινόμενο πλάτος 1280 px (JPG/PNG/GIF έως 3 MB). Για αφαίρεση αδειάστε το πεδίο.</small>
      </div>
     </div>
    </div>

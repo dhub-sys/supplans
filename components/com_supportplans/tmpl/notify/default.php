@@ -25,6 +25,7 @@ $templates = [
     'campaigns' => $this->mode === 'list' ? 'campaigns' : 'campaign',
     'log' => $this->selected ? 'message' : 'log',
     'invoices' => $this->mode === 'list' ? 'invoices' : 'invoice',
+    'namedays' => 'namedays', 'greetsettings' => 'greetsettings',
 ];
 ?>
 <div class="sp-saas-root">
@@ -37,11 +38,17 @@ $templates = [
 </header>
 <main class="sp-app"><div class="sp-wrap"><div class="sp-app-layout"><aside class="sp-sidebar">
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::head(); ?>
-  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav($this->section === 'invoices' ? 'invoices' : 'notify'); ?>
+  <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::nav($this->section === 'invoices' ? 'invoices' : (isset(HtmlView::GREET_SECTIONS[$this->section]) ? 'greetings' : 'notify')); ?>
   <?php echo \Support\Component\Supportplans\Site\Helper\Sidebar::bottom(); ?>
 </aside>
 <section class="sp-workspace sp-offers-workspace">
- <?php if ($this->section !== 'invoices'): ?>
+ <?php if (isset(HtmlView::GREET_SECTIONS[$this->section])): ?>
+ <nav class="sp-offer-tabs" aria-label="Ευχές &amp; Αποστολές">
+  <?php foreach (HtmlView::GREET_SECTIONS as $key => $label): ?>
+  <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo NotifyUi::url('section=' . $key); ?>"><?php echo $e($label); ?></a>
+  <?php endforeach; ?>
+ </nav>
+ <?php elseif ($this->section !== 'invoices'): ?>
  <nav class="sp-offer-tabs" aria-label="Ανανεώσεις">
   <?php foreach (HtmlView::SECTIONS as $key => $label): ?>
   <a class="sp-offer-tab<?php echo $this->section === $key ? ' is-active' : ''; ?>" href="<?php echo NotifyUi::url($key === 'overview' ? '' : 'section=' . $key); ?>"><?php echo $e($label); ?><?php if ($key === 'log' && ($this->counts['failed'] ?? 0) > 0): ?> <span class="sp-offer-status is-rejected"><?php echo (int) $this->counts['failed']; ?></span><?php endif; ?></a>

@@ -6,10 +6,25 @@ use Support\Component\Supportplans\Site\Helper\NotifyUi;
 $e = [NotifyUi::class, 'e'];
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Ανανεώσεις</span><h1>Αποστολές</h1><p>Ελεύθερα μηνύματα και ευχετήριες κάρτες (Χριστούγεννα, Πάσχα κ.ά.) σε όλους τους πελάτες, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους, αμέσως ή σε προγραμματισμένη ημερομηνία. Οι πελάτες που έχουν διαγραφεί από τις ενημερώσεις εξαιρούνται αυτόματα.</p></div>
+  <div><span class="sp-eyebrow">Ευχές &amp; Αποστολές</span><h1>Αποστολές</h1><p>Ελεύθερα μηνύματα και ευχετήριες κάρτες (Χριστούγεννα, Πάσχα κ.ά.) σε όλους τους πελάτες, σε όσους έχουν συγκεκριμένη υπηρεσία ή σε επιλεγμένους, αμέσως ή σε προγραμματισμένη ημερομηνία. Οι πελάτες που έχουν διαγραφεί από τις ενημερώσεις εξαιρούνται αυτόματα.</p></div>
   <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=campaigns&mode=new'); ?>">＋ Νέα αποστολή</a>
 </section>
+<div class="sp-card sp-n-gallery">
+  <h2>Νέα αποστολή από πρότυπο</h2>
+  <p class="sp-n-help">Επιλέξτε πρότυπο: συμπληρώνονται θέμα, κείμενο και προτεινόμενη ημερομηνία αποστολής. Στη συνέχεια προσθέτετε φωτογραφία ή κάρτα, επιλέγετε παραλήπτες και ορίζετε προγραμματισμό.</p>
+  <div class="sp-n-gallery-grid">
+   <?php foreach (Notify::campaignPresets() as $key => [$label, $subject, , $date]): ?>
+   <a class="sp-n-preset" href="<?php echo NotifyUi::url('section=campaigns&mode=new&preset=' . $key); ?>">
+    <strong><?php echo $e($label); ?></strong>
+    <span><?php echo $e(str_replace('{company}', Notify::brandName(), $subject)); ?></span>
+    <small><?php echo $date !== '' ? 'Προτεινόμενη αποστολή: ' . $e(Notify::dateGr($date)) . ' 09:30' : 'Χωρίς ημερομηνία'; ?></small>
+   </a>
+   <?php endforeach; ?>
+   <a class="sp-n-preset is-blank" href="<?php echo NotifyUi::url('section=campaigns&mode=new'); ?>"><strong>＋ Κενή αποστολή</strong><span>Ελεύθερο μήνυμα / ανακοίνωση</span><small>π.χ. εργασίες στον server</small></a>
+  </div>
+</div>
 <div class="sp-card">
+  <h2>Αποστολές</h2>
   <div class="table-responsive"><table class="table sp-offer-table">
     <thead><tr><th>Θέμα</th><th>Κατάσταση</th><th class="sp-center">Παραλήπτες</th><th class="sp-center">Εστάλησαν</th><th class="sp-center">Απέτυχαν</th><th>Δημιουργία / αποστολή</th><th></th></tr></thead>
     <tbody>

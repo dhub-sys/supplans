@@ -764,11 +764,16 @@ class NotifyController extends BaseController
         if ($do === 'test') {
             $me = $this->me();
             [$subject, $body] = Notify::buildCampaign($campaign, $me);
-            $ok = Notify::sendTest($me->email, $subject, $body);
+            $ok = Notify::sendTest($me->email, $subject, $body, 'greeting');
             $this->msg($ok ? 'Δοκιμαστικό εστάλη στο ' . $me->email . '.' : 'Η δοκιμαστική αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
         } elseif ($do === 'send' || $do === 'schedule') {
             if (trim($campaign->subject) === '' || trim($campaign->body) === '') {
                 $this->msg('Συμπληρώστε θέμα και κείμενο.', 'error');
+                $this->go('section=campaigns&id=' . $id);
+                return;
+            }
+            if (($left = Notify::unfilled($campaign->subject . ' ' . $campaign->body)) !== '') {
+                $this->msg('Συμπληρώστε στο κείμενο το «' . $left . '» πριν από την αποστολή.', 'error');
                 $this->go('section=campaigns&id=' . $id);
                 return;
             }
@@ -923,6 +928,22 @@ class NotifyController extends BaseController
             'notify_renewal_body' => $this->text('notify_renewal_body'),
             'notify_report_subject' => $this->str('notify_report_subject', 255),
             'notify_report_body' => $this->text('notify_report_body'),
+        ];
+        foreach ($values as $k => $v) {
+            OfferHelper::saveParam($k, $v);
+        }
+        $this->saveEmailLogo();
+        $this->msg('Οι ρυθμίσεις ειδοποιήσεων αποθηκεύτηκαν.');
+        $this->go('section=settings');
+    }
+
+    /** Ευχές & Αποστολές → Ρυθμίσεις ευχών: sender, name day wishes, banner colours. */
+    public function saveGreetings(): void
+    {
+        $this->guard();
+        $values = [
+            'doc_greeting_from_name' => $this->str('doc_greeting_from_name'), 'doc_greeting_from_email' => $this->email('doc_greeting_from_email'),
+            'doc_greeting_reply_to' => $this->email('doc_greeting_reply_to'),
             'notify_nameday_enabled' => $this->input->post->getInt('notify_nameday_enabled', 0) ? 1 : 0,
             'notify_nameday_subject' => $this->str('notify_nameday_subject', 255),
             'notify_nameday_body' => $this->text('notify_nameday_body'),
@@ -935,21 +956,20 @@ class NotifyController extends BaseController
         foreach ($values as $k => $v) {
             OfferHelper::saveParam($k, $v);
         }
-        $this->saveEmailLogo();
-        $this->msg('Οι ρυθμίσεις ειδοποιήσεων αποθηκεύτηκαν.');
+        $this->msg('Οι ρυθμίσεις ευχών αποθηκεύτηκαν.');
         // "Αποθήκευση & προεπισκόπηση / δοκιμή" of the name day wishes.
         $after = $this->input->post->getCmd('after', '');
         if ($after === 'nameday_test') {
             $me = $this->me();
             [$subject, $body] = Notify::buildNameday($me);
-            $ok = $me->email !== '' && Notify::sendTest($me->email, $subject, $body);
+            $ok = $me->email !== '' && Notify::sendTest($me->email, $subject, $body, 'greeting');
             $this->msg($ok ? 'Δοκιμαστικό ευχών εστάλη στο ' . $me->email . '.' : 'Η δοκιμαστική αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
         }
         if ($after === 'nameday_preview' || $after === 'nameday_test') {
-            $this->go('section=settings&preview=nameday#sp-nameday-template');
+            $this->go('section=greetsettings&preview=nameday#sp-nameday-template');
             return;
         }
-        $this->go('section=settings');
+        $this->go('section=greetsettings');
     }
 
     /**

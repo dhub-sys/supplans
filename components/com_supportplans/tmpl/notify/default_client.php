@@ -32,7 +32,7 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
      <span class="sp-n-or">ή κινητή εορτή</span>
      <select name="nd_movable"><option value="">—</option><?php foreach (Notify::MOVABLE_NAMEDAYS as $key => [$label]): ?><option value="<?php echo $e($key); ?>"<?php echo $ndMov === $key ? ' selected' : ''; ?>><?php echo $e($label); ?></option><?php endforeach; ?></select>
     </div>
-    <small class="sp-n-help"><?php if ($nd !== ''): ?>Φέτος: <b><?php echo $e(Notify::dateGr(Notify::namedayDate($nd, (int) date('Y')))); ?></b>. <?php endif; ?>Την ημέρα της γιορτής στέλνεται αυτόματα το μήνυμα ευχών των ρυθμίσεων email (στην ώρα αποστολής). Αφήστε κενό για να μη σταλεί. Οι κινητές εορτές υπολογίζονται από το Πάσχα κάθε χρονιάς.</small>
+    <small class="sp-n-help"><?php if ($nd !== ''): ?>Φέτος: <b><?php echo $e(Notify::dateGr(Notify::namedayDate($nd, (int) date('Y')))); ?></b>. <?php endif; ?>Την ημέρα της γιορτής στέλνεται αυτόματα το μήνυμα ευχών (Ευχές &amp; Αποστολές → Ρυθμίσεις ευχών), στην ώρα αποστολής. Αφήστε κενό για να μη σταλεί. Οι κινητές εορτές υπολογίζονται από το Πάσχα κάθε χρονιάς.</small>
    </div>
    <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($v('notes')); ?></textarea></label>
   </div>

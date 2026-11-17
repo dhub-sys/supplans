@@ -518,6 +518,11 @@ final class OfferHelper
             ->set($db->quoteName('params') . '=' . $db->quote(json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)))
             ->where($db->quoteName('extension_id') . '=' . (int) $row->extension_id);
         $db->setQuery($q)->execute();
+        // Same request (e.g. "save & send a test"): the cached parameters see the new value too.
+        try {
+            \Joomla\CMS\Component\ComponentHelper::getParams('com_supportplans')->set($name, $value);
+        } catch (\Throwable $e) {
+        }
     }
 
     /**

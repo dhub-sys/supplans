@@ -59,6 +59,8 @@ final class Notify
             // Sender per document type (offer / structure / plan); empty = the sender above.
             'doc_offer_from_name' => '', 'doc_offer_from_email' => '', 'doc_offer_reply_to' => '', 'doc_offer_bcc' => '',
             'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
+            // Sender of the greetings and campaigns (Ευχές & Αποστολές, v1.33.0).
+            'doc_greeting_from_name' => '', 'doc_greeting_from_email' => '', 'doc_greeting_reply_to' => '', 'doc_greeting_bcc' => '',
             'doc_invoice_from_name' => '', 'doc_invoice_from_email' => '', 'doc_invoice_reply_to' => '', 'doc_invoice_bcc' => '',
             // Payment reminders of unpaid invoices (v1.31.0).
             'notify_invoice_interval' => 7,
@@ -1387,8 +1389,19 @@ final class Notify
     {
         $vars = self::clientVars($client);
         $unsub = (int) $client->id > 0 ? self::unsubscribeUrl($client) : self::siteRoot() . '#';
-        $html = self::renderText((string) $campaign->body, $vars, ['services_list' => self::servicesListHtml((int) $client->id), 'banks' => self::banksTable()]);
-        return [self::subject((string) $campaign->subject, $vars), self::wrap($html, $unsub, self::absUrl((string) ($campaign->card_image ?? ''))), (int) $client->id > 0 ? $unsub : ''];
+        $photo = self::absUrl((string) ($campaign->card_image ?? ''));
+        // {photo} places the photo inside the text; without it, it goes on top, full width.
+        $inline = $photo !== '' && strpos((string) $campaign->body, '{photo}') !== false;
+        $html = self::renderText((string) $campaign->body, $vars, ['services_list' => self::servicesListHtml((int) $client->id), 'banks' => self::banksTable(),
+            'photo' => $inline ? self::photoBlock($photo) : '']);
+        return [self::subject((string) $campaign->subject, $vars), self::wrap($html, $unsub, $inline ? '' : $photo), (int) $client->id > 0 ? $unsub : ''];
+    }
+
+    /** A photo inside the text of an email: full content width, rounded corners. */
+    public static function photoBlock(string $url): string
+    {
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 18px;"><tr><td style="line-height:0;font-size:0;">'
+            . '<img src="' . self::e($url) . '" width="596" alt="" style="display:block;width:100%;max-width:596px;height:auto;border:0;border-radius:12px;"></td></tr></table>';
     }
 
     /** Absolute URL of an image of the site ("images/x.jpg" -> "https://site/images/x.jpg"); '' stays ''. */
@@ -1594,18 +1607,34 @@ final class Notify
     {
         $today = self::today();
         $y = (int) substr($today, 0, 4);
-        $xmas = $y . '-12-22' >= $today ? $y . '-12-22' : ($y + 1) . '-12-22';
-        $newYear = (int) substr($xmas, 0, 4) + 1;
+        $next = static fn(string $md) => $y . '-' . $md >= $today ? $y . '-' . $md : ($y + 1) . '-' . $md;
+        $xmas = $next('12-22');
+        $newYearSend = $next('12-30');
+        $newYear = (int) substr($newYearSend, 0, 4) + 1;
         $easterSend = self::addDays(self::easter($y), -3);
         if ($easterSend < $today) $easterSend = self::addDays(self::easter($y + 1), -3);
-        $sign = "\n\nΣας ευχαριστούμε για την εμπιστοσύνη και τη συνεργασία μας.\n\nΜε εκτίμηση,\n{company}";
+        $thanks = "\n\nΣας ευχαριστούμε για την εμπιστοσύνη και τη συνεργασία μας.";
+        $sign = "\n\nΜε εκτίμηση,\n{company}";
         return [
-            'christmas' => ['Χριστούγεννα & Πρωτοχρονιά', 'Καλά Χριστούγεννα & ευτυχισμένο ' . $newYear . '!',
-                "{greeting},\n\nσας ευχόμαστε ολόψυχα **Καλά Χριστούγεννα** και ένα ευτυχισμένο και δημιουργικό **" . $newYear . "**, με υγεία, χαρά και κάθε επιτυχία!" . $sign, $xmas],
-            'easter' => ['Πάσχα', 'Καλό Πάσχα & Καλή Ανάσταση!',
-                "{greeting},\n\nσας ευχόμαστε **Καλό Πάσχα** και **Καλή Ανάσταση**, με υγεία, αγάπη και χαρά για εσάς και τους δικούς σας!" . $sign, $easterSend],
-            'card' => ['Ευχετήρια κάρτα (ελεύθερη)', 'Θερμές ευχές από την ομάδα μας', "{greeting},\n\nσας ευχόμαστε υγεία, χαρά και κάθε επιτυχία!" . $sign, ''],
+            'christmas_newyear' => ['🎄 Χριστούγεννα & Πρωτοχρονιά', 'Καλά Χριστούγεννα & ευτυχισμένο ' . ((int) substr($xmas, 0, 4) + 1) . '! 🎄',
+                "{greeting},\n\nσας ευχόμαστε ολόψυχα **Καλά Χριστούγεννα** και ένα ευτυχισμένο και δημιουργικό **" . ((int) substr($xmas, 0, 4) + 1) . "**, με υγεία, χαρά και κάθε επιτυχία! 🎄✨" . $thanks . $sign, $xmas],
+            'christmas' => ['🎅 Χριστούγεννα', 'Καλά Χριστούγεννα! 🎄',
+                "{greeting},\n\nσας ευχόμαστε **Καλά Χριστούγεννα**, γεμάτα αγάπη, ζεστασιά και όμορφες στιγμές με τους ανθρώπους σας! 🎄🎁" . $thanks . $sign, $xmas],
+            'newyear' => ['🥂 Πρωτοχρονιά', 'Ευτυχισμένο ' . $newYear . '! 🥂',
+                "{greeting},\n\nσας ευχόμαστε το **" . $newYear . "** να είναι μια χρονιά γεμάτη υγεία, αισιοδοξία και επιτυχίες! 🥂🎆" . $thanks . $sign, $newYearSend],
+            'easter' => ['🐣 Πάσχα', 'Καλό Πάσχα & Καλή Ανάσταση! 🕯️',
+                "{greeting},\n\nσας ευχόμαστε **Καλό Πάσχα** και **Καλή Ανάσταση**, με υγεία, αγάπη και χαρά για εσάς και τους δικούς σας! 🕯️🌷" . $thanks . $sign, $easterSend],
+            'holidays' => ['🏖️ Ενημέρωση για διακοπές', 'Ενημέρωση: θερινές διακοπές {company} ☀️',
+                "{greeting},\n\nσας ενημερώνουμε ότι λόγω θερινών διακοπών το γραφείο μας θα παραμείνει κλειστό από **[από ημερομηνία]** έως και **[έως ημερομηνία]**.\n\nΟι υπηρεσίες σας (hosting, email, domains) λειτουργούν κανονικά και παρακολουθούνται για τυχόν επείγοντα. Τα υπόλοιπα αιτήματά σας θα εξυπηρετηθούν με σειρά προτεραιότητας μόλις επιστρέψουμε.\n\nΣας ευχόμαστε καλό καλοκαίρι! ☀️🌊" . $sign, $next('07-31')],
+            'card' => ['💌 Ελεύθερη κάρτα', 'Θερμές ευχές από την ομάδα μας',
+                "{greeting},\n\nσας ευχόμαστε υγεία, χαρά και κάθε επιτυχία!" . $thanks . $sign, ''],
         ];
+    }
+
+    /** Text left from a preset that must be completed before sending ("[από ημερομηνία]"). */
+    public static function unfilled(string $text): string
+    {
+        return preg_match('/\[(από|έως) ημερομηνία\]/u', $text, $m) ? $m[0] : '';
     }
 
 
@@ -1817,7 +1846,7 @@ final class Notify
 
         $error = '';
         try {
-            $mailer = self::senderMailer($m->kind === 'invoice' ? 'invoice' : '');
+            $mailer = self::senderMailer(self::senderTypeOf($m));
             $bcc = trim((string) self::setting('notify_bcc'));
             if ($m->kind === 'renewal' && $bcc !== '' && filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                 $mailer->addBcc($bcc);
@@ -1897,6 +1926,15 @@ final class Notify
             return $container->get(MailerFactoryInterface::class)->createMailer();
         }
         return Factory::getMailer();
+    }
+
+    /** Sender of a message: payment reminders, greetings & campaigns have their own (tests too). */
+    public static function senderTypeOf(object $m): string
+    {
+        if ($m->kind === 'invoice') return 'invoice';
+        if (in_array($m->kind, ['greeting', 'campaign'], true)) return 'greeting';
+        if ($m->kind === 'test' && preg_match('/^test-(greeting|invoice):/', (string) ($m->ref ?? ''), $mm)) return $mm[1];
+        return '';
     }
 
     /** Last checks before sending: a queued message may no longer be appropriate. */
@@ -2146,9 +2184,10 @@ final class Notify
         return ['queued' => $queued, 'sent' => $sent, 'failed' => $failed];
     }
 
-    public static function sendTest(string $to, string $subject, string $body): bool
+    public static function sendTest(string $to, string $subject, string $body, string $senderType = ''): bool
     {
-        $id = self::queue(['kind' => 'test', 'to_email' => $to, 'subject' => '[ΔΟΚΙΜΗ] ' . $subject, 'body' => $body]);
+        $id = self::queue(['kind' => 'test', 'to_email' => $to, 'subject' => '[ΔΟΚΙΜΗ] ' . $subject, 'body' => $body,
+            'ref' => $senderType !== '' ? 'test-' . $senderType . ':' . bin2hex(random_bytes(6)) : '']);
         return $id > 0 && self::sendNow($id);
     }
 }

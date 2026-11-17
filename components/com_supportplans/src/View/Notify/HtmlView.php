@@ -17,9 +17,15 @@ class HtmlView extends BaseHtmlView
         'services'  => 'Υπηρεσίες πελατών',
         'catalog'   => 'Κατάλογος υπηρεσιών',
         'reports'   => 'Αναφορές maintenance',
-        'campaigns' => 'Αποστολές',
         'log'       => 'Ιστορικό',
         'settings'  => 'Ρυθμίσεις email',
+    ];
+
+    /** Ευχές & Αποστολές: a menu item of its own, with these tabs. */
+    public const GREET_SECTIONS = [
+        'campaigns'     => 'Αποστολές',
+        'namedays'      => 'Ονομαστικές εορτές',
+        'greetsettings' => 'Ρυθμίσεις ευχών',
     ];
 
     public $params;
@@ -64,13 +70,20 @@ class HtmlView extends BaseHtmlView
         $in = Factory::getApplication()->input;
         $section = $in->getCmd('section', 'overview');
         // 'invoices' (Υπενθυμίσεις πληρωμών) is a menu item of its own, not a tab of Ανανεώσεις.
-        $this->section = isset(self::SECTIONS[$section]) || $section === 'invoices' ? $section : 'overview';
+        $this->section = isset(self::SECTIONS[$section]) || isset(self::GREET_SECTIONS[$section]) || $section === 'invoices' ? $section : 'overview';
         $id = $in->getInt('id', 0);
         $this->mode = $in->getCmd('mode', '') === 'new' ? 'new' : ($id ? 'edit' : 'list');
         $this->counts = Notify::messageCounts();
         Notify::rememberSiteRoot();
 
-        if ($this->section === 'settings' && $in->getCmd('preview', '') === 'nameday') {
+        if ($this->section === 'namedays') {
+            $this->namedays = Notify::upcomingNamedays(366);
+            $this->mode = 'list';
+        }
+        if ($this->section === 'greetsettings') {
+            $this->mode = 'list';
+        }
+        if ($this->section === 'greetsettings' && $in->getCmd('preview', '') === 'nameday') {
             // A client of the next name days (or the one asked for), else the administrator.
             $client = $in->getInt('client', 0) ? Notify::client($in->getInt('client', 0)) : null;
             if (!$client) {
@@ -90,7 +103,6 @@ class HtmlView extends BaseHtmlView
                 $this->schedule = Notify::schedule();
                 $this->clients = Notify::clients('', 'active');
                 $this->catalog = Notify::catalog();
-                $this->namedays = Notify::upcomingNamedays(30);
                 $this->mode = 'list';
                 break;
 
