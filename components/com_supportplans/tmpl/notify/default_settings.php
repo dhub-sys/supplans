@@ -129,6 +129,24 @@ $vars = '<code>{greeting}</code> <code>{client_name}</code> <code>{client_compan
   </div>
   <p class="sp-n-help">Μεταβλητές: <code>{greeting}</code> <code>{client_name}</code> <code>{invoice_number}</code> <code>{invoice_date}</code> <code>{amount}</code> <code>{days}</code> (ημέρες από το παραστατικό) <code>{reminder_no}</code> (α/α υπενθύμισης) <code>{company}</code>, και σε δική του γραμμή <code>{banks}</code> (τραπεζικοί λογαριασμοί). Το διάστημα μπορεί να αλλάξει σε κάθε παραστατικό.</p>
  </div>
+ <div class="sp-card" id="sp-nameday-template">
+  <h2>Πρότυπο: Ευχές ονομαστικής εορτής</h2>
+  <label class="sp-check"><input type="hidden" name="notify_nameday_enabled" value="0"><input type="checkbox" name="notify_nameday_enabled" value="1"<?php echo (int) Notify::setting('notify_nameday_enabled') ? ' checked' : ''; ?>> Αυτόματη αποστολή ευχών την ημέρα της ονομαστικής εορτής του πελάτη (στην ώρα αποστολής)</label>
+  <div class="sp-grid">
+   <label class="sp-wide">Θέμα<input name="notify_nameday_subject" value="<?php echo $e($v('notify_nameday_subject')); ?>"></label>
+   <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο</span><textarea name="notify_nameday_body" rows="8" data-sp-editor><?php echo $e($v('notify_nameday_body')); ?></textarea></div>
+   <div class="sp-wide sp-field sp-n-card">
+    <span class="sp-field-label">Κάρτα (προαιρετικά)</span>
+    <div class="sp-n-card-row">
+     <?php if ((string) Notify::setting('notify_nameday_image') !== ''): ?><img src="<?php echo $e(Notify::absUrl((string) Notify::setting('notify_nameday_image'))); ?>" alt=""><?php endif; ?>
+     <div><input name="notify_nameday_image" value="<?php echo $e((string) Notify::setting('notify_nameday_image')); ?>" placeholder="images/supportplans/cards/xronia-polla.jpg ή URL">
+      <label class="sp-n-upload">ή ανεβάστε εικόνα <input type="file" name="notify_nameday_upload" accept="image/png,image/jpeg,image/gif"></label>
+      <small class="sp-n-help">Εμφανίζεται σε όλο το πλάτος του email πάνω από το κείμενο. Για αφαίρεση αδειάστε το πεδίο.</small></div>
+    </div>
+   </div>
+  </div>
+  <p class="sp-n-help">Μεταβλητές: <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>. Η ημερομηνία ορίζεται στην καρτέλα κάθε πελάτη· στέλνεται μία φορά τον χρόνο και όχι σε όσους έχουν διαγραφεί από τις ενημερώσεις.</p>
+ </div>
  <div class="sp-card">
   <h2>Πρότυπο: Αναφορά maintenance</h2>
   <div class="sp-grid">

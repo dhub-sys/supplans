@@ -131,6 +131,7 @@ class NotifyController extends BaseController
         $id = $this->store(Notify::T_CLIENTS, [
             'name' => $this->str('name'), 'company' => $this->str('company'), 'email' => $email,
             'salutation' => rtrim($this->str('salutation'), ' ,'),
+            'nameday' => Notify::namedayValue($this->input->post->getInt('nd_day', 0), $this->input->post->getInt('nd_month', 0), $this->input->post->getCmd('nd_movable', '')),
             'notes' => mb_substr(trim((string) $this->input->post->getString('notes', '')), 0, 5000),
             'status' => isset(Notify::CLIENT_STATUSES[$status]) ? $status : 'active',
         ], $id);
@@ -718,7 +719,7 @@ class NotifyController extends BaseController
         $id = $this->input->post->getInt('id', 0);
         $existing = $id ? Notify::campaign($id) : null;
         if ($existing && $existing->status !== 'draft') {
-            $this->msg('Η αποστολή έχει ήδη ξεκινήσει.', 'error');
+            $this->msg($existing->status === 'scheduled' ? 'Η αποστολή είναι προγραμματισμένη· ακυρώστε πρώτα τον προγραμματισμό για να την αλλάξετε.' : 'Η αποστολή έχει ήδη ξεκινήσει.', 'error');
             $this->go('section=campaigns&id=' . $id);
             return;
         }
@@ -726,8 +727,24 @@ class NotifyController extends BaseController
         $aud = ['mode' => in_array($mode, ['all', 'catalog', 'clients'], true) ? $mode : 'all'];
         if ($aud['mode'] === 'catalog') $aud['catalog'] = array_values(array_filter(array_map('intval', (array) $this->input->post->get('aud_catalog', [], 'array'))));
         if ($aud['mode'] === 'clients') $aud['clients'] = array_values(array_filter(array_map('intval', (array) $this->input->post->get('aud_clients', [], 'array'))));
+        // Date and time of a scheduled sending (local time of the site, stored in UTC).
+        $sendAt = null;
+        $date = trim((string) $this->input->post->getString('send_date', ''));
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $time = preg_match('/^([01]?\d|2[0-3]):([0-5]\d)$/', trim((string) $this->input->post->getString('send_time', '')), $tm) ? sprintf('%02d:%02d', (int) $tm[1], (int) $tm[2]) : '09:30';
+            try {
+                $sendAt = (new \DateTimeImmutable($date . ' ' . $time . ':00', Notify::tz()))->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+            } catch (\Throwable $e) {
+                $sendAt = null;
+            }
+        }
+        $card = $this->saveCardImage('card_upload');
+        if ($card === null) {
+            $card = mb_substr(trim((string) $this->input->post->getString('card_image', '')), 0, 500);
+        }
         $id = $this->store(Notify::T_CAMPAIGNS, [
             'subject' => $this->str('subject', 255), 'body' => $this->text('body'), 'audience' => json_encode($aud),
+            'card_image' => $card, 'send_at' => $sendAt,
         ] + ($id ? [] : ['status' => 'draft']), $id);
         $campaign = Notify::campaign($id);
         $do = $this->input->post->getCmd('do', 'save');
@@ -736,32 +753,29 @@ class NotifyController extends BaseController
             [$subject, $body] = Notify::buildCampaign($campaign, $me);
             $ok = Notify::sendTest($me->email, $subject, $body);
             $this->msg($ok ? 'Δοκιμαστικό εστάλη στο ' . $me->email . '.' : 'Η δοκιμαστική αποστολή απέτυχε — δείτε το Ιστορικό.', $ok ? 'message' : 'error');
-        } elseif ($do === 'send') {
+        } elseif ($do === 'send' || $do === 'schedule') {
             if (trim($campaign->subject) === '' || trim($campaign->body) === '') {
                 $this->msg('Συμπληρώστε θέμα και κείμενο.', 'error');
                 $this->go('section=campaigns&id=' . $id);
                 return;
             }
-            $ids = Notify::audience($aud);
-            if (!$ids) {
+            if (!Notify::audience($aud)) {
                 $this->msg('Δεν υπάρχουν παραλήπτες με αυτές τις επιλογές.', 'error');
                 $this->go('section=campaigns&id=' . $id);
                 return;
             }
-            $db = $this->db();
-            // Claim the campaign atomically so a double click cannot queue it twice.
-            $db->setQuery($db->getQuery(true)->update($db->quoteName(Notify::T_CAMPAIGNS))
-                ->set(["status='queued'", 'queued=' . $db->quote(Notify::now()), 'recipients=' . count($ids)])
-                ->where('id=' . $id)->where("status='draft'"))->execute();
-            if ($db->getAffectedRows() > 0) {
-                $n = 0;
-                foreach ($ids as $cid) {
-                    $client = Notify::client($cid);
-                    [$subject, $body, $unsub] = Notify::buildCampaign($campaign, $client);
-                    $n += Notify::queue(['client_id' => $cid, 'campaign_id' => $id, 'kind' => 'campaign', 'ref' => 'campaign:' . $id . ':' . $cid,
-                        'to_email' => $client->email, 'subject' => $subject, 'body' => $body, 'unsub_url' => $unsub]) ? 1 : 0;
+            if ($do === 'schedule') {
+                if (!$sendAt || $sendAt <= Notify::now()) {
+                    $this->msg('Ορίστε ημερομηνία και ώρα αποστολής στο μέλλον.', 'error');
+                    $this->go('section=campaigns&id=' . $id);
+                    return;
                 }
-                $this->msg($n . ' μηνύματα μπήκαν σε ουρά και αποστέλλονται σταδιακά.');
+                $db = $this->db();
+                $db->setQuery($db->getQuery(true)->update($db->quoteName(Notify::T_CAMPAIGNS))->set("status='scheduled'")->where('id=' . $id)->where("status='draft'"))->execute();
+                $this->msg('Η αποστολή προγραμματίστηκε για ' . Notify::datetimeGr($sendAt) . '.');
+            } else {
+                $n = Notify::queueCampaign($id);
+                if ($n >= 0) $this->msg($n . ' μηνύματα μπήκαν σε ουρά και αποστέλλονται σταδιακά.');
             }
         } else {
             $this->msg('Η αποστολή αποθηκεύτηκε ως πρόχειρο.');
@@ -769,12 +783,51 @@ class NotifyController extends BaseController
         $this->go('section=campaigns&id=' . $id);
     }
 
+    /** A scheduled campaign back to draft (it can be edited again). */
+    public function unscheduleCampaign(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        $db = $this->db();
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(Notify::T_CAMPAIGNS))->set("status='draft'")->where('id=' . $id)->where("status='scheduled'"))->execute();
+        $this->msg($db->getAffectedRows() > 0 ? 'Ο προγραμματισμός ακυρώθηκε· η αποστολή είναι ξανά πρόχειρη.' : 'Η αποστολή έχει ήδη ξεκινήσει.', $db->getAffectedRows() > 0 ? 'message' : 'error');
+        $this->go('section=campaigns&id=' . $id);
+    }
+
     public function deleteCampaign(): void
     {
         $this->guard();
-        $this->delete(Notify::T_CAMPAIGNS, 'id=' . $this->input->post->getInt('id', 0) . " AND status='draft'");
-        $this->msg('Το πρόχειρο διαγράφηκε.');
+        $this->delete(Notify::T_CAMPAIGNS, 'id=' . $this->input->post->getInt('id', 0) . " AND status IN ('draft','scheduled')");
+        $this->msg('Η αποστολή διαγράφηκε.');
         $this->go('section=campaigns');
+    }
+
+    /**
+     * An uploaded greeting card (PNG / JPG / GIF, up to 3 MB) saved in images/supportplans/cards.
+     * Returns its path, null when nothing was uploaded, '' (with a message) when it was rejected.
+     */
+    private function saveCardImage(string $field): ?string
+    {
+        $upload = $this->input->files->get($field, null, 'raw');
+        if (!is_array($upload) || (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        $tmp = (string) ($upload['tmp_name'] ?? '');
+        $info = (int) $upload['error'] === UPLOAD_ERR_OK && is_uploaded_file($tmp) && (int) $upload['size'] <= 3 * 1024 * 1024 ? @getimagesize($tmp) : false;
+        $ext = $info ? ([IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg', IMAGETYPE_GIF => 'gif'][$info[2]] ?? '') : '';
+        if ($ext === '') {
+            $this->msg('Η κάρτα πρέπει να είναι εικόνα PNG, JPG ή GIF έως 3 MB.', 'error');
+            return null;
+        }
+        $rel = 'images/supportplans/cards/' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+        $dir = JPATH_ROOT . '/images/supportplans/cards';
+        if (!is_dir($dir)) @mkdir($dir, 0755, true);
+        if (!@move_uploaded_file($tmp, JPATH_ROOT . '/' . $rel)) {
+            $this->msg('Δεν ήταν δυνατή η αποθήκευση της κάρτας στο ' . $dir . '.', 'error');
+            return null;
+        }
+        @chmod(JPATH_ROOT . '/' . $rel, 0644);
+        return $rel;
     }
 
     /* ------------------------------------------------------------ log & queue */
@@ -857,6 +910,10 @@ class NotifyController extends BaseController
             'notify_renewal_body' => $this->text('notify_renewal_body'),
             'notify_report_subject' => $this->str('notify_report_subject', 255),
             'notify_report_body' => $this->text('notify_report_body'),
+            'notify_nameday_enabled' => $this->input->post->getInt('notify_nameday_enabled', 0) ? 1 : 0,
+            'notify_nameday_subject' => $this->str('notify_nameday_subject', 255),
+            'notify_nameday_body' => $this->text('notify_nameday_body'),
+            'notify_nameday_image' => $this->saveCardImage('notify_nameday_upload') ?? mb_substr(trim((string) $this->input->post->getString('notify_nameday_image', '')), 0, 500),
         ];
         foreach ($values as $k => $v) {
             OfferHelper::saveParam($k, $v);

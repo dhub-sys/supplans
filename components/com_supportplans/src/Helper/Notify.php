@@ -37,7 +37,7 @@ final class Notify
 
     public const SERVICE_STATUSES = ['active' => 'Ενεργή', 'suspended' => 'Σε αναστολή', 'cancelled' => 'Ακυρωμένη'];
     public const CLIENT_STATUSES = ['active' => 'Ενεργός', 'inactive' => 'Ανενεργός'];
-    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'invoice' => 'Υπενθύμιση πληρωμής', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'test' => 'Δοκιμαστικό'];
+    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'invoice' => 'Υπενθύμιση πληρωμής', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'greeting' => 'Ευχές ονομαστικής εορτής', 'test' => 'Δοκιμαστικό'];
     public const MESSAGE_STATUSES = ['queued' => 'Σε αναμονή', 'sending' => 'Αποστέλλεται', 'sent' => 'Εστάλη', 'failed' => 'Απέτυχε', 'cancelled' => 'Ακυρώθηκε'];
 
     /* ================================================================ settings */
@@ -64,6 +64,11 @@ final class Notify
             'notify_invoice_interval' => 7,
             'notify_invoice_subject' => 'Υπενθύμιση πληρωμής: παραστατικό {invoice_number}',
             'notify_invoice_body' => "{greeting},\n\nσας υπενθυμίζουμε ότι το παραστατικό **{invoice_number}** της {invoice_date}, ποσού **{amount}**, δεν έχει εξοφληθεί ακόμα.\n\n{banks}\n\nΑν έχετε ήδη πραγματοποιήσει την πληρωμή, παρακαλούμε αγνοήστε το παρόν μήνυμα ή ενημερώστε μας για να την καταχωρήσουμε.\n\nΜε εκτίμηση,\n{company}",
+            // Name day wishes (v1.32.0): sent on the client's name day, at the send time.
+            'notify_nameday_enabled' => 1,
+            'notify_nameday_subject' => 'Χρόνια πολλά!',
+            'notify_nameday_body' => "{greeting},\n\nμε την ευκαιρία της ονομαστικής σας εορτής, σας ευχόμαστε **χρόνια πολλά**, με υγεία, χαρά και κάθε επιτυχία!\n\nΜε εκτίμηση,\n{company}",
+            'notify_nameday_image' => '',
             'doc_plan_from_name' => '', 'doc_plan_from_email' => '', 'doc_plan_reply_to' => '', 'doc_plan_bcc' => '',
             'notify_reminder_days'   => self::DEFAULT_REMINDER_DAYS,
             'notify_batch_size'      => 20,
@@ -1089,7 +1094,7 @@ final class Notify
     }
 
     /** Branded e-mail layout: logo top right (or the business name when there is no usable logo). */
-    public static function wrap(string $inner, string $unsubscribeUrl = ''): string
+    public static function wrap(string $inner, string $unsubscribeUrl = '', string $card = ''): string
     {
         $params = ComponentHelper::getParams('com_supportplans');
         $accent = self::accent();
@@ -1132,6 +1137,7 @@ final class Notify
             . '<!--[if mso]><table role="presentation" width="640" cellpadding="0" cellspacing="0"><tr><td><![endif]-->'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;color:#1f2937;">'
             . '<tr><td style="padding:18px 22px;border-bottom:4px solid ' . $accent . ';">' . $head . '</td></tr>'
+            . ($card !== '' ? '<tr><td style="padding:0;line-height:0;font-size:0;"><img src="' . self::e($card) . '" width="640" alt="" style="display:block;width:100%;max-width:640px;height:auto;border:0;"></td></tr>' : '')
             . '<tr><td class="sp-n-body" style="padding:24px 22px;font-size:15px;line-height:22px;mso-line-height-rule:exactly;">' . self::outlookCells(self::inlineBlocks($inner)) . '</td></tr>'
             . '<tr><td style="padding:16px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:18px;mso-line-height-rule:exactly;">' . $footerHtml . '</td></tr>'
             . '</table><!--[if mso]></td></tr></table><![endif]--></td></tr></table></body></html>';
@@ -1369,8 +1375,188 @@ final class Notify
         $vars = self::clientVars($client);
         $unsub = (int) $client->id > 0 ? self::unsubscribeUrl($client) : self::siteRoot() . '#';
         $html = self::renderText((string) $campaign->body, $vars, ['services_list' => self::servicesListHtml((int) $client->id), 'banks' => self::banksTable()]);
-        return [self::subject((string) $campaign->subject, $vars), self::wrap($html, $unsub), (int) $client->id > 0 ? $unsub : ''];
+        return [self::subject((string) $campaign->subject, $vars), self::wrap($html, $unsub, self::absUrl((string) ($campaign->card_image ?? ''))), (int) $client->id > 0 ? $unsub : ''];
     }
+
+    /** Absolute URL of an image of the site ("images/x.jpg" -> "https://site/images/x.jpg"); '' stays ''. */
+    public static function absUrl(string $path): string
+    {
+        $path = trim($path);
+        if ($path === '' || preg_match('#^https?://#i', $path)) {
+            return $path;
+        }
+        return self::siteRoot() . ltrim(preg_replace('/#.*$/', '', $path), '/');
+    }
+
+    /**
+     * Queues a campaign for all its recipients (once: it is claimed atomically from draft or
+     * scheduled). Returns the number of queued messages, or -1 when it was already queued.
+     */
+    public static function queueCampaign(int $id): int
+    {
+        $campaign = self::campaign($id);
+        if (!$campaign) return -1;
+        $ids = self::audience(json_decode((string) $campaign->audience, true) ?: ['mode' => 'all']);
+        $db = self::db();
+        $db->setQuery($db->getQuery(true)->update($db->quoteName(self::T_CAMPAIGNS))
+            ->set(["status='queued'", 'queued=' . $db->quote(self::now()), 'recipients=' . count($ids)])
+            ->where('id=' . $id)->where("status IN ('draft','scheduled')"))->execute();
+        if ($db->getAffectedRows() < 1) return -1;
+        $n = 0;
+        foreach ($ids as $cid) {
+            $client = self::client($cid);
+            if (!$client) continue;
+            [$subject, $body, $unsub] = self::buildCampaign($campaign, $client);
+            $n += self::queue(['client_id' => $cid, 'campaign_id' => $id, 'kind' => 'campaign', 'ref' => 'campaign:' . $id . ':' . $cid,
+                'to_email' => $client->email, 'subject' => $subject, 'body' => $body, 'unsub_url' => $unsub]) ? 1 : 0;
+        }
+        return $n;
+    }
+
+    /** Scheduled campaigns whose time has come (any time of the day). */
+    public static function queueScheduledCampaigns(): int
+    {
+        $db = self::db();
+        $ids = $db->setQuery($db->getQuery(true)->select('id')->from($db->quoteName(self::T_CAMPAIGNS))
+            ->where("status='scheduled'")->where('send_at IS NOT NULL')->where('send_at<=' . $db->quote(self::now())))->loadColumn();
+        $n = 0;
+        foreach ($ids as $id) {
+            $q = self::queueCampaign((int) $id);
+            if ($q >= 0) {
+                $n += $q;
+                $c = self::campaign((int) $id);
+                Activity::write('Αποστολές', 'Προγραμματισμένη αποστολή', 0, (string) ($c->subject ?? ''), [], 'ok', $q . ' μηνύματα σε ουρά', 'scheduler');
+            }
+        }
+        return $n;
+    }
+
+    /* ================================================================ greetings */
+
+    /** Orthodox Easter (Y-m-d) of a year: Julian computus + 13 days (1900-2099). */
+    public static function easter(int $year): string
+    {
+        $a = $year % 4; $b = $year % 7; $c = $year % 19;
+        $d = (19 * $c + 15) % 30; $e = (2 * $a + 4 * $b - $d + 34) % 7;
+        $month = intdiv($d + $e + 114, 31); $day = (($d + $e + 114) % 31) + 1;
+        return (new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $year, $month, $day)))->modify('+13 days')->format('Y-m-d');
+    }
+
+    /** Name days that depend on Easter: key => [label, days from Easter, fixed MM-DD moved to Easter + days when it falls before it]. */
+    public const MOVABLE_NAMEDAYS = [
+        'lazaros'    => ['Λαζάρου (Λάζαρος, Λαζαρία) — Σάββατο του Λαζάρου', -8, ''],
+        'vaios'      => ['Βαΐων (Βάιος, Βάγια) — Κυριακή των Βαΐων', -7, ''],
+        'anastasios' => ['Ανάστασης (Αναστάσιος, Αναστασία) — Κυριακή του Πάσχα', 0, ''],
+        'georgios'   => ['Αγίου Γεωργίου — 23 Απριλίου ή Δευτέρα του Πάσχα', 1, '04-23'],
+        'markos'     => ['Αγίου Μάρκου — 25 Απριλίου ή Τρίτη του Πάσχα', 2, '04-25'],
+        'zoi'        => ['Ζωοδόχου Πηγής (Ζωή, Πηγή) — Παρασκευή μετά το Πάσχα', 5, ''],
+        'thomas'     => ['Αγίου Θωμά — Κυριακή μετά το Πάσχα', 7, ''],
+        'triada'     => ['Αγίας Τριάδας (Τριαντάφυλλος) — Δευτέρα του Αγίου Πνεύματος', 50, ''],
+    ];
+
+    public const MONTHS_GEN = [1 => 'Ιανουαρίου', 'Φεβρουαρίου', 'Μαρτίου', 'Απριλίου', 'Μαΐου', 'Ιουνίου', 'Ιουλίου', 'Αυγούστου', 'Σεπτεμβρίου', 'Οκτωβρίου', 'Νοεμβρίου', 'Δεκεμβρίου'];
+
+    /** Normalised name day: "MM-DD", a key of MOVABLE_NAMEDAYS or ''. */
+    public static function namedayValue(int $day, int $month, string $movable): string
+    {
+        if (isset(self::MOVABLE_NAMEDAYS[$movable])) return $movable;
+        return $day > 0 && $month > 0 && checkdate($month, $day, 2024) ? sprintf('%02d-%02d', $month, $day) : '';
+    }
+
+    /** Date (Y-m-d) of a name day in a year, or ''. 29 February is celebrated on the 28th in common years. */
+    public static function namedayDate(string $nd, int $year): string
+    {
+        if (isset(self::MOVABLE_NAMEDAYS[$nd])) {
+            [, $offset, $fixed] = self::MOVABLE_NAMEDAYS[$nd];
+            $easter = self::easter($year);
+            if ($fixed !== '') {
+                $date = $year . '-' . $fixed;
+                return $date < $easter ? self::addDays($easter, $offset) : $date;
+            }
+            return self::addDays($easter, $offset);
+        }
+        if (!preg_match('/^(\d{2})-(\d{2})$/', $nd, $m)) return '';
+        [$mo, $d] = [(int) $m[1], (int) $m[2]];
+        if ($mo === 2 && $d === 29 && !checkdate(2, 29, $year)) $d = 28;
+        return checkdate($mo, $d, $year) ? sprintf('%04d-%02d-%02d', $year, $mo, $d) : '';
+    }
+
+    /** "23 Απριλίου" or the label of a movable name day. */
+    public static function namedayLabel(string $nd): string
+    {
+        if (isset(self::MOVABLE_NAMEDAYS[$nd])) return self::MOVABLE_NAMEDAYS[$nd][0];
+        return preg_match('/^(\d{2})-(\d{2})$/', $nd, $m) ? (int) $m[2] . ' ' . self::MONTHS_GEN[(int) $m[1]] : '';
+    }
+
+    /** Active clients with a name day in the next $days days (today included): [client, date], by date. */
+    public static function upcomingNamedays(int $days = 30): array
+    {
+        $db = self::db();
+        $rows = $db->setQuery($db->getQuery(true)->select('*')->from($db->quoteName(self::T_CLIENTS))
+            ->where("status='active'")->where("nameday<>''"))->loadObjectList();
+        $today = self::today();
+        $until = self::addDays($today, $days);
+        $year = (int) substr($today, 0, 4);
+        $out = [];
+        foreach ($rows as $c) {
+            foreach ([$year, $year + 1] as $y) {
+                $date = self::namedayDate((string) $c->nameday, $y);
+                if ($date !== '' && $date >= $today && $date <= $until) {
+                    $out[] = ['client' => $c, 'date' => $date];
+                    break;
+                }
+            }
+        }
+        usort($out, static fn($a, $b) => [$a['date'], self::clientLabel($a['client'])] <=> [$b['date'], self::clientLabel($b['client'])]);
+        return $out;
+    }
+
+    /** [subject, html, unsubscribe url] of the name day wishes; $client->id 0 = preview. */
+    public static function buildNameday(object $client): array
+    {
+        $vars = self::clientVars($client);
+        $unsub = (int) $client->id > 0 ? self::unsubscribeUrl($client) : self::siteRoot() . '#';
+        $html = self::renderText((string) self::setting('notify_nameday_body'), $vars, ['banks' => self::banksTable()]);
+        return [self::subject((string) self::setting('notify_nameday_subject'), $vars), self::wrap($html, $unsub, self::absUrl((string) self::setting('notify_nameday_image'))), (int) $client->id > 0 ? $unsub : ''];
+    }
+
+    /** The wishes of the clients who celebrate today (once a year each; not to unsubscribed clients). */
+    public static function queueNamedays(): int
+    {
+        if (!(int) self::setting('notify_nameday_enabled')) return 0;
+        $today = self::today();
+        $n = 0;
+        foreach (self::upcomingNamedays(0) as $row) {
+            $c = $row['client'];
+            if ($row['date'] !== $today || $c->unsubscribed_at) continue;
+            [$subject, $body, $unsub] = self::buildNameday($c);
+            $n += self::queue(['client_id' => (int) $c->id, 'kind' => 'greeting', 'ref' => 'nameday:' . (int) $c->id . ':' . substr($today, 0, 4),
+                'to_email' => $c->email, 'subject' => $subject, 'body' => $body, 'unsub_url' => $unsub]) ? 1 : 0;
+        }
+        return $n;
+    }
+
+    /**
+     * Ready-made greeting campaigns: key => [label, subject, body, send date (Y-m-d) of the next occasion].
+     */
+    public static function campaignPresets(): array
+    {
+        $today = self::today();
+        $y = (int) substr($today, 0, 4);
+        $xmas = $y . '-12-22' >= $today ? $y . '-12-22' : ($y + 1) . '-12-22';
+        $newYear = (int) substr($xmas, 0, 4) + 1;
+        $easterSend = self::addDays(self::easter($y), -3);
+        if ($easterSend < $today) $easterSend = self::addDays(self::easter($y + 1), -3);
+        $sign = "\n\nΣας ευχαριστούμε για την εμπιστοσύνη και τη συνεργασία μας.\n\nΜε εκτίμηση,\n{company}";
+        return [
+            'christmas' => ['Χριστούγεννα & Πρωτοχρονιά', 'Καλά Χριστούγεννα & ευτυχισμένο ' . $newYear . '!',
+                "{greeting},\n\nσας ευχόμαστε ολόψυχα **Καλά Χριστούγεννα** και ένα ευτυχισμένο και δημιουργικό **" . $newYear . "**, με υγεία, χαρά και κάθε επιτυχία!" . $sign, $xmas],
+            'easter' => ['Πάσχα', 'Καλό Πάσχα & Καλή Ανάσταση!',
+                "{greeting},\n\nσας ευχόμαστε **Καλό Πάσχα** και **Καλή Ανάσταση**, με υγεία, αγάπη και χαρά για εσάς και τους δικούς σας!" . $sign, $easterSend],
+            'card' => ['Ευχετήρια κάρτα (ελεύθερη)', 'Θερμές ευχές από την ομάδα μας', "{greeting},\n\nσας ευχόμαστε υγεία, χαρά και κάθε επιτυχία!" . $sign, ''],
+        ];
+    }
+
 
     /** Queues a message; a duplicate non-empty ref is ignored. Returns the id or 0. */
     public static function queue(array $m): int
@@ -1585,7 +1771,7 @@ final class Notify
             if ($m->kind === 'renewal' && $bcc !== '' && filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                 $mailer->addBcc($bcc);
             }
-            if ($m->kind === 'campaign' && (string) $m->unsub_url !== '') {
+            if (in_array($m->kind, ['campaign', 'greeting'], true) && (string) $m->unsub_url !== '') {
                 $mailer->addCustomHeader('List-Unsubscribe', '<' . $m->unsub_url . '>');
                 $mailer->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             }
@@ -1677,7 +1863,7 @@ final class Notify
         }
         if (!$client) return 'Ο πελάτης δεν υπάρχει πλέον.';
         if ($client->status !== 'active') return 'Ο πελάτης είναι ανενεργός.';
-        if ($m->kind === 'campaign' && $client->unsubscribed_at) return 'Ο πελάτης έχει διαγραφεί από τις ενημερώσεις.';
+        if (in_array($m->kind, ['campaign', 'greeting'], true) && $client->unsubscribed_at) return 'Ο πελάτης έχει διαγραφεί από τις ενημερώσεις.';
         if (strcasecmp((string) $client->email, (string) $m->to_email) !== 0) return 'Το email του πελάτη άλλαξε μετά τη δημιουργία του μηνύματος.';
         if ($m->kind === 'renewal') {
             // Every service of the reminder must still be active with the expiry it was written for.
@@ -1893,7 +2079,7 @@ final class Notify
     public static function run(bool $force = false): array
     {
         $due = $force || self::sendTimeReached();
-        $queued = $due ? self::queueRenewals() + self::queueInvoices() : 0;
+        $queued = self::queueScheduledCampaigns() + ($due ? self::queueRenewals() + self::queueInvoices() + self::queueNamedays() : 0);
         [$sent, $failed] = self::processQueue();
         try {
             OfferHelper::saveParam('notify_last_run', self::now());
@@ -1904,7 +2090,7 @@ final class Notify
         $isTask = !(method_exists($app, 'isClient') && $app->isClient('site') && $app->input->getCmd('task', '') !== '');
         if ($isTask && ($queued || $sent || $failed)) {
             Activity::write('Ουρά email', 'Αυτόματη εκτέλεση (Χρονοπρογραμματισμένη εργασία)', 0, '', [], $failed ? 'warning' : 'ok',
-                sprintf('Νέες υπενθυμίσεις: %d · Εστάλησαν: %d · Απέτυχαν: %d', $queued, $sent, $failed), 'scheduler');
+                sprintf('Νέα μηνύματα: %d · Εστάλησαν: %d · Απέτυχαν: %d', $queued, $sent, $failed), 'scheduler');
         }
         return ['queued' => $queued, 'sent' => $sent, 'failed' => $failed];
     }

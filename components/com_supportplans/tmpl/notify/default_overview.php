@@ -35,3 +35,19 @@ $expired = count(array_filter($this->rows, static fn($s) => Notify::daysUntil($s
   <h2>Λήγουν τις επόμενες 60 ημέρες ή έχουν λήξει</h2>
   <?php echo $this->loadTemplate('servicestable'); ?>
 </div>
+<div class="sp-card sp-n-namedays">
+  <div class="sp-title-row"><h2>Ονομαστικές εορτές · επόμενες 30 ημέρες</h2><a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=settings#sp-nameday-template'); ?>">✎ Μήνυμα ευχών</a></div>
+  <?php if (!(int) Notify::setting('notify_nameday_enabled')): ?><p class="sp-n-help">Η αυτόματη αποστολή ευχών είναι απενεργοποιημένη στις ρυθμίσεις email.</p><?php endif; ?>
+  <?php if (!$this->namedays): ?><p class="text-muted">Κανένας πελάτης δεν γιορτάζει τις επόμενες 30 ημέρες. Η ονομαστική εορτή ορίζεται στην καρτέλα του πελάτη.</p>
+  <?php else: ?>
+  <div class="table-responsive"><table class="table sp-offer-table">
+   <thead><tr><th>Ημερομηνία</th><th>Πελάτης</th><th>Email</th><th>Ευχές</th></tr></thead>
+   <tbody><?php foreach ($this->namedays as $row): $c = $row['client']; ?>
+    <tr><td><strong><?php echo $e($row['date'] === Notify::today() ? 'Σήμερα' : Notify::dateGr($row['date'])); ?></strong></td>
+     <td><a href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id); ?>"><?php echo $e(Notify::clientLabel($c)); ?></a></td>
+     <td><?php echo $e($c->email); ?></td>
+     <td><?php echo $c->unsubscribed_at ? '<span class="sp-offer-status is-rejected">Διαγράφηκε από ενημερώσεις</span>' : '<span class="sp-offer-status is-accepted">Αυτόματα' . (Notify::sendTimeLabel() !== '' ? ' ' . $e(Notify::sendTimeLabel()) : '') . '</span>'; ?></td></tr>
+   <?php endforeach; ?></tbody>
+  </table></div>
+  <?php endif; ?>
+</div>

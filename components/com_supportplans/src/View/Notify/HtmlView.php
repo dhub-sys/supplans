@@ -51,6 +51,10 @@ class HtmlView extends BaseHtmlView
     public array $remindable = [];
     public array $remindSelected = [];
     public array $remindPreview = [];
+    /** Name days of the next 30 days (overview). */
+    public array $namedays = [];
+    /** New campaign from a ready-made greeting (Notify::campaignPresets). */
+    public ?object $preset = null;
 
     public function display($tpl = null): void
     {
@@ -70,6 +74,7 @@ class HtmlView extends BaseHtmlView
                 $this->schedule = Notify::schedule();
                 $this->clients = Notify::clients('', 'active');
                 $this->catalog = Notify::catalog();
+                $this->namedays = Notify::upcomingNamedays(30);
                 $this->mode = 'list';
                 break;
 
@@ -176,6 +181,12 @@ class HtmlView extends BaseHtmlView
                     $this->clients = Notify::clients('', 'active');
                     $this->catalog = Notify::catalog();
                     $this->selected = $id ? Notify::campaign($id) : null;
+                    $presets = Notify::campaignPresets();
+                    $preset = $in->getCmd('preset', '');
+                    if (!$this->selected && isset($presets[$preset])) {
+                        [, $subject, $body, $date] = $presets[$preset];
+                        $this->preset = (object) ['subject' => $subject, 'body' => $body, 'send_date' => $date, 'send_time' => $date !== '' ? '09:30' : ''];
+                    }
                     if ($this->selected) {
                         $s = Factory::getApplication()->getSession();
                         $me = (object) ['id' => 0, 'name' => (string) $s->get('supportplans.auth.name', ''), 'company' => '', 'email' => (string) $s->get('supportplans.auth.email', ''), 'status' => 'active'];

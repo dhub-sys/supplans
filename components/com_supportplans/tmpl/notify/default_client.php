@@ -23,6 +23,17 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
    <label>Email *<input type="email" name="email" required value="<?php echo $e($v('email')); ?>"></label>
    <label>Κατάσταση<?php echo NotifyUi::select('status', Notify::CLIENT_STATUSES, $v('status', 'active')); ?></label>
    <label class="sp-wide">Προσφώνηση στα email<input name="salutation" maxlength="190" value="<?php echo $e($v('salutation')); ?>" placeholder="<?php echo $e(Notify::setting('notify_greeting')); ?> — π.χ. Αγαπητέ κύριε Δημητρίου"><small class="sp-n-help">Χωρίς κόμμα. Αν μείνει κενό, χρησιμοποιείται η γενική προσφώνηση των ρυθμίσεων email.</small></label>
+   <?php $nd = (string) $v('nameday'); $ndMov = isset(Notify::MOVABLE_NAMEDAYS[$nd]) ? $nd : ''; [$ndM, $ndD] = preg_match('/^(\d{2})-(\d{2})$/', $nd, $ndm) ? [(int) $ndm[1], (int) $ndm[2]] : [0, 0]; ?>
+   <div class="sp-wide sp-field sp-n-nameday">
+    <span class="sp-field-label">Ονομαστική εορτή</span>
+    <div class="sp-n-when">
+     <select name="nd_day" aria-label="Ημέρα"><option value="0">Ημέρα</option><?php for ($i = 1; $i <= 31; $i++): ?><option value="<?php echo $i; ?>"<?php echo $ndD === $i ? ' selected' : ''; ?>><?php echo $i; ?></option><?php endfor; ?></select>
+     <select name="nd_month" aria-label="Μήνας"><option value="0">Μήνας</option><?php foreach (Notify::MONTHS_GEN as $i => $mn): ?><option value="<?php echo $i; ?>"<?php echo $ndM === $i ? ' selected' : ''; ?>><?php echo $e($mn); ?></option><?php endforeach; ?></select>
+     <span class="sp-n-or">ή κινητή εορτή</span>
+     <select name="nd_movable"><option value="">—</option><?php foreach (Notify::MOVABLE_NAMEDAYS as $key => [$label]): ?><option value="<?php echo $e($key); ?>"<?php echo $ndMov === $key ? ' selected' : ''; ?>><?php echo $e($label); ?></option><?php endforeach; ?></select>
+    </div>
+    <small class="sp-n-help"><?php if ($nd !== ''): ?>Φέτος: <b><?php echo $e(Notify::dateGr(Notify::namedayDate($nd, (int) date('Y')))); ?></b>. <?php endif; ?>Την ημέρα της γιορτής στέλνεται αυτόματα το μήνυμα ευχών των ρυθμίσεων email (στην ώρα αποστολής). Αφήστε κενό για να μη σταλεί. Οι κινητές εορτές υπολογίζονται από το Πάσχα κάθε χρονιάς.</small>
+   </div>
    <label class="sp-wide">Σημειώσεις<textarea name="notes" rows="3"><?php echo $e($v('notes')); ?></textarea></label>
   </div>
   <p class="sp-foot">Σε ανενεργούς πελάτες δεν αποστέλλεται κανένα μήνυμα.</p>
