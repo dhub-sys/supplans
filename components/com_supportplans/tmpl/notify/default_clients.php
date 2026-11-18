@@ -32,6 +32,7 @@ $e = [NotifyUi::class, 'e'];
         <td class="sp-num sp-row-actions">
           <a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $c->id); ?>">Άνοιγμα</a>
           <a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=services&mode=new&client_id=' . (int) $c->id); ?>">＋ Υπηρεσία</a>
+          <?php if ((int) $c->active_services === 0): ?><?php echo NotifyUi::button('deleteClient', ['id' => $c->id], 'Διαγραφή', 'Οριστική διαγραφή του πελάτη ' . Notify::clientLabel($c) . ' και όλων των δεδομένων του;', 'btn btn-sm btn-outline-danger'); ?><?php endif; ?>
         </td>
       </tr>
     <?php endforeach; ?>

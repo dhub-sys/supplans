@@ -8,11 +8,13 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 $e = [NotifyUi::class, 'e'];
 $c = $this->selected;
 $v = static fn($k, $d = '') => $c ? $c->$k : $d;
+$activeCount = $c ? count(array_filter($this->services, static fn($s) => $s->status === 'active')) : 0;
 ?>
 <div class="sp-standalone-actions sp-offer-actions">
  <button type="button" class="btn btn-primary" onclick="spSubmit('notify.saveClient')">Αποθήκευση</button>
  <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients'); ?>">Κλείσιμο</a>
  <?php if ($c): ?><a class="btn btn-outline-primary" href="<?php echo NotifyUi::url('section=services&mode=new&client_id=' . (int) $c->id); ?>">＋ Ανάθεση υπηρεσίας</a><?php endif; ?>
+ <?php if ($c && $activeCount === 0): ?><?php echo NotifyUi::button('deleteClient', ['id' => $c->id], 'Διαγραφή πελάτη', 'Οριστική διαγραφή του πελάτη και όλων των δεδομένων του;', 'btn btn-outline-danger'); ?><?php endif; ?>
 </div>
 <form action="<?php echo $e(OfferHelper::url('task=notify.saveClient', false)); ?>" method="post" id="adminForm">
  <div class="sp-card">
@@ -119,9 +121,14 @@ $v = static fn($k, $d = '') => $c ? $c->$k : $d;
   <h2>Τελευταία μηνύματα</h2>
   <?php echo $this->loadTemplate('logtable'); ?>
 </div>
-<div class="sp-card">
+<div class="sp-card" id="sp-n-delete-client">
   <h2>Διαγραφή πελάτη</h2>
-  <p class="sp-n-help">Διαγράφονται μαζί οι υπηρεσίες, οι αναφορές και το ιστορικό μηνυμάτων του πελάτη.</p>
+  <?php if ($activeCount > 0): ?>
+  <p class="sp-n-help">Ο πελάτης έχει <b><?php echo $activeCount; ?></b> <?php echo $activeCount === 1 ? 'ενεργή υπηρεσία' : 'ενεργές υπηρεσίες'; ?>. Για να διαγραφεί, ακυρώστε ή διαγράψτε πρώτα τις υπηρεσίες του με «Διακοπή…» στον πίνακα Υπηρεσίες.</p>
+  <button type="button" class="btn btn-outline-danger" disabled>Διαγραφή πελάτη</button>
+  <?php else: ?>
+  <p class="sp-n-help">Ο πελάτης δεν έχει ενεργές υπηρεσίες. Διαγράφονται μαζί οι υπηρεσίες, οι αναφορές και το ιστορικό μηνυμάτων του.</p>
   <?php echo NotifyUi::button('deleteClient', ['id' => $c->id], 'Διαγραφή πελάτη', 'Οριστική διαγραφή του πελάτη και όλων των δεδομένων του;', 'btn btn-outline-danger'); ?>
+  <?php endif; ?>
 </div>
 <?php endif; ?>

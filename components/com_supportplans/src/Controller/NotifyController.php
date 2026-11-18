@@ -155,7 +155,14 @@ class NotifyController extends BaseController
     public function deleteClient(): void
     {
         $this->guard();
-        Notify::deleteClient($this->input->post->getInt('id', 0));
+        $id = $this->input->post->getInt('id', 0);
+        $active = count(Notify::services(['client_id' => $id, 'status' => 'active']));
+        if ($active > 0) {
+            $this->msg('Ο πελάτης έχει ' . $active . ($active === 1 ? ' ενεργή υπηρεσία' : ' ενεργές υπηρεσίες') . '. Ακυρώστε ή διαγράψτε τες πρώτα («Διακοπή…» στον πίνακα υπηρεσιών).', 'error');
+            $this->go('section=clients&id=' . $id);
+            return;
+        }
+        Notify::deleteClient($id);
         $this->msg('Ο πελάτης διαγράφηκε μαζί με τις υπηρεσίες, τις αναφορές και το ιστορικό του.');
         $this->go('section=clients');
     }
@@ -480,12 +487,47 @@ class NotifyController extends BaseController
     {
         $this->guard();
         $id = $this->input->post->getInt('id', 0);
+        $this->removeService($id);
+        $this->msg('Η υπηρεσία του πελάτη διαγράφηκε.');
+        $this->go($this->input->post->getString('back', '') !== '' ? $this->back() : 'section=services');
+    }
+
+    private function removeService(int $id): void
+    {
         Notify::cancelQueuedRenewals($id, 'Η υπηρεσία διαγράφηκε.');
         $this->delete(Notify::T_REPORTS, 'client_service_id=' . $id);
         $this->delete(Notify::T_RENEWALS, 'service_id=' . $id);
         $this->delete(Notify::T_SERVICES, 'id=' . $id);
-        $this->msg('Η υπηρεσία του πελάτη διαγράφηκε.');
-        $this->go('section=services');
+    }
+
+    /**
+     * "Διακοπή…" of a client service (the client does not renew): cancelled (reminders stop at
+     * once, the history stays) or deleted for good. Optional note, kept in the service notes.
+     */
+    public function endService(): void
+    {
+        $this->guard();
+        $id = $this->input->post->getInt('id', 0);
+        $s = Notify::service($id);
+        $back = $this->back();
+        if (!$s) {
+            $this->msg('Η υπηρεσία δεν βρέθηκε.', 'error');
+            $this->go($back);
+            return;
+        }
+        $name = Notify::serviceFull($s);
+        if ($this->input->post->getCmd('mode', 'cancel') === 'delete') {
+            $this->removeService($id);
+            $this->msg('Η υπηρεσία «' . $name . '» διαγράφηκε οριστικά.');
+        } else {
+            $note = trim((string) $this->input->post->getString('note', ''));
+            $line = Notify::dateGr(Notify::today()) . ': Ακύρωση — ο πελάτης δεν ανανεώνει' . ($note !== '' ? ' (' . $note . ')' : '') . '.';
+            $notes = trim(trim((string) $s->notes) . "\n" . $line);
+            $this->store(Notify::T_SERVICES, ['status' => 'cancelled', 'notes' => mb_substr($notes, 0, 5000)], $id);
+            Notify::cancelQueuedRenewals($id, 'Η υπηρεσία ακυρώθηκε (ο πελάτης δεν ανανεώνει).');
+            $this->msg('Η υπηρεσία «' . $name . '» ακυρώθηκε: δεν θα σταλούν άλλες υπενθυμίσεις γι\' αυτήν. Οι υπόλοιπες υπηρεσίες του πελάτη συνεχίζουν κανονικά.');
+        }
+        $this->go($back);
     }
 
     /**

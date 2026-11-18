@@ -41,6 +41,8 @@ $vatOn = 1 + Notify::vatRate() / 100;
           <?php if ($s->status === 'active'): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $s->client_id . '&remind=' . (int) $s->id); ?>#sp-n-remind">Υπενθύμιση…</a><?php endif; ?>
         <?php endif; ?>
         <a class="btn btn-sm btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Αναφορά</a>
+        <?php $end = ['id' => (int) $s->id, 'name' => Notify::serviceFull($s) . ($showClient ? ' · ' . Notify::clientLabel($s, 'client_') : ''), 'cancelled' => $s->status === 'cancelled']; ?>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-end="<?php echo $e(json_encode($end, JSON_UNESCAPED_UNICODE)); ?>" title="Ο πελάτης δεν ανανεώνει: ακύρωση ή διαγραφή της υπηρεσίας"><?php echo $s->status === 'cancelled' ? 'Διαγραφή…' : 'Διακοπή…'; ?></button>
       </td>
     </tr>
   <?php endforeach; ?>
@@ -48,6 +50,42 @@ $vatOn = 1 + Notify::vatRate() / 100;
   </tbody>
 </table></div>
 <?php if (empty($GLOBALS['spPayDialog'])): $GLOBALS['spPayDialog'] = true; ?>
+<dialog class="sp-n-paydlg sp-n-enddlg" id="sp-n-enddlg" aria-label="Διακοπή υπηρεσίας">
+ <form method="post" action="<?php echo $e(\Support\Component\Supportplans\Site\Helper\OfferHelper::url('task=notify.endService', false)); ?>">
+  <div class="sp-n-paydlg-head"><div><strong>Διακοπή υπηρεσίας</strong><span data-end-name></span></div><button type="button" class="sp-n-paydlg-x" aria-label="Κλείσιμο" onclick="this.closest('dialog').close()">×</button></div>
+  <div class="sp-n-paydlg-body">
+   <label class="sp-n-endopt sp-n-paydlg-wide" data-end-cancel><input type="radio" name="mode" value="cancel" checked><span><b>Ακύρωση <em style="font-style:normal;font-weight:500;color:#067647">· προτείνεται</em></b><small>Ο πελάτης δεν ανανεώνει. Οι υπενθυμίσεις γι' αυτή την υπηρεσία σταματούν αμέσως, οι υπόλοιπες υπηρεσίες του συνεχίζουν. Το ιστορικό πληρωμών και μηνυμάτων κρατιέται και η υπηρεσία μπορεί να ενεργοποιηθεί ξανά.</small></span></label>
+   <label class="sp-n-endopt sp-n-paydlg-wide"><input type="radio" name="mode" value="delete"><span><b>Οριστική διαγραφή</b><small>Διαγράφονται η υπηρεσία, οι αναφορές και το ιστορικό πληρωμών της. Δεν αναιρείται.</small></span></label>
+   <label class="sp-n-paydlg-wide" data-end-note>Σημείωση (προαιρετικά)<input name="note" placeholder="π.χ. απάντησε στο email της 1ης υπενθύμισης, μεταφέρθηκε αλλού"></label>
+  </div>
+  <div class="sp-n-paydlg-foot">
+   <button type="button" class="btn btn-outline-secondary" onclick="this.closest('dialog').close()">Άκυρο</button>
+   <button class="btn btn-danger" data-end-submit>Ακύρωση υπηρεσίας</button>
+  </div>
+  <input type="hidden" name="id" value=""><input type="hidden" name="back" value="<?php echo $e($back); ?>">
+  <?php echo \Joomla\CMS\HTML\HTMLHelper::_('form.token'); ?>
+ </form>
+</dialog>
+<script>
+(function () {
+  var dlg = document.getElementById('sp-n-enddlg'), f = dlg.querySelector('form');
+  var sync = function () { var del = f.mode.value === 'delete'; dlg.querySelector('[data-end-submit]').textContent = del ? 'Οριστική διαγραφή' : 'Ακύρωση υπηρεσίας'; dlg.querySelector('[data-end-note]').hidden = del; };
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-end]'); if (!b) return;
+    var d = JSON.parse(b.getAttribute('data-end'));
+    f.id.value = d.id; f.note.value = '';
+    dlg.querySelector('[data-end-name]').textContent = d.name;
+    dlg.querySelector('[data-end-cancel]').hidden = !!d.cancelled;
+    f.mode.value = d.cancelled ? 'delete' : 'cancel';
+    sync(); dlg.showModal();
+  });
+  f.addEventListener('change', sync);
+  f.addEventListener('submit', function (ev) {
+    if (f.mode.value === 'delete' && !confirm('Οριστική διαγραφή της υπηρεσίας και του ιστορικού της;')) { ev.preventDefault(); return; }
+    dlg.querySelector('[data-end-submit]').disabled = true;
+  });
+})();
+</script>
 <dialog class="sp-n-paydlg" id="sp-n-paydlg" aria-label="Πληρώθηκε">
  <form method="post" action="<?php echo $e(\Support\Component\Supportplans\Site\Helper\OfferHelper::url('task=notify.renew', false)); ?>">
   <div class="sp-n-paydlg-head"><div><strong>Πληρώθηκε / Ανανέωση</strong><span data-pay-name></span></div><button type="button" class="sp-n-paydlg-x" aria-label="Κλείσιμο" onclick="this.closest('dialog').close()">×</button></div>

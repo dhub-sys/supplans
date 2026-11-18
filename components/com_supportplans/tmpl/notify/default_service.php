@@ -126,6 +126,7 @@ foreach ($this->clients as $c) $clients[$c->id] = Notify::clientLabel($c) . ' �
   <div class="sp-n-actions">
     <?php if ($s->expiry_date && $s->status === 'active'): ?><a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=clients&id=' . (int) $s->client_id . '&remind=' . (int) $s->id); ?>#sp-n-remind">Αποστολή υπενθύμισης…</a><?php endif; ?>
     <a class="btn btn-outline-secondary" href="<?php echo NotifyUi::url('section=reports&mode=new&service=' . (int) $s->id); ?>">Νέα αναφορά maintenance</a>
+    <?php if ($s->status !== 'cancelled'): ?><?php echo NotifyUi::button('endService', ['id' => $s->id, 'mode' => 'cancel', 'back' => 'section=services&id=' . (int) $s->id], 'Ακύρωση (δεν ανανεώνει)', 'Ο πελάτης δεν ανανεώνει: η υπηρεσία γίνεται «Ακυρωμένη» και οι υπενθυμίσεις της σταματούν. Το ιστορικό κρατιέται. Συνέχεια;', 'btn btn-outline-danger'); ?><?php endif; ?>
     <?php echo NotifyUi::button('deleteService', ['id' => $s->id], 'Διαγραφή', 'Διαγραφή της υπηρεσίας του πελάτη, των αναφορών και του ιστορικού πληρωμών της;', 'btn btn-outline-danger'); ?>
   </div>
   <p class="sp-n-help">Για να μη στέλνονται ποτέ υπενθυμίσεις για αυτή την υπηρεσία, ξετσεκάρετε «Αυτόματες υπενθυμίσεις» παραπάνω· αν ο πελάτης δεν θα ανανεώσει, αλλάξτε την κατάσταση σε «Ακυρωμένη».</p>
