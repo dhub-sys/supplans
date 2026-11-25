@@ -10,7 +10,7 @@ $e = [NotifyUi::class, 'e'];
 $n = 0;
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Νέες ενημερώσεις</h1><p>Όλα τα CMS και extensions των sites με τις εκδόσεις που είναι σε χρήση. Μετά το μαζικό update, γράψτε τη <b>νέα έκδοση</b> σε όσα ενημερώθηκαν και πατήστε «Έλεγχος sites». Θα δείτε ποιο site παίρνει ποιο update, θα ξετσεκάρετε ό,τι δεν έγινε και θα το καταγράψετε. Οι πελάτες λαμβάνουν τις ενημερώσεις συγκεντρωτικά στη <b>μηνιαία σύνοψη</b>: ένα μήνυμα ανά πελάτη, με όλα τα sites του.</p></div>
+  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Νέες ενημερώσεις</h1><p>Όλα τα CMS και extensions των sites με τις εκδόσεις που είναι σε χρήση. Μετά το μαζικό update, γράψτε τη <b>νέα έκδοση</b> σε όσα ενημερώθηκαν, <b>μία φορά</b>: περνάει αυτόματα σε όλα τα sites που έχουν το στοιχείο με παλαιότερη έκδοση. Πατήστε «Καταγραφή απευθείας σε όλα», ή «Έλεγχος ανά site» αν θέλετε πρώτα να εξαιρέσετε κάποιο. Οι πελάτες λαμβάνουν τις ενημερώσεις συγκεντρωτικά στη <b>μηνιαία σύνοψη</b>: ένα μήνυμα ανά πελάτη, με όλα τα sites του.</p></div>
 </section>
 <?php if ($this->rows): ?>
 <div class="sp-n-warning"><strong>Πρόχειρες ενημερώσεις που δεν έχουν σταλεί:</strong>
@@ -44,7 +44,9 @@ $n = 0;
    <?php endforeach; ?>
    </tbody>
   </table></div>
-  <div class="sp-su-foot"><span id="sp-su-total" class="sp-n-help"></span><button class="btn btn-primary">Έλεγχος sites →</button></div>
+  <div class="sp-su-foot"><span id="sp-su-total" class="sp-n-help"></span>
+   <button class="btn btn-outline-primary" name="direct" value="1" onclick="return confirm('Καταγραφή των νέων εκδόσεων σε όλα τα sites που έχουν τα στοιχεία αυτά (με παλαιότερη έκδοση); Οι πελάτες θα τις λάβουν στη μηνιαία σύνοψη.')">Καταγραφή απευθείας σε όλα</button>
+   <button class="btn btn-primary">Έλεγχος ανά site →</button></div>
 </div>
 <?php echo HTMLHelper::_('form.token'); ?>
 </form>

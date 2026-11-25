@@ -213,6 +213,14 @@ class SitesController extends BaseController
         $o = (object) ['title' => $title, 'entries' => json_encode($entries, JSON_UNESCAPED_UNICODE), 'plan' => json_encode($plan, JSON_UNESCAPED_UNICODE),
             'status' => 'draft', 'sites' => count($plan), 'messages' => 0, 'created' => $now, 'modified' => $now];
         $this->db()->insertObject(Sites::T_ROUNDS, $o, 'id');
+        // "Καταγραφή απευθείας": every site that has the item gets the update, no review step.
+        if ($this->input->post->getInt('direct', 0)) {
+            [$sites, $items] = Sites::applyRound((int) $o->id, 'log');
+            $day = Sites::digestDay();
+            $this->msg(sprintf('Καταγράφηκαν %d ενημερώσεις σε %d sites.', $items, $sites) . ' Θα συμπεριληφθούν στη μηνιαία σύνοψη' . ($day ? ' (αυτόματα την ' . $day . 'η του επόμενου μήνα)' : '') . '.');
+            $this->go('section=rounds&id=' . (int) $o->id);
+            return;
+        }
         $this->msg(count($plan) . ' sites θα πάρουν ενημερώσεις. Ελέγξτε τη λίστα, ξετσεκάρετε ό,τι δεν έγινε και πατήστε «Εφαρμογή & αποστολή».');
         $this->go('section=rounds&id=' . (int) $o->id);
     }
