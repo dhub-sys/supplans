@@ -316,17 +316,29 @@ final class Sites
     public static function updatesTable(array $updates): string
     {
         if (!$updates) return '';
+        $dated = isset($updates[0]['d']);
         $b = Notify::brandColors();
         $font = Notify::fontStack();
         $cell = 'padding:9px 12px;font-family:' . $font . ';font-size:14px;line-height:20px;mso-line-height-rule:exactly;border-top:1px solid #eef0f4;text-align:left;vertical-align:top;';
         $head = 'padding:9px 12px;font-family:' . $font . ';font-size:13px;line-height:18px;background:' . $b['accent'] . ';color:' . $b['secondary'] . ';font-weight:bold;text-align:left;';
         $html = '<table class="sp-n-data" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;">'
-            . '<tr><th style="' . $head . '">Ενημέρωση</th><th style="' . $head . '">Προηγούμενη έκδοση</th><th style="' . $head . '">Νέα έκδοση</th></tr>';
+            . '<tr>' . ($dated ? '<th style="' . $head . '">Ημερομηνία</th>' : '') . '<th style="' . $head . '">Ενημέρωση</th><th style="' . $head . '">Προηγούμενη έκδοση</th><th style="' . $head . '">Νέα έκδοση</th></tr>';
+        $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+        $prev = null;
         foreach ($updates as $u) {
-            $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
-            $html .= '<tr><td style="' . $cell . '"><strong>' . $e($u['n']) . '</strong></td>'
-                . '<td style="' . $cell . 'color:#667085;white-space:nowrap;">' . $e(($u['o'] ?? '') !== '' ? $u['n'] . ' ' . $u['o'] : '—') . '</td>'
-                . '<td style="' . $cell . 'white-space:nowrap;"><strong style="color:#067647;">' . $e($u['n'] . ' ' . $u['v']) . '</strong></td></tr>';
+            // The date once per day: the rows of a day read as one block of work.
+            $date = $dated ? ($u['d'] !== $prev ? Notify::dateGr($u['d']) : '') : null;
+            $sep = $dated && $u['d'] !== $prev && $prev !== null ? 'border-top:2px solid #e4e7ec;' : '';
+            $prev = $dated ? $u['d'] : null;
+            $html .= '<tr>' . ($dated ? '<td style="' . $cell . $sep . 'white-space:nowrap;color:#475467;">' . $e($date) . '</td>' : '')
+                . '<td style="' . $cell . $sep . '"><strong>' . $e($u['n']) . '</strong></td>'
+                . '<td style="' . $cell . $sep . 'color:#667085;">' . $e(($u['o'] ?? '') !== '' ? $u['o'] : '—') . '</td>'
+                . '<td style="' . $cell . $sep . '"><strong style="color:#067647;">' . $e($u['v']) . '</strong></td></tr>';
+        }
+        if ($dated && count($updates) > 1) {
+            $days = count(array_unique(array_column($updates, 'd')));
+            $html .= '<tr><td colspan="4" style="' . $cell . 'background:#f9fafb;color:#475467;font-size:13px;">Σύνολο: <strong>' . count($updates) . ' ενημερώσεις</strong>'
+                . ($days > 1 ? ' σε ' . $days . ' ημερομηνίες' : '') . '</td></tr>';
         }
         return $html . '</table>';
     }
@@ -355,7 +367,7 @@ final class Sites
     {
         $out = [];
         foreach ($groups as $g) {
-            $sig = array_map(static fn($u) => mb_strtolower($u['n']) . '=' . mb_strtolower($u['v']), $g['updates']);
+            $sig = array_map(static fn($u) => ($u['d'] ?? '') . ':' . mb_strtolower($u['n']) . '=' . mb_strtolower($u['v']), $g['updates']);
             sort($sig);
             $k = implode('|', $sig);
             if (!isset($out[$k])) {
@@ -364,7 +376,8 @@ final class Sites
             $out[$k]['sites'][] = $g['site'];
             foreach ($out[$k]['updates'] as &$u) {
                 foreach ($g['updates'] as $x) {
-                    if (strcasecmp($x['n'], $u['n']) === 0 && (string) $x['o'] !== '' && !in_array((string) $x['o'], $u['olds'], true)) $u['olds'][] = (string) $x['o'];
+                    if (strcasecmp($x['n'], $u['n']) === 0 && strcasecmp($x['v'], $u['v']) === 0 && ($x['d'] ?? '') === ($u['d'] ?? '')
+                        && (string) $x['o'] !== '' && !in_array((string) $x['o'], $u['olds'], true)) $u['olds'][] = (string) $x['o'];
                 }
             }
             unset($u);
@@ -498,7 +511,7 @@ final class Sites
 
     /**
      * Updates not yet sent to the clients (for the monthly summary), by site:
-     * site id => [site, client, updates (one per item: first old → last new), ids, from, to].
+     * site id => [site, client, updates (every update with its date, oldest first), ids, from, to].
      * $untilUtc: only updates before this moment.
      */
     public static function pending(string $untilUtc = ''): array
@@ -514,14 +527,9 @@ final class Sites
                 if (!$site) continue;
                 $out[$sid] = ['site' => $site, 'client' => $site->client_id ? Notify::client((int) $site->client_id) : null, 'items' => [], 'ids' => [], 'from' => '', 'to' => ''];
             }
-            $k = mb_strtolower($h->name);
             $d = self::localDate((string) $h->created);
-            if (!isset($out[$sid]['items'][$k])) {
-                $out[$sid]['items'][$k] = ['n' => $h->name, 'o' => (string) $h->old_version, 'v' => (string) $h->new_version, 'd' => $d, 'times' => 0];
-            }
-            $out[$sid]['items'][$k]['v'] = (string) $h->new_version;
-            $out[$sid]['items'][$k]['d'] = $d;
-            $out[$sid]['items'][$k]['times']++;
+            // Every update on its own row, with its date (5.5.3 → 5.5.4 on the 3rd, 5.5.4 → 5.5.5 on the 17th…).
+            $out[$sid]['items'][] = ['n' => $h->name, 'o' => (string) $h->old_version, 'v' => (string) $h->new_version, 'd' => $d];
             $out[$sid]['ids'][] = (int) $h->id;
             $out[$sid]['from'] = $out[$sid]['from'] ?: $d;
             $out[$sid]['to'] = $d;

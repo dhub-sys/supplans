@@ -28,7 +28,7 @@ $v = static fn($k) => (string) Notify::setting($k);
   <div class="sp-grid">
    <label>Αυτόματη αποστολή την ημέρα του μήνα<select name="notify_sitedigest_day"><option value="0"<?php echo (int) $v('notify_sitedigest_day') === 0 ? ' selected' : ''; ?>>Ποτέ (μόνο χειροκίνητα)</option><?php for ($d = 1; $d <= 28; $d++): ?><option value="<?php echo $d; ?>"<?php echo (int) $v('notify_sitedigest_day') === $d ? ' selected' : ''; ?>><?php echo $d; ?>η του μήνα</option><?php endfor; ?></select></label>
   </div>
-  <p class="sp-n-help">Την ημέρα αυτή, από την ώρα αποστολής (<?php echo $e(Notify::sendTimeLabel() ?: '—'); ?>), κάθε πελάτης λαμβάνει ένα μήνυμα ανά site με όλες τις ενημερώσεις του προηγούμενου μήνα. Αν ένα στοιχείο ενημερώθηκε περισσότερες φορές, εμφανίζεται μία φορά (π.χ. 6.2.0 → 6.2.2). Η σύνοψη μπορεί να σταλεί και χειροκίνητα από την καρτέλα «Μηνιαία σύνοψη».</p>
+  <p class="sp-n-help">Την ημέρα αυτή, από την ώρα αποστολής (<?php echo $e(Notify::sendTimeLabel() ?: '—'); ?>), κάθε πελάτης λαμβάνει ένα μήνυμα ανά site με όλες τις ενημερώσεις του προηγούμενου μήνα. Κάθε update εμφανίζεται με την ημερομηνία του (π.χ. 03/11 YOOtheme Pro 5.5.3 → 5.5.4, 17/11 5.5.4 → 5.5.5) και στο τέλος το σύνολο των ενημερώσεων. Η σύνοψη μπορεί να σταλεί και χειροκίνητα από την καρτέλα «Μηνιαία σύνοψη».</p>
  </div>
  <div class="sp-card">
   <h2>Μήνυμα ενημερώσεων</h2>

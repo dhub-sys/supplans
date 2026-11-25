@@ -12,7 +12,7 @@ $total = 0;
 foreach ($this->rows as $c) foreach ($c['groups'] as $g) $total += count($g['updates']);
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Μηνιαία σύνοψη</h1><p>Οι ενημερώσεις που έχουν καταγραφεί και δεν έχουν σταλεί ακόμα στους πελάτες. Κάθε πελάτης λαμβάνει <b>ένα μήνυμα</b> με όλα τα sites του. Αν ένα στοιχείο ενημερώθηκε περισσότερες φορές, εμφανίζεται μία φορά (πρώτη → τελευταία έκδοση).</p></div>
+  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Μηνιαία σύνοψη</h1><p>Οι ενημερώσεις που έχουν καταγραφεί και δεν έχουν σταλεί ακόμα στους πελάτες. Κάθε πελάτης λαμβάνει <b>ένα μήνυμα</b> με όλα τα sites του. Κάθε update εμφανίζεται ξεχωριστά με την ημερομηνία του, ώστε να φαίνεται όλη η δουλειά του μήνα.</p></div>
   <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=sitesettings'); ?>">✎ Κείμενο &amp; ημέρα</a>
 </section>
 <div class="sp-su-info"><?php if ($day): ?>Αυτόματη αποστολή: <b>την <?php echo $day; ?>η κάθε μήνα<?php echo Notify::sendTimeLabel() !== '' ? ', ' . $e(Notify::sendTimeLabel()) : ''; ?></b>, με τις ενημερώσεις του προηγούμενου μήνα. Μπορείτε να στείλετε και τώρα, χειροκίνητα, για όσους επιλέξετε.<?php else: ?>Η αυτόματη μηνιαία αποστολή είναι <b>απενεργοποιημένη</b> (Ρυθμίσεις). Στείλτε χειροκίνητα από εδώ.<?php endif; ?></div>
@@ -31,7 +31,7 @@ foreach ($this->rows as $c) foreach ($c['groups'] as $g) $total += count($g['upd
      <td><?php if ($ok): ?><input type="checkbox" class="sp-sd-one" name="clients[]" value="<?php echo (int) $cid; ?>" checked aria-label="Επιλογή"><?php endif; ?></td>
      <td><?php if ($c['client']): ?><a href="<?php echo NotifyUi::url('section=clients&id=' . (int) $cid); ?>"><strong><?php echo $e(Notify::clientLabel($c['client'])); ?></strong></a><br><small class="text-muted"><?php echo $e($c['client']->email); ?></small><?php if (!$ok): ?><br><span class="sp-offer-status is-rejected">Ανενεργός</span><?php endif; ?><?php else: ?><span class="sp-offer-status is-rejected">Sites χωρίς πελάτη</span><?php endif; ?></td>
      <td class="sp-sd-sites"><?php foreach ($c['groups'] as $g): ?><div><a href="<?php echo NotifyUi::url('section=sites&id=' . (int) $g['site']->id); ?>"><b><?php echo $e($g['site']->domain); ?></b></a>
-       <?php foreach ($g['updates'] as $u): ?><span class="sp-sd-up"><?php echo $e($u['n'] . ' ' . ($u['o'] !== '' ? $u['o'] . ' → ' : '') . $u['v']); ?><?php if ($u['times'] > 1): ?> <small>(<?php echo (int) $u['times']; ?> ενημερώσεις)</small><?php endif; ?></span><?php endforeach; ?></div><?php endforeach; ?></td>
+       <?php foreach ($g['updates'] as $u): ?><span class="sp-sd-up"><small><?php echo $e(substr(Notify::dateGr($u['d']), 0, 5)); ?></small> <?php echo $e($u['n'] . ' ' . ($u['o'] !== '' ? $u['o'] . ' → ' : '') . $u['v']); ?></span><?php endforeach; ?></div><?php endforeach; ?></td>
      <td><?php echo $e(Sites::periodLabel($c['from'], $c['to'])); ?></td>
      <td class="sp-num"><?php if ($c['client']): ?><a class="sp-doc-btn" href="<?php echo NotifyUi::url('section=sitedigest&preview=' . (int) $cid); ?>#sp-su-preview">Προεπισκόπηση</a><?php endif; ?></td>
     </tr>
