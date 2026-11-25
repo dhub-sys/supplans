@@ -26,11 +26,11 @@ foreach ($this->planRows as $row) {
 ?>
 <div class="sp-standalone-actions sp-offer-actions">
 <?php if ($draft): ?>
- <button type="button" class="btn btn-primary" onclick="if(confirm('Καταγραφή των τσεκαρισμένων ενημερώσεων; Οι νέες εκδόσεις γράφονται στα sites και οι πελάτες θα τις λάβουν στη μηνιαία σύνοψη.')){document.getElementById('sp-do').value='log';spSubmit('sites.saveRound')}">Καταγραφή (για τη μηνιαία σύνοψη)</button>
+ <button type="button" class="btn btn-primary" onclick="if(confirm('Καταγραφή των τσεκαρισμένων ενημερώσεων; Οι νέες εκδόσεις γράφονται στα sites και οι πελάτες θα τις λάβουν στην επόμενη σύνοψη.')){document.getElementById('sp-do').value='log';spSubmit('sites.saveRound')}">Καταγραφή (για τη σύνοψη)</button>
  <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-do').value='save';spSubmit('sites.saveRound')">Αποθήκευση επιλογών</button>
  <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('sp-do').value='test';spSubmit('sites.saveRound')">Δοκιμή στο email μου</button>
  <details class="sp-su-more"><summary class="btn btn-outline-secondary">Άλλες επιλογές ▾</summary><div>
-  <button type="button" class="btn btn-outline-primary" onclick="if(confirm('Καταγραφή και άμεση αποστολή μηνυμάτων στους πελάτες (εκτός μηνιαίας σύνοψης); Δεν αναιρείται.')){document.getElementById('sp-do').value='send';spSubmit('sites.saveRound')}">Καταγραφή &amp; αποστολή τώρα</button>
+  <button type="button" class="btn btn-outline-primary" onclick="if(confirm('Καταγραφή και άμεση αποστολή μηνυμάτων στους πελάτες (εκτός σύνοψης); Δεν αναιρείται.')){document.getElementById('sp-do').value='send';spSubmit('sites.saveRound')}">Καταγραφή &amp; αποστολή τώρα</button>
   <button type="button" class="btn btn-outline-secondary" onclick="if(confirm('Καταγραφή των εκδόσεων χωρίς να ενημερωθούν ποτέ οι πελάτες γι\' αυτές;')){document.getElementById('sp-do').value='apply';spSubmit('sites.saveRound')}">Καταγραφή χωρίς ενημέρωση πελατών</button>
  </div></details>
  <?php echo NotifyUi::button('sites.deleteRound', ['id' => $r->id], 'Διαγραφή', 'Διαγραφή του πρόχειρου;', 'btn btn-outline-danger'); ?>
@@ -48,7 +48,7 @@ foreach ($this->planRows as $row) {
    <div><strong><?php echo $e($x['n']); ?></strong><span><?php echo $e(($x['o'] !== '' ? $x['o'] : 'παλαιότερες') . ' → ' . $x['v']); ?></span><b><?php echo (int) ($per[mb_strtolower($x['n'])] ?? 0); ?> sites</b></div>
    <?php endforeach; ?>
   </div>
-  <p class="sp-n-help"><?php if ($draft): ?><b><?php echo count($this->planRows); ?></b> sites · <b><?php echo $mails; ?></b> πελάτες θα ενημερωθούν. Ξετσεκάρετε ενημερώσεις που δεν έγιναν σε κάποιο site, ή το «Email» για όσους δεν πρέπει να ενημερωθούν. Με «Καταγραφή» οι νέες εκδόσεις γράφονται στα sites και στο ιστορικό τους, και οι πελάτες τις λαμβάνουν συγκεντρωτικά στη <a href="<?php echo NotifyUi::url('section=sitedigest'); ?>">μηνιαία σύνοψη</a><?php echo \Support\Component\Supportplans\Site\Helper\Sites::digestDay() ? ' (αυτόματα την ' . \Support\Component\Supportplans\Site\Helper\Sites::digestDay() . 'η κάθε μήνα)' : ''; ?>.<?php else: ?>Καταγράφηκε <?php echo $e(Notify::datetimeGr($r->applied)); ?> σε <b><?php echo (int) $r->sites; ?></b> sites<?php echo (int) $r->messages ? ' · <b>' . (int) $r->messages . '</b> μηνύματα άμεσα' : ''; ?>.<?php endif; ?></p>
+  <p class="sp-n-help"><?php if ($draft): ?><b><?php echo count($this->planRows); ?></b> sites · <b><?php echo $mails; ?></b> πελάτες θα ενημερωθούν. Ξετσεκάρετε ενημερώσεις που δεν έγιναν σε κάποιο site, ή το «Email» για όσους δεν πρέπει να ενημερωθούν. Με «Καταγραφή» οι νέες εκδόσεις γράφονται στα sites και στο ιστορικό τους, και οι πελάτες τις λαμβάνουν συγκεντρωτικά στη <a href="<?php echo NotifyUi::url('section=sitedigest'); ?>">σύνοψη πελατών</a><?php echo Sites::scheduleLabel() !== '' ? ' (αυτόματα ' . $e(Sites::scheduleLabel()) . ')' : ''; ?>.<?php else: ?>Καταγράφηκε <?php echo $e(Notify::datetimeGr($r->applied)); ?> σε <b><?php echo (int) $r->sites; ?></b> sites<?php echo (int) $r->messages ? ' · <b>' . (int) $r->messages . '</b> μηνύματα άμεσα' : ''; ?>.<?php endif; ?></p>
 </div>
 <div class="sp-card">
   <?php if ($draft): ?><div class="sp-su-bulk"><button type="button" class="btn btn-sm btn-outline-secondary" data-all="1">Όλα</button><button type="button" class="btn btn-sm btn-outline-secondary" data-all="0">Κανένα email</button></div><?php endif; ?>

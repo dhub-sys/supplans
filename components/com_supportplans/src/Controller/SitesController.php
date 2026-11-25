@@ -216,8 +216,8 @@ class SitesController extends BaseController
         // "Καταγραφή απευθείας": every site that has the item gets the update, no review step.
         if ($this->input->post->getInt('direct', 0)) {
             [$sites, $items] = Sites::applyRound((int) $o->id, 'log');
-            $day = Sites::digestDay();
-            $this->msg(sprintf('Καταγράφηκαν %d ενημερώσεις σε %d sites.', $items, $sites) . ' Θα συμπεριληφθούν στη μηνιαία σύνοψη' . ($day ? ' (αυτόματα την ' . $day . 'η του επόμενου μήνα)' : '') . '.');
+            $when = Sites::scheduleLabel();
+            $this->msg(sprintf('Καταγράφηκαν %d ενημερώσεις σε %d sites.', $items, $sites) . ' Θα συμπεριληφθούν στην επόμενη σύνοψη προς τους πελάτες' . ($when !== '' ? ' (αυτόματα ' . $when . ')' : '') . '.');
             $this->go('section=rounds&id=' . (int) $o->id);
             return;
         }
@@ -270,9 +270,9 @@ class SitesController extends BaseController
             }
         } elseif (in_array($do, ['log', 'send', 'apply'], true)) {
             [$sites, $items, $messages] = Sites::applyRound($id, $do === 'apply' ? 'silent' : $do);
-            $day = Sites::digestDay();
+            $when = Sites::scheduleLabel();
             $this->msg(sprintf('Καταγράφηκαν %d ενημερώσεις σε %d sites.', $items, $sites) . ($do === 'send' ? ' ' . $messages . ' μηνύματα μπήκαν σε ουρά και αποστέλλονται σταδιακά.'
-                : ($do === 'log' ? ' Θα συμπεριληφθούν στη μηνιαία σύνοψη' . ($day ? ' (αυτόματα την ' . $day . 'η του επόμενου μήνα)' : '') . '.' : ' Οι πελάτες δεν θα ενημερωθούν γι\' αυτές.')));
+                : ($do === 'log' ? ' Θα συμπεριληφθούν στην επόμενη σύνοψη προς τους πελάτες' . ($when !== '' ? ' (αυτόματα ' . $when . ')' : '') . '.' : ' Οι πελάτες δεν θα ενημερωθούν γι\' αυτές.')));
         } else {
             $this->msg('Οι επιλογές αποθηκεύτηκαν.');
         }
@@ -290,7 +290,7 @@ class SitesController extends BaseController
 
     /* ------------------------------------------------------------ monthly summary */
 
-    /** Μηνιαία σύνοψη: send now (the checked sites) or keep the checked sites out of it. */
+    /** Σύνοψη ενημερώσεων: send now (the checked sites) or keep the checked sites out of it. */
     public function digest(): void
     {
         $this->guard();
@@ -337,7 +337,10 @@ class SitesController extends BaseController
             'doc_maintenance_from_name' => $this->str('doc_maintenance_from_name'), 'doc_maintenance_from_email' => $this->email('doc_maintenance_from_email'),
             'doc_maintenance_reply_to' => $this->email('doc_maintenance_reply_to'),
             'notify_siteupdate_subject' => $this->str('notify_siteupdate_subject', 255),
-            'notify_sitedigest_day' => max(0, min(28, $this->input->post->getInt('notify_sitedigest_day', 1))),
+            'notify_sitedigest_freq' => isset(Sites::FREQUENCIES[$this->input->post->getCmd('notify_sitedigest_freq', '')]) ? $this->input->post->getCmd('notify_sitedigest_freq') : 'monthly',
+            'notify_sitedigest_day' => max(1, min(28, $this->input->post->getInt('notify_sitedigest_day', 1))),
+            'notify_sitedigest_day2' => max(1, min(28, $this->input->post->getInt('notify_sitedigest_day2', 15))),
+            'notify_sitedigest_weekday' => max(1, min(7, $this->input->post->getInt('notify_sitedigest_weekday', 1))),
             'notify_siteupdate_body' => $text((string) $this->input->post->get('notify_siteupdate_body', '', 'raw')),
         ];
         foreach ($values as $k => $v) {

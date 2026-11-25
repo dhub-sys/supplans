@@ -59,7 +59,7 @@ final class Activity
         'auth.authenticate' => 'Σύνδεση (κωδικός)', 'auth.logout' => 'Αποσύνδεση', 'otp.send' => 'Αποστολή κωδικού OTP', 'otp.verify' => 'Επιβεβαίωση OTP',
         'sites.save' => 'Αποθήκευση site', 'sites.delete' => 'Διαγραφή site', 'sites.import' => 'Εισαγωγή sites από Excel', 'sites.export' => 'Εξαγωγή sites σε Excel',
         'sites.prepare' => 'Νέες ενημερώσεις: έλεγχος sites', 'sites.saveround' => 'Ενημερώσεις sites: εφαρμογή / αποστολή', 'sites.deleteround' => 'Διαγραφή πρόχειρων ενημερώσεων',
-        'sites.savesettings' => 'Ρυθμίσεις συντήρησης sites', 'sites.digest' => 'Μηνιαία σύνοψη ενημερώσεων', 'sites.digesttest' => 'Δοκιμή σύνοψης ενημερώσεων',
+        'sites.savesettings' => 'Ρυθμίσεις συντήρησης sites', 'sites.digest' => 'Σύνοψη ενημερώσεων', 'sites.digesttest' => 'Δοκιμή σύνοψης ενημερώσεων',
         'unsubscribe.run' => 'Διαγραφή από ενημερώσεις (σύνδεσμος email)',
         'docgate.send' => 'Κωδικός προβολής εγγράφου (πελάτης)', 'docgate.verify' => 'Επιβεβαίωση κωδικού εγγράφου (πελάτης)',
         'docmail.send' => 'Αποστολή εγγράφου με email', 'docmail.revoke' => 'Απενεργοποίηση συνδέσμου εγγράφου',

@@ -610,29 +610,85 @@ final class Sites
         return (new \DateTimeImmutable('first day of this month 00:00:00', Notify::tz()))->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
     }
 
-    /** Day of the automatic summary this month (the setting, or the last day of a shorter month); 0 = off. */
-    public static function digestDay(): int
+    public const FREQUENCIES = ['weekly' => 'Κάθε εβδομάδα', 'twice' => '2 φορές τον μήνα', 'monthly' => '1 φορά τον μήνα', 'quarterly' => 'Κάθε τρίμηνο', 'off' => 'Μόνο χειροκίνητα'];
+    public const WEEKDAYS = [1 => 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο', 'Κυριακή'];
+    private const WEEKDAYS_ACC = [1 => 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο', 'Κυριακή'];
+
+    /** Frequency of the automatic summary (the old setting "day 0" = only by hand). */
+    public static function frequency(): string
     {
-        $day = max(0, min(31, (int) Notify::setting('notify_sitedigest_day')));
-        return $day ? min($day, (int) (new \DateTimeImmutable('now', Notify::tz()))->format('t')) : 0;
+        $f = (string) Notify::setting('notify_sitedigest_freq');
+        if (!isset(self::FREQUENCIES[$f])) $f = 'monthly';
+        if ($f !== 'weekly' && $f !== 'off' && (int) Notify::setting('notify_sitedigest_day') === 0) return 'off';
+        return $f;
+    }
+
+    private static function dayOf(string $key, int $default, \DateTimeImmutable $now): int
+    {
+        $day = max(1, min(28, (int) (Notify::setting($key) ?: $default)));
+        return min($day, (int) $now->format('t'));
     }
 
     /**
-     * Automatic monthly summary (from the scheduled run, at the send time): on its day, once a
-     * month, every site gets the updates of the previous month(s).
+     * The current period of the automatic summary: [key of the period, whether its day has come].
+     * The summary is sent once per key ("2026-11" monthly, "2026-11-b" second half, "2026-W48", "2026-Q4").
+     */
+    public static function digestSlot(?\DateTimeImmutable $now = null): array
+    {
+        $now = $now ?: new \DateTimeImmutable('now', Notify::tz());
+        $d = (int) $now->format('j');
+        switch (self::frequency()) {
+            case 'weekly':
+                $wd = max(1, min(7, (int) (Notify::setting('notify_sitedigest_weekday') ?: 1)));
+                return [$now->format('o-\WW'), (int) $now->format('N') >= $wd];
+            case 'twice':
+                $d1 = self::dayOf('notify_sitedigest_day', 1, $now);
+                $d2 = max($d1 + 1, self::dayOf('notify_sitedigest_day2', 15, $now));
+                return $d >= $d2 ? [$now->format('Y-m') . '-b', true] : [$now->format('Y-m'), $d >= $d1];
+            case 'quarterly':
+                $q = intdiv((int) $now->format('n') - 1, 3);
+                $first = ((int) $now->format('n') - 1) % 3 === 0;
+                return [$now->format('Y') . '-Q' . ($q + 1), !$first || $d >= self::dayOf('notify_sitedigest_day', 1, $now)];
+            case 'off':
+                return ['', false];
+            default:
+                return [$now->format('Y-m'), $d >= self::dayOf('notify_sitedigest_day', 1, $now)];
+        }
+    }
+
+    /** "την 1η κάθε μήνα", "την 1η και 15η κάθε μήνα", "κάθε Δευτέρα", "την 1η κάθε τριμήνου", '' = only by hand. */
+    public static function scheduleLabel(): string
+    {
+        $d1 = max(1, min(28, (int) (Notify::setting('notify_sitedigest_day') ?: 1)));
+        switch (self::frequency()) {
+            case 'weekly': return 'κάθε ' . self::WEEKDAYS_ACC[max(1, min(7, (int) (Notify::setting('notify_sitedigest_weekday') ?: 1)))];
+            case 'twice': return 'την ' . $d1 . 'η και ' . max(1, min(28, (int) (Notify::setting('notify_sitedigest_day2') ?: 15))) . 'η κάθε μήνα';
+            case 'quarterly': return 'την ' . $d1 . 'η Ιανουαρίου, Απριλίου, Ιουλίου και Οκτωβρίου';
+            case 'off': return '';
+            default: return 'την ' . $d1 . 'η κάθε μήνα';
+        }
+    }
+
+    /** First moment (UTC) of today (local). */
+    public static function todayStartUtc(): string
+    {
+        return (new \DateTimeImmutable('today 00:00:00', Notify::tz()))->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Automatic summary (from the scheduled run, at the send time): once per period of the
+     * frequency, every client gets the updates recorded up to yesterday that were not sent yet.
      */
     public static function autoDigest(): int
     {
-        $day = self::digestDay();
-        if (!$day) return 0;
-        $now = new \DateTimeImmutable('now', Notify::tz());
-        if ((int) $now->format('j') < $day || (string) Notify::setting('notify_sitedigest_last') === $now->format('Y-m')) return 0;
+        [$key, $due] = self::digestSlot();
+        if ($key === '' || !$due || (string) Notify::setting('notify_sitedigest_last') === $key) return 0;
         try {
-            OfferHelper::saveParam('notify_sitedigest_last', $now->format('Y-m'));
+            OfferHelper::saveParam('notify_sitedigest_last', $key);
         } catch (\Throwable $e) {
             return 0;
         }
-        return self::sendDigest(null, self::monthStartUtc());
+        return self::sendDigest(null, self::todayStartUtc());
     }
 
     /* ================================================================ import / export */

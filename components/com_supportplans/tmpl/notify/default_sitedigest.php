@@ -7,15 +7,15 @@ use Support\Component\Supportplans\Site\Helper\OfferHelper;
 use Support\Component\Supportplans\Site\Helper\Sites;
 
 $e = [NotifyUi::class, 'e'];
-$day = Sites::digestDay();
+$when = Sites::scheduleLabel();
 $total = 0;
 foreach ($this->rows as $c) foreach ($c['groups'] as $g) $total += count($g['updates']);
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Μηνιαία σύνοψη</h1><p>Οι ενημερώσεις που έχουν καταγραφεί και δεν έχουν σταλεί ακόμα στους πελάτες. Κάθε πελάτης λαμβάνει <b>ένα μήνυμα</b> με όλα τα sites του. Κάθε update εμφανίζεται ξεχωριστά με την ημερομηνία του, ώστε να φαίνεται όλη η δουλειά του μήνα.</p></div>
-  <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=sitesettings'); ?>">✎ Κείμενο &amp; ημέρα</a>
+  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Σύνοψη πελατών</h1><p>Οι ενημερώσεις που έχουν καταγραφεί και δεν έχουν σταλεί ακόμα στους πελάτες. Κάθε πελάτης λαμβάνει <b>ένα μήνυμα</b> με όλα τα sites του. Κάθε update εμφανίζεται ξεχωριστά με την ημερομηνία του, ώστε να φαίνεται όλη η δουλειά του μήνα.</p></div>
+  <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=sitesettings'); ?>">✎ Κείμενο &amp; συχνότητα</a>
 </section>
-<div class="sp-su-info"><?php if ($day): ?>Αυτόματη αποστολή: <b>την <?php echo $day; ?>η κάθε μήνα<?php echo Notify::sendTimeLabel() !== '' ? ', ' . $e(Notify::sendTimeLabel()) : ''; ?></b>, με τις ενημερώσεις του προηγούμενου μήνα. Μπορείτε να στείλετε και τώρα, χειροκίνητα, για όσους επιλέξετε.<?php else: ?>Η αυτόματη μηνιαία αποστολή είναι <b>απενεργοποιημένη</b> (Ρυθμίσεις). Στείλτε χειροκίνητα από εδώ.<?php endif; ?></div>
+<div class="sp-su-info"><?php if ($when !== ''): ?>Αυτόματη αποστολή: <b><?php echo $e($when); ?><?php echo Notify::sendTimeLabel() !== '' ? ', ' . $e(Notify::sendTimeLabel()) : ''; ?></b>, με όσα καταγράφηκαν από την προηγούμενη σύνοψη. Μπορείτε να στείλετε και τώρα, χειροκίνητα, για όσους επιλέξετε.<?php else: ?>Η αυτόματη αποστολή είναι <b>απενεργοποιημένη</b> (Ρυθμίσεις → Συχνότητα). Στείλτε χειροκίνητα από εδώ.<?php endif; ?></div>
 <form method="post" action="<?php echo $e(OfferHelper::url('task=sites.digest', false)); ?>" id="sp-sd-form">
 <div class="sp-card">
   <div class="sp-title-row"><h2><?php echo count(array_filter(array_keys($this->rows))); ?> πελάτες · <?php echo $total; ?> ενημερώσεις σε αναμονή</h2>

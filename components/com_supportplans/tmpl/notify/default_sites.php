@@ -11,7 +11,7 @@ $all = Sites::sites();
 $byCms = array_count_values(array_map(static fn($s) => $s->cms, $all));
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Sites</h1><p>Τα sites των πελατών με το CMS και τα extensions τους (plugins, themes, γλώσσες) και τις εκδόσεις τους. Μετά από κάθε μαζικό update, στο «Νέες ενημερώσεις» γράφετε τις νέες εκδόσεις. Κάθε πελάτης λαμβάνει μία φορά τον μήνα σύνοψη με τις ενημερώσεις όλων των sites του.</p></div>
+  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Sites</h1><p>Τα sites των πελατών με το CMS και τα extensions τους (plugins, themes, γλώσσες) και τις εκδόσεις τους. Μετά από κάθε μαζικό update, στο «Νέες ενημερώσεις» γράφετε τις νέες εκδόσεις. Κάθε πελάτης λαμβάνει σύνοψη με τις ενημερώσεις όλων των sites του, με τη συχνότητα που ορίζετε (π.χ. 1 ή 2 φορές τον μήνα).</p></div>
   <div class="sp-head-actions">
     <a class="sp-primary-action" href="<?php echo NotifyUi::url('section=sites&mode=new'); ?>">＋ Νέο site</a>
     <a class="sp-primary-action is-secondary" href="<?php echo NotifyUi::url('section=siteupdates'); ?>">↻ Νέες ενημερώσεις</a>

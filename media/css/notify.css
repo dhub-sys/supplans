@@ -209,3 +209,4 @@ td>.sp-cms:first-child{margin-left:0}
 .sp-su-more>div .btn{text-align:left;white-space:nowrap}
 .sp-sd-plan input,.sp-sd-one,.sp-sd-all{min-height:0!important;width:auto!important;margin:0}
 .sp-su-info{margin:0 0 16px;padding:12px 16px;border:1px solid #bcd0fb;border-radius:12px;background:#eff4ff;color:#1d4ed8;font-size:14px;line-height:1.5}
+#sp-digest-freq [hidden]{display:none!important}

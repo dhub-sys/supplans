@@ -32,7 +32,7 @@ class HtmlView extends BaseHtmlView
     public const SITE_SECTIONS = [
         'sites'        => 'Sites',
         'siteupdates'  => 'Νέες ενημερώσεις',
-        'sitedigest'   => 'Μηνιαία σύνοψη',
+        'sitedigest'   => 'Σύνοψη πελατών',
         'rounds'       => 'Ιστορικό ενημερώσεων',
         'sitesettings' => 'Ρυθμίσεις',
     ];

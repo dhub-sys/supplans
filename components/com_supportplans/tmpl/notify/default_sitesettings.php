@@ -10,7 +10,7 @@ $v = static fn($k) => (string) Notify::setting($k);
 [$fromName, $fromEmail] = Notify::senderOf('maintenance');
 ?>
 <section class="sp-dashboard-head">
-  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Ρυθμίσεις</h1><p>Αποστολέας, μηνιαία σύνοψη και κείμενο του μηνύματος. Κάθε πελάτης λαμβάνει ένα μήνυμα με όλα τα sites του (μία ενότητα και ένας πίνακας ανά site).</p></div>
+  <div><span class="sp-eyebrow">Συντήρηση sites</span><h1>Ρυθμίσεις</h1><p>Αποστολέας, συχνότητα της σύνοψης και κείμενο του μηνύματος. Κάθε πελάτης λαμβάνει ένα μήνυμα με όλα τα sites του (μία ενότητα και ένας πίνακας ανά site).</p></div>
 </section>
 <div class="sp-standalone-actions sp-offer-actions"><button type="button" class="btn btn-primary" onclick="spSubmit('sites.saveSettings')">Αποθήκευση</button></div>
 <form action="<?php echo $e(OfferHelper::url('task=sites.saveSettings', false)); ?>" method="post" id="adminForm">
@@ -23,20 +23,25 @@ $v = static fn($k) => (string) Notify::setting($k);
   </div>
   <p class="sp-n-help">Κενό = ο γενικός αποστολέας των Ρυθμίσεων email. Τώρα φεύγουν από: <b><?php echo $e($fromName . ' <' . $fromEmail . '>'); ?></b>.</p>
  </div>
- <div class="sp-card">
-  <h2>Μηνιαία σύνοψη</h2>
+ <?php $freq = \Support\Component\Supportplans\Site\Helper\Sites::frequency(); $opts = static function (string $key, int $sel) use ($e) { $h = ''; for ($d = 1; $d <= 28; $d++) $h .= '<option value="' . $d . '"' . ($d === $sel ? ' selected' : '') . '>' . $d . 'η του μήνα</option>'; return $h; }; ?>
+ <div class="sp-card" id="sp-digest-freq">
+  <h2>Σύνοψη πελατών · συχνότητα</h2>
   <div class="sp-grid">
-   <label>Αυτόματη αποστολή την ημέρα του μήνα<select name="notify_sitedigest_day"><option value="0"<?php echo (int) $v('notify_sitedigest_day') === 0 ? ' selected' : ''; ?>>Ποτέ (μόνο χειροκίνητα)</option><?php for ($d = 1; $d <= 28; $d++): ?><option value="<?php echo $d; ?>"<?php echo (int) $v('notify_sitedigest_day') === $d ? ' selected' : ''; ?>><?php echo $d; ?>η του μήνα</option><?php endfor; ?></select></label>
+   <label>Συχνότητα<select name="notify_sitedigest_freq" id="sp-df"><?php foreach (\Support\Component\Supportplans\Site\Helper\Sites::FREQUENCIES as $k => $l): ?><option value="<?php echo $k; ?>"<?php echo $freq === $k ? ' selected' : ''; ?>><?php echo $e($l); ?></option><?php endforeach; ?></select></label>
+   <label data-f="weekly">Ημέρα της εβδομάδας<select name="notify_sitedigest_weekday"><?php foreach (\Support\Component\Supportplans\Site\Helper\Sites::WEEKDAYS as $k => $l): ?><option value="<?php echo $k; ?>"<?php echo (int) ($v('notify_sitedigest_weekday') ?: 1) === $k ? ' selected' : ''; ?>><?php echo $e($l); ?></option><?php endforeach; ?></select></label>
+   <label data-f="monthly twice quarterly"><span data-f="twice">1η αποστολή</span><span data-f="monthly quarterly">Ημέρα</span><select name="notify_sitedigest_day"><?php echo $opts('d1', max(1, (int) $v('notify_sitedigest_day'))); ?></select></label>
+   <label data-f="twice">2η αποστολή<select name="notify_sitedigest_day2"><?php echo $opts('d2', max(1, (int) ($v('notify_sitedigest_day2') ?: 15))); ?></select></label>
   </div>
-  <p class="sp-n-help">Την ημέρα αυτή, από την ώρα αποστολής (<?php echo $e(Notify::sendTimeLabel() ?: '—'); ?>), κάθε πελάτης λαμβάνει ένα μήνυμα ανά site με όλες τις ενημερώσεις του προηγούμενου μήνα. Κάθε update εμφανίζεται με την ημερομηνία του (π.χ. 03/11 YOOtheme Pro 5.5.3 → 5.5.4, 17/11 5.5.4 → 5.5.5) και στο τέλος το σύνολο των ενημερώσεων. Η σύνοψη μπορεί να σταλεί και χειροκίνητα από την καρτέλα «Μηνιαία σύνοψη».</p>
+  <p class="sp-n-help">Από την ώρα αποστολής (<?php echo $e(Notify::sendTimeLabel() ?: '—'); ?>) της ημέρας που ορίζετε, κάθε πελάτης λαμβάνει ένα μήνυμα με όσα καταγράφηκαν στα sites του από την προηγούμενη σύνοψη έως την προηγούμενη ημέρα. Κάθε update εμφανίζεται με την ημερομηνία του και στο τέλος υπάρχει το σύνολο. Η περίοδος (<code>{period}</code>) γράφεται «Νοέμβριος 2026» όταν όλα είναι μέσα στον ίδιο μήνα, αλλιώς «01/11/2026 – 14/11/2026». Η σύνοψη στέλνεται και χειροκίνητα, από την καρτέλα «Σύνοψη πελατών».</p>
  </div>
+ <script>(function(){var s=document.getElementById('sp-df');if(!s)return;var f=function(){document.querySelectorAll('#sp-digest-freq [data-f]').forEach(function(el){el.hidden=(' '+el.getAttribute('data-f')+' ').indexOf(' '+s.value+' ')<0;});};s.addEventListener('change',f);f();})();</script>
  <div class="sp-card">
   <h2>Μήνυμα ενημερώσεων</h2>
   <div class="sp-grid">
    <label class="sp-wide">Θέμα<input name="notify_siteupdate_subject" value="<?php echo $e($v('notify_siteupdate_subject')); ?>"></label>
    <div class="sp-wide sp-field"><span class="sp-field-label">Κείμενο</span><textarea name="notify_siteupdate_body" rows="12" data-sp-editor><?php echo $e($v('notify_siteupdate_body')); ?></textarea></div>
   </div>
-  <p class="sp-n-help">Μεταβλητές: <code>{period}</code> (π.χ. «Νοέμβριος 2026» στη μηνιαία σύνοψη) <code>{updates}</code> (πίνακας με τις ενημερώσεις του site, σε δική του γραμμή) <code>{site_phrase}</code> («στην ιστοσελίδα σας example.gr» ή «στις ιστοσελίδες σας») <code>{site_of}</code> («της ιστοσελίδας σας» / «των ιστοσελίδων σας») <code>{site}</code> (το domain ή «a.gr και b.gr») <code>{cms}</code> <code>{updates_count}</code> <code>{date}</code> <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>.</p>
+  <p class="sp-n-help">Μεταβλητές: <code>{period}</code> (π.χ. «Νοέμβριος 2026» ή «01/11/2026 – 14/11/2026») <code>{updates}</code> (πίνακας με τις ενημερώσεις του site, σε δική του γραμμή) <code>{site_phrase}</code> («στην ιστοσελίδα σας example.gr» ή «στις ιστοσελίδες σας») <code>{site_of}</code> («της ιστοσελίδας σας» / «των ιστοσελίδων σας») <code>{site}</code> (το domain ή «a.gr και b.gr») <code>{cms}</code> <code>{updates_count}</code> <code>{date}</code> <code>{greeting}</code> <code>{client_name}</code> <code>{client_company}</code> <code>{company}</code>.</p>
  </div>
  <input type="hidden" name="task" value="sites.saveSettings">
  <?php echo HTMLHelper::_('form.token'); ?>

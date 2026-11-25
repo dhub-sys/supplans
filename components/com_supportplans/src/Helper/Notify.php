@@ -66,6 +66,7 @@ final class Notify
             'notify_siteupdate_subject' => 'Ενημερώσεις συντήρησης {site} · {period}',
             // Monthly summary: day of the month (0 = only by hand).
             'notify_sitedigest_day' => 1,
+            'notify_sitedigest_freq' => 'monthly', 'notify_sitedigest_day2' => 15, 'notify_sitedigest_weekday' => 1,
             'notify_siteupdate_body' => "{greeting},\n\nθα θέλαμε να σας ενημερώσουμε ότι, στο πλαίσιο της υπηρεσίας συντήρησης, πραγματοποιήθηκαν {site_phrase} οι παρακάτω ενημερώσεις (περίοδος: **{period}**):\n\n{updates}\n\nΟι ενημερώσεις βελτιώνουν την ασφάλεια, τη σταθερότητα και τη συμβατότητα {site_of}. Για οποιαδήποτε απορία είμαστε στη διάθεσή σας.\n\nΜε εκτίμηση,\n{company}",
             'doc_invoice_from_name' => '', 'doc_invoice_from_email' => '', 'doc_invoice_reply_to' => '', 'doc_invoice_bcc' => '',
             // Payment reminders of unpaid invoices (v1.31.0).
