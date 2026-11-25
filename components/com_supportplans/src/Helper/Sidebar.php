@@ -36,6 +36,7 @@ final class Sidebar
             ]],
             'notify' => ['Ανανεώσεις', self::ICON_RENEWALS],
             'invoices' => ['Υπενθυμίσεις πληρωμών', '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14l-2.5-1.5L14 21l-2.5-1.5L9 21l-2.5-1.5L4 21V5a2 2 0 0 1 2-2z"/><path d="M8 9h6M8 13h8"/><circle cx="17.5" cy="5.5" r="3" fill="currentColor" stroke="none"/></svg>'],
+            'maintenance' => ['Συντήρηση sites', '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M14.5 8.5l-3.5 3.5-1.5-1.5"/></svg>'],
             'greetings' => ['Ευχές & Αποστολές', '<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18"/><path d="M12 9c-1.5-3.5-5.5-4-6-1.5S9 9 12 9zM12 9c1.5-3.5 5.5-4 6-1.5S15 9 12 9z"/></svg>'],
             'settings' => ['Ρυθμίσεις', $icons['settings']],
             'activity' => ['Ιστορικό ενεργειών', self::ICON_ACTIVITY],
@@ -48,6 +49,7 @@ final class Sidebar
             if ($view === 'changelog') $view = 'help&section=changelog';
             if ($view === 'invoices') $view = 'notify&section=invoices';
             if ($view === 'greetings') $view = 'notify&section=campaigns';
+            if ($view === 'maintenance') $view = 'notify&section=sites';
             return '<a class="sp-side-link' . $class . '" href="' . Route::_('index.php?option=com_supportplans&view=' . $view . '&tmpl=component&spapp=1&Itemid=' . $itemid) . '">'
                 . '<span class="sp-side-icon">' . $icon . '</span><span>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></a>';
         };

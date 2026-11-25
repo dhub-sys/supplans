@@ -37,7 +37,7 @@ final class Notify
 
     public const SERVICE_STATUSES = ['active' => 'Ενεργή', 'suspended' => 'Σε αναστολή', 'cancelled' => 'Ακυρωμένη'];
     public const CLIENT_STATUSES = ['active' => 'Ενεργός', 'inactive' => 'Ανενεργός'];
-    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'invoice' => 'Υπενθύμιση πληρωμής', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'greeting' => 'Ευχές ονομαστικής εορτής', 'test' => 'Δοκιμαστικό'];
+    public const KINDS = ['renewal' => 'Υπενθύμιση ανανέωσης', 'invoice' => 'Υπενθύμιση πληρωμής', 'report' => 'Αναφορά maintenance', 'campaign' => 'Ενημέρωση', 'greeting' => 'Ευχές ονομαστικής εορτής', 'siteupdate' => 'Ενημερώσεις site', 'test' => 'Δοκιμαστικό'];
     public const MESSAGE_STATUSES = ['queued' => 'Σε αναμονή', 'sending' => 'Αποστέλλεται', 'sent' => 'Εστάλη', 'failed' => 'Απέτυχε', 'cancelled' => 'Ακυρώθηκε'];
 
     /* ================================================================ settings */
@@ -61,6 +61,12 @@ final class Notify
             'doc_structure_from_name' => '', 'doc_structure_from_email' => '', 'doc_structure_reply_to' => '', 'doc_structure_bcc' => '',
             // Sender of the greetings and campaigns (Ευχές & Αποστολές, v1.33.0).
             'doc_greeting_from_name' => '', 'doc_greeting_from_email' => '', 'doc_greeting_reply_to' => '', 'doc_greeting_bcc' => '',
+            // Συντήρηση sites (v1.34.0): sender and message of the updates of a site.
+            'doc_maintenance_from_name' => '', 'doc_maintenance_from_email' => '', 'doc_maintenance_reply_to' => '', 'doc_maintenance_bcc' => '',
+            'notify_siteupdate_subject' => 'Ενημερώσεις συντήρησης {site} · {period}',
+            // Monthly summary: day of the month (0 = only by hand).
+            'notify_sitedigest_day' => 1,
+            'notify_siteupdate_body' => "{greeting},\n\nθα θέλαμε να σας ενημερώσουμε ότι, στο πλαίσιο της υπηρεσίας συντήρησης, πραγματοποιήθηκαν {site_phrase} οι παρακάτω ενημερώσεις (περίοδος: **{period}**):\n\n{updates}\n\nΟι ενημερώσεις βελτιώνουν την ασφάλεια, τη σταθερότητα και τη συμβατότητα {site_of}. Για οποιαδήποτε απορία είμαστε στη διάθεσή σας.\n\nΜε εκτίμηση,\n{company}",
             'doc_invoice_from_name' => '', 'doc_invoice_from_email' => '', 'doc_invoice_reply_to' => '', 'doc_invoice_bcc' => '',
             // Payment reminders of unpaid invoices (v1.31.0).
             'notify_invoice_interval' => 7,
@@ -461,6 +467,9 @@ final class Notify
         }
         foreach ([self::T_SERVICES, self::T_MESSAGES, self::T_RENEWALS] as $t) {
             $db->setQuery($db->getQuery(true)->delete($db->quoteName($t))->where('client_id=' . $id))->execute();
+        }
+        foreach ($db->setQuery($db->getQuery(true)->select('id')->from($db->quoteName(Sites::T_SITES))->where('client_id=' . $id))->loadColumn() as $siteId) {
+            Sites::deleteSite((int) $siteId);
         }
         $db->setQuery($db->getQuery(true)->delete($db->quoteName(self::T_CLIENTS))->where('id=' . $id))->execute();
     }
@@ -1933,7 +1942,8 @@ final class Notify
     {
         if ($m->kind === 'invoice') return 'invoice';
         if (in_array($m->kind, ['greeting', 'campaign'], true)) return 'greeting';
-        if ($m->kind === 'test' && preg_match('/^test-(greeting|invoice):/', (string) ($m->ref ?? ''), $mm)) return $mm[1];
+        if ($m->kind === 'siteupdate') return 'maintenance';
+        if ($m->kind === 'test' && preg_match('/^test-(greeting|invoice|maintenance):/', (string) ($m->ref ?? ''), $mm)) return $mm[1];
         return '';
     }
 
@@ -2168,7 +2178,7 @@ final class Notify
     public static function run(bool $force = false): array
     {
         $due = $force || self::sendTimeReached();
-        $queued = self::queueScheduledCampaigns() + ($due ? self::queueRenewals() + self::queueInvoices() + self::queueNamedays() : 0);
+        $queued = self::queueScheduledCampaigns() + ($due ? self::queueRenewals() + self::queueInvoices() + self::queueNamedays() + Sites::autoDigest() : 0);
         [$sent, $failed] = self::processQueue();
         try {
             OfferHelper::saveParam('notify_last_run', self::now());

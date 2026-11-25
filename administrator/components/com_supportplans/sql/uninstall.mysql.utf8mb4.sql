@@ -19,3 +19,7 @@ DROP TABLE IF EXISTS `#__supportplans_client_services`;
 DROP TABLE IF EXISTS `#__supportplans_catalog`;
 DROP TABLE IF EXISTS `#__supportplans_clients`;
 DROP TABLE IF EXISTS `#__supportplans_login_attempts`;
+DROP TABLE IF EXISTS `#__supportplans_sites`;
+DROP TABLE IF EXISTS `#__supportplans_site_items`;
+DROP TABLE IF EXISTS `#__supportplans_update_rounds`;
+DROP TABLE IF EXISTS `#__supportplans_site_updates`;

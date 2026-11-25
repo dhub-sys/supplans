@@ -59,6 +59,15 @@ $activeCount = $c ? count(array_filter($this->services, static fn($s) => $s->sta
   <div class="sp-title-row"><h2>Υπηρεσίες</h2><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=services&mode=new&client_id=' . (int) $c->id); ?>">＋ Ανάθεση υπηρεσίας</a></div>
   <?php echo $this->loadTemplate('servicestable'); ?>
 </div>
+<?php $clientSites = \Support\Component\Supportplans\Site\Helper\Sites::sites('', '', (int) $c->id); ?>
+<div class="sp-card">
+  <div class="sp-title-row"><h2>Sites</h2><a class="btn btn-sm btn-outline-primary" href="<?php echo NotifyUi::url('section=sites&mode=new&client_id=' . (int) $c->id); ?>">＋ Νέο site</a></div>
+  <?php if (!$clientSites): ?><p class="text-muted">Δεν έχει καταχωριστεί site για αυτόν τον πελάτη (Συντήρηση sites).</p><?php else: ?>
+  <div class="table-responsive"><table class="table sp-offer-table"><thead><tr><th>Site</th><th>CMS</th><th class="sp-center">Extensions</th><th>Τελευταία ενημέρωση</th></tr></thead><tbody>
+  <?php foreach ($clientSites as $cs): ?><tr><td><a href="<?php echo NotifyUi::url('section=sites&id=' . (int) $cs->id); ?>"><strong><?php echo $e($cs->domain); ?></strong></a></td><td><?php echo $e((\Support\Component\Supportplans\Site\Helper\Sites::CMS[$cs->cms] ?? '') . ' ' . $cs->cms_version); ?></td><td class="sp-center"><?php echo (int) $cs->items; ?></td><td><?php echo $cs->last_update ? $e(Notify::datetimeGr($cs->last_update)) : '—'; ?></td></tr><?php endforeach; ?>
+  </tbody></table></div>
+  <?php endif; ?>
+</div>
 <div class="sp-card">
   <h2>Υπενθυμίσεις ανανέωσης</h2>
   <p class="sp-n-help">Οι υπηρεσίες με λήξεις σε απόσταση έως <?php echo (int) Notify::setting('notify_group_days'); ?> ημερών μεταξύ τους στέλνονται μαζί, σε ένα μήνυμα. Όταν ο πελάτης πληρώσει, πατήστε «Πληρώθηκε»: η λήξη μετακινείται και οι υπενθυμίσεις σταματούν. Για ημερομηνία πληρωμής, ποσό ή διαφορετική νέα λήξη, ανοίξτε την υπηρεσία.</p>

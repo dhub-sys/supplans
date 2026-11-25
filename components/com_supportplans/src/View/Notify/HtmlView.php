@@ -28,7 +28,22 @@ class HtmlView extends BaseHtmlView
         'greetsettings' => 'Ρυθμίσεις ευχών',
     ];
 
+    /** Συντήρηση sites: a menu item of its own, with these tabs. */
+    public const SITE_SECTIONS = [
+        'sites'        => 'Sites',
+        'siteupdates'  => 'Νέες ενημερώσεις',
+        'sitedigest'   => 'Μηνιαία σύνοψη',
+        'rounds'       => 'Ιστορικό ενημερώσεων',
+        'sitesettings' => 'Ρυθμίσεις',
+    ];
+
     public $params;
+    /** Συντήρηση sites data. */
+    public array $inventory = [];
+    public array $planRows = [];
+    public array $items = [];
+    public array $history = [];
+    public array $sitePreview = [];
     public string $section = 'overview';
     public string $mode = 'list';
     public ?object $selected = null;
@@ -70,7 +85,7 @@ class HtmlView extends BaseHtmlView
         $in = Factory::getApplication()->input;
         $section = $in->getCmd('section', 'overview');
         // 'invoices' (Υπενθυμίσεις πληρωμών) is a menu item of its own, not a tab of Ανανεώσεις.
-        $this->section = isset(self::SECTIONS[$section]) || isset(self::GREET_SECTIONS[$section]) || $section === 'invoices' ? $section : 'overview';
+        $this->section = isset(self::SECTIONS[$section]) || isset(self::GREET_SECTIONS[$section]) || isset(self::SITE_SECTIONS[$section]) || $section === 'invoices' ? $section : 'overview';
         $id = $in->getInt('id', 0);
         $this->mode = $in->getCmd('mode', '') === 'new' ? 'new' : ($id ? 'edit' : 'list');
         $this->counts = Notify::messageCounts();
@@ -237,6 +252,69 @@ class HtmlView extends BaseHtmlView
                     $this->selected = $id ? Notify::invoice($id) : null;
                     if ($this->selected) $this->messages = Notify::invoiceMessages($id);
                 }
+                break;
+
+            case 'sites':
+                if ($this->mode === 'list') {
+                    $this->filters = ['search' => trim($in->getString('q', '')), 'cms' => $in->getCmd('cms', '')];
+                    $this->rows = \Support\Component\Supportplans\Site\Helper\Sites::sites($this->filters['search'], $this->filters['cms']);
+                } else {
+                    $this->clients = Notify::clients();
+                    $this->selected = $id ? \Support\Component\Supportplans\Site\Helper\Sites::site($id) : null;
+                    if ($this->selected) {
+                        $this->items = \Support\Component\Supportplans\Site\Helper\Sites::items($id);
+                        $this->history = \Support\Component\Supportplans\Site\Helper\Sites::history($id);
+                    }
+                }
+                break;
+
+            case 'siteupdates':
+                $this->inventory = \Support\Component\Supportplans\Site\Helper\Sites::inventory();
+                $this->rows = array_values(array_filter(\Support\Component\Supportplans\Site\Helper\Sites::rounds(), static fn($r) => $r->status === 'draft'));
+                $this->mode = 'list';
+                break;
+
+            case 'rounds':
+                if ($this->mode === 'list') {
+                    $this->rows = \Support\Component\Supportplans\Site\Helper\Sites::rounds();
+                } else {
+                    $this->selected = $id ? \Support\Component\Supportplans\Site\Helper\Sites::round($id) : null;
+                    if ($this->selected) {
+                        $this->planRows = \Support\Component\Supportplans\Site\Helper\Sites::planRows($this->selected);
+                        $pv = $in->getInt('preview', -1);
+                        [$client, $groups] = \Support\Component\Supportplans\Site\Helper\Sites::rowMessage($this->planRows, $pv);
+                        if ($groups) {
+                            $client = $client ?: (object) ['id' => 0, 'name' => '', 'company' => '', 'email' => '', 'salutation' => ''];
+                            [$subject, $body] = \Support\Component\Supportplans\Site\Helper\Sites::buildMessage($groups, (object) (['id' => 0] + (array) $client));
+                            $this->sitePreview = ['i' => $pv, 'to' => $client->email, 'subject' => $subject, 'body' => $body, 'sites' => count($groups)];
+                        }
+                    }
+                }
+                break;
+
+            case 'sitedigest':
+                $this->mode = 'list';
+                $this->rows = \Support\Component\Supportplans\Site\Helper\Sites::pendingByClient();
+                $pv = $in->getInt('preview', 0);
+                if ($pv && isset($this->rows[$pv]) && $this->rows[$pv]['client']) {
+                    $p = $this->rows[$pv];
+                    [$subject, $body] = \Support\Component\Supportplans\Site\Helper\Sites::buildMessage($p['groups'], (object) (['id' => 0] + (array) $p['client']),
+                        \Support\Component\Supportplans\Site\Helper\Sites::periodLabel($p['from'], $p['to']));
+                    $this->sitePreview = ['i' => $pv, 'to' => $p['client']->email, 'subject' => $subject, 'body' => $body];
+                }
+                break;
+
+            case 'sitesettings':
+                $this->mode = 'list';
+                $sample = (object) ['domain' => 'example.gr', 'cms' => 'joomla'];
+                $first = \Support\Component\Supportplans\Site\Helper\Sites::sites();
+                if ($first) $sample = $first[0];
+                $client = !empty($sample->client_id) ? Notify::client((int) $sample->client_id) : null;
+                $client = $client ?: (object) ['id' => 0, 'name' => '', 'company' => '', 'email' => '', 'salutation' => ''];
+                [$subject, $body] = \Support\Component\Supportplans\Site\Helper\Sites::buildMessage([['site' => $sample, 'updates' =>
+                    [['n' => 'Joomla', 'o' => '6.2.0', 'v' => '6.2.1'], ['n' => 'YOOtheme Pro', 'o' => '5.5.3', 'v' => '5.5.4'], ['n' => 'Akeeba Backup Pro', 'o' => '10.2.2', 'v' => '10.2.3']]]], (object) (['id' => 0] + (array) $client),
+                    \Support\Component\Supportplans\Site\Helper\Sites::MONTHS[(int) date('n')] . ' ' . date('Y'));
+                $this->sitePreview = ['to' => $client->email, 'subject' => $subject, 'body' => $body, 'site' => $sample->domain];
                 break;
 
             case 'log':
